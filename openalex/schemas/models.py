@@ -78,6 +78,40 @@ class PipelineLogEntry(BaseModel):
     details: dict[str, Any] = Field(default_factory=dict)
 
 
+class LlmTokenUsage(BaseModel):
+    input_tokens: int | None = None
+    output_tokens: int | None = None
+    total_tokens: int | None = None
+
+
+class LlmCallRecord(BaseModel):
+    provider: str
+    purpose: str
+    stage: str
+    model: str
+    original_query: str
+    query_focus: str | None = None
+    candidate_type: Literal["keyword", "topic", "author_topic"]
+    candidate_count: int
+    prompt: str
+    parsed_item_count: int | None = None
+    usage: LlmTokenUsage = Field(default_factory=LlmTokenUsage)
+    input_price_per_million_tokens_usd: float | None = None
+    output_price_per_million_tokens_usd: float | None = None
+    estimated_cost_usd: float | None = None
+
+
+class LlmUsageSummary(BaseModel):
+    total_calls: int = 0
+    calls_with_usage: int = 0
+    calls_with_estimated_cost: int = 0
+    total_input_tokens: int = 0
+    total_output_tokens: int = 0
+    total_tokens: int = 0
+    total_estimated_cost_usd: float | None = None
+    currency: str = "USD"
+
+
 class AppliedQueryModifier(BaseModel):
     source_phrase: str
     filter_fragment: str
@@ -285,6 +319,8 @@ class OpenAlexRunResult(BaseModel):
         default_factory=list
     )
     logs: list[PipelineLogEntry] = Field(default_factory=list)
+    llm_calls: list[LlmCallRecord] = Field(default_factory=list)
+    llm_usage_summary: LlmUsageSummary | None = None
     executions: list[QueryExecution] = Field(default_factory=list)
     summary: RunSummary | None = None
     author_executions: list[QueryExecution] = Field(default_factory=list)
@@ -292,4 +328,6 @@ class OpenAlexRunResult(BaseModel):
     papers: list[OpenAlexPaper] = Field(default_factory=list)
     authors: list[OpenAlexAuthor] = Field(default_factory=list)
     output_path: str | None = None
+    logs_output_path: str | None = None
+    llm_calls_output_path: str | None = None
     generated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))

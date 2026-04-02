@@ -65,6 +65,10 @@ python3 -m openalex.cli \
 Postgres mode requires `asyncpg` to be installed in the Python environment.
 
 Results are written to `./out/<timestamp>_openalex_<slug>/results.json` by default.
+The workflow now also writes sibling debug artifacts:
+
+- `results.logs.json` for pipeline-stage logs
+- `results.llm_calls.json` for verifier prompts, token usage, and estimated cost
 
 ## Catalog JSON Format
 
@@ -156,6 +160,7 @@ Keep framework-specific code outside the core package.
 - `--selector-strategy heuristic` is the fully standalone path.
 - `--selector-strategy external` and `llm` are supported by the library API only when you inject a selector.
 - Selected keywords/topics are verified before query execution by default when Gemini is configured.
+- Verifier LLM usage is summarized in the main result, while full prompts and per-call usage live in `*.llm_calls.json`.
 - Use `--skip-candidate-verification` to keep the pre-verification behavior.
 - Natural-language modes validate the query by default; use `--skip-query-validation` to bypass that.
 - Built-in modifier mapping currently applies:

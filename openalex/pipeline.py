@@ -22,6 +22,8 @@ from .schemas import (
     CandidateVerificationRecord,
     ExactOpenAlexQuery,
     KeywordCandidate,
+    LlmCallRecord,
+    LlmUsageSummary,
     MatchedQuery,
     OpenAlexAuthor,
     OpenAlexPaper,
@@ -46,6 +48,7 @@ from .utils import (
     build_query_for_keyword,
     build_query_for_topic,
     build_topic_candidates,
+    build_run_artifact_paths,
     create_output_dir,
     extract_query_intent,
     extract_query_modifiers,
@@ -290,6 +293,51 @@ def _query_bundle_preview(
     ]
 
 
+def _drain_verifier_llm_calls(
+    verifier: CandidateVerifier | None,
+) -> list[LlmCallRecord]:
+    if verifier is None:
+        return []
+    drain = getattr(verifier, "drain_llm_call_records", None)
+    if not callable(drain):
+        return []
+
+    records: list[LlmCallRecord] = []
+    for item in drain():
+        records.append(
+            item if isinstance(item, LlmCallRecord) else LlmCallRecord.model_validate(item)
+        )
+    return records
+
+
+def _summarize_llm_calls(records: list[LlmCallRecord]) -> LlmUsageSummary | None:
+    if not records:
+        return None
+
+    calls_with_usage = sum(
+        1
+        for record in records
+        if record.usage.input_tokens is not None or record.usage.output_tokens is not None
+    )
+    calls_with_estimated_cost = sum(
+        1 for record in records if record.estimated_cost_usd is not None
+    )
+    total_cost = sum(
+        record.estimated_cost_usd or 0.0 for record in records
+    )
+    return LlmUsageSummary(
+        total_calls=len(records),
+        calls_with_usage=calls_with_usage,
+        calls_with_estimated_cost=calls_with_estimated_cost,
+        total_input_tokens=sum(record.usage.input_tokens or 0 for record in records),
+        total_output_tokens=sum(record.usage.output_tokens or 0 for record in records),
+        total_tokens=sum(record.usage.total_tokens or 0 for record in records),
+        total_estimated_cost_usd=(
+            round(total_cost, 8) if calls_with_estimated_cost else None
+        ),
+    )
+
+
 async def _verify_candidates(
     *,
     original_query: str,
@@ -299,6 +347,7 @@ async def _verify_candidates(
     options: OpenAlexPipelineOptions,
     verifier: CandidateVerifier | None,
     logs: list[PipelineLogEntry],
+    llm_calls: list[LlmCallRecord],
 ) -> tuple[
     list[SelectedKeyword] | list[SelectedTopic],
     list[CandidateVerificationRecord],
@@ -379,7 +428,9 @@ async def _verify_candidates(
             candidates=candidates,
             options=options,
         )
+        llm_calls.extend(_drain_verifier_llm_calls(verifier))
     except Exception as exc:
+        llm_calls.extend(_drain_verifier_llm_calls(verifier))
         logger.warning("Candidate verification failed for %s: %s", candidate_type, exc)
         if not options.fallback_to_unverified_candidates:
             raise
@@ -787,6 +838,7 @@ async def _prepare_keyword_mode(
     verifier: CandidateVerifier | None,
     catalog_repository_factory: CatalogRepositoryFactory,
     logs: list[PipelineLogEntry],
+    llm_calls: list[LlmCallRecord],
 ) -> tuple[
     list[SelectedKeyword],
     list[SelectedTopic],
@@ -864,6 +916,7 @@ async def _prepare_keyword_mode(
             options=options,
             verifier=verifier,
             logs=logs,
+            llm_calls=llm_calls,
         )
         selected_keywords = [
             candidate
@@ -921,6 +974,7 @@ async def _prepare_keyword_mode(
                 options=options,
                 verifier=verifier,
                 logs=logs,
+                llm_calls=llm_calls,
             )
             author_topics = [
                 candidate
@@ -962,6 +1016,7 @@ async def _prepare_topic_mode(
     verifier: CandidateVerifier | None,
     catalog_repository_factory: CatalogRepositoryFactory,
     logs: list[PipelineLogEntry],
+    llm_calls: list[LlmCallRecord],
 ) -> tuple[
     list[SelectedTopic],
     list[SelectedTopic],
@@ -1022,6 +1077,7 @@ async def _prepare_topic_mode(
             options=options,
             verifier=verifier,
             logs=logs,
+            llm_calls=llm_calls,
         )
         selected_topics = [
             candidate for candidate in verified_topics if isinstance(candidate, SelectedTopic)
@@ -1138,6 +1194,7 @@ async def run_openalex_pipeline(
     candidate_selector = _resolve_candidate_selector(deps)
     candidate_verifier = _resolve_candidate_verifier(deps, effective_options)
     logs: list[PipelineLogEntry] = []
+    llm_calls: list[LlmCallRecord] = []
     candidate_verifications: list[CandidateVerificationRecord] = []
     _append_log(
         logs,
@@ -1259,6 +1316,7 @@ async def run_openalex_pipeline(
             verifier=candidate_verifier,
             catalog_repository_factory=catalog_repository_factory,
             logs=logs,
+            llm_calls=llm_calls,
         )
         (
             selected_topics,
@@ -1276,6 +1334,7 @@ async def run_openalex_pipeline(
             verifier=candidate_verifier,
             catalog_repository_factory=catalog_repository_factory,
             logs=logs,
+            llm_calls=llm_calls,
         )
         candidate_verifications.extend(keyword_verifications)
         candidate_verifications.extend(topic_verifications)
@@ -1317,6 +1376,7 @@ async def run_openalex_pipeline(
             verifier=candidate_verifier,
             catalog_repository_factory=catalog_repository_factory,
             logs=logs,
+            llm_calls=llm_calls,
         )
         candidate_verifications.extend(keyword_verifications)
     else:
@@ -1336,6 +1396,7 @@ async def run_openalex_pipeline(
             verifier=candidate_verifier,
             catalog_repository_factory=catalog_repository_factory,
             logs=logs,
+            llm_calls=llm_calls,
         )
         candidate_verifications.extend(topic_verifications)
 
@@ -1492,6 +1553,8 @@ async def run_openalex_pipeline(
         selected_author_topics=selected_author_topics,
         candidate_verifications=candidate_verifications,
         logs=logs,
+        llm_calls=llm_calls,
+        llm_usage_summary=_summarize_llm_calls(llm_calls),
         executions=[execution for execution, _ in work_executed],
         summary=works_summary,
         author_executions=[execution for execution, _ in author_executed],
@@ -1503,7 +1566,10 @@ async def run_openalex_pipeline(
     if effective_options.save_output:
         task_dir = create_output_dir(input_query, effective_options.output_dir)
         output_path = task_dir / effective_options.output_filename
-        save_run_result(result, output_path)
+        logs_output_path, llm_calls_output_path = build_run_artifact_paths(output_path)
         result.output_path = str(output_path)
+        result.logs_output_path = str(logs_output_path)
+        result.llm_calls_output_path = str(llm_calls_output_path)
+        save_run_result(result, output_path)
 
     return result

@@ -38,7 +38,10 @@ services:
       langgraph-postgres:
         condition: service_healthy
     environment:
-      GEMINI_API_KEY: ${GEMINI_API_KEY}
-      LANGSMITH_API_KEY: ${LANGSMITH_API_KEY}
-      REDIS_URI: redis://langgraph-redis:6379
-      POSTGRES_URI: postgres://postgres:postgres@langgraph-postgres:5432/postgres?sslmode=disable
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - REDIS_URI=redis://langgraph-redis:6379
+      - POSTGRES_URI=postgres://postgres:postgres@langgraph-postgres:5432/postgres?sslmode=disable
+      - LANGSMITH_API_KEY
+      - LANGSMITH_ENDPOINT
+      - LANGSMITH_PROJECT
+      - LANGCHAIN_TRACING_V2

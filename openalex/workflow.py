@@ -143,4 +143,26 @@ class DeepLiteratureSearch:
         yield "OpenAlex workflow complete. " + ", ".join(status_bits)
         if result.output_path:
             yield f"Results saved: {result.output_path}"
-        yield json.dumps(result.model_dump(mode="json"), indent=2)
+        if result.logs_output_path:
+            yield f"Pipeline logs saved: {result.logs_output_path}"
+        if result.llm_calls_output_path:
+            yield f"Verifier call details saved: {result.llm_calls_output_path}"
+        if result.llm_usage_summary is not None:
+            usage = result.llm_usage_summary
+            usage_bits = [f"Verifier LLM calls: {usage.total_calls}"]
+            if usage.calls_with_usage:
+                usage_bits.append(
+                    "tokens="
+                    f"{usage.total_input_tokens} in / {usage.total_output_tokens} out"
+                )
+            if usage.total_estimated_cost_usd is not None:
+                usage_bits.append(
+                    f"estimated cost: ${usage.total_estimated_cost_usd:.8f}"
+                )
+            yield ", ".join(usage_bits)
+        if result.llm_calls:
+            yield "Final verifier prompt:\n" + result.llm_calls[-1].prompt
+        yield json.dumps(
+            result.model_dump(mode="json", exclude={"logs", "llm_calls"}),
+            indent=2,
+        )

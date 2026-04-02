@@ -2,20 +2,31 @@ from __future__ import annotations
 
 import json
 import logging
-from dataclasses import dataclass
-from typing import Literal
+from collections.abc import Mapping
+from dataclasses import dataclass, field
+from typing import Any, Literal
 
 from .config import settings
 from .prompts import SYSTEM_OPENALEX_VERIFIER
 from .schemas import (
     CandidateVerificationItem,
     CandidateVerificationResponse,
+    LlmCallRecord,
+    LlmTokenUsage,
     OpenAlexPipelineOptions,
     SelectedKeyword,
     SelectedTopic,
 )
 
 logger = logging.getLogger(__name__)
+
+MODEL_PRICING_PER_MILLION_TOKENS_USD: dict[str, tuple[float, float]] = {
+    "gemini-2.5-flash": (0.30, 2.50),
+    "gemini-2.5-flash-lite": (0.10, 0.40),
+    "gemini-2.5-pro": (2.25, 18.00),
+    "gemini-2.0-flash": (0.10, 0.40),
+    "gemini-2.0-flash-lite": (0.075, 0.30),
+}
 
 
 def _serialize_candidate(
@@ -74,11 +85,115 @@ def _build_prompt(
     return "\n".join(prompt_parts)
 
 
+def _normalize_model_name(model_name: str | None) -> str | None:
+    if model_name is None:
+        return None
+    return model_name.removeprefix("models/").strip() or None
+
+
+def _resolve_token_pricing(
+    model_name: str | None,
+) -> tuple[float | None, float | None]:
+    if (
+        settings.verifier_input_price_per_million_tokens_usd is not None
+        and settings.verifier_output_price_per_million_tokens_usd is not None
+    ):
+        return (
+            settings.verifier_input_price_per_million_tokens_usd,
+            settings.verifier_output_price_per_million_tokens_usd,
+        )
+
+    normalized_model_name = _normalize_model_name(model_name)
+    if normalized_model_name is None:
+        return None, None
+    if normalized_model_name in MODEL_PRICING_PER_MILLION_TOKENS_USD:
+        return MODEL_PRICING_PER_MILLION_TOKENS_USD[normalized_model_name]
+    for model_prefix, pricing in MODEL_PRICING_PER_MILLION_TOKENS_USD.items():
+        if normalized_model_name.startswith(model_prefix):
+            return pricing
+    return None, None
+
+
+def _coerce_int(value: Any) -> int | None:
+    if value is None:
+        return None
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _extract_usage(raw_message: object | None) -> LlmTokenUsage:
+    usage_metadata = getattr(raw_message, "usage_metadata", None)
+    if not isinstance(usage_metadata, Mapping):
+        usage_metadata = {}
+
+    input_tokens = _coerce_int(usage_metadata.get("input_tokens"))
+    output_tokens = _coerce_int(usage_metadata.get("output_tokens"))
+    total_tokens = _coerce_int(usage_metadata.get("total_tokens"))
+    if total_tokens is None and (
+        input_tokens is not None or output_tokens is not None
+    ):
+        total_tokens = (input_tokens or 0) + (output_tokens or 0)
+
+    return LlmTokenUsage(
+        input_tokens=input_tokens,
+        output_tokens=output_tokens,
+        total_tokens=total_tokens,
+    )
+
+
+def _estimate_cost_usd(
+    usage: LlmTokenUsage,
+    *,
+    input_price_per_million_tokens_usd: float | None,
+    output_price_per_million_tokens_usd: float | None,
+) -> float | None:
+    if (
+        usage.input_tokens is None
+        or usage.output_tokens is None
+        or input_price_per_million_tokens_usd is None
+        or output_price_per_million_tokens_usd is None
+    ):
+        return None
+
+    input_cost = (usage.input_tokens / 1_000_000) * input_price_per_million_tokens_usd
+    output_cost = (
+        usage.output_tokens / 1_000_000
+    ) * output_price_per_million_tokens_usd
+    return round(input_cost + output_cost, 8)
+
+
+def _extract_structured_result(
+    invocation_result: object,
+) -> tuple[CandidateVerificationResponse, object | None]:
+    if isinstance(invocation_result, CandidateVerificationResponse):
+        return invocation_result, None
+    if isinstance(invocation_result, Mapping):
+        raw_message = invocation_result.get("raw")
+        parsed = invocation_result.get("parsed")
+        if isinstance(parsed, CandidateVerificationResponse):
+            return parsed, raw_message
+        if parsed is not None:
+            return CandidateVerificationResponse.model_validate(parsed), raw_message
+    return CandidateVerificationResponse.model_validate(invocation_result), None
+
+
 @dataclass(slots=True)
 class GeminiCandidateVerifier:
     model: str | None = None
     temperature: float = 0.0
     api_key: str | None = None
+    _llm_call_records: list[LlmCallRecord] = field(
+        default_factory=list,
+        init=False,
+        repr=False,
+    )
+
+    def drain_llm_call_records(self) -> list[LlmCallRecord]:
+        records = list(self._llm_call_records)
+        self._llm_call_records.clear()
+        return records
 
     async def verify(
         self,
@@ -113,6 +228,12 @@ class GeminiCandidateVerifier:
             candidate_type,
             model_name,
         )
+        prompt = _build_prompt(
+            original_query=original_query,
+            query_focus=query_focus,
+            candidate_type=candidate_type,
+            candidates=candidates,
+        )
         llm = ChatGoogleGenerativeAI(
             model=model_name,
             temperature=(
@@ -123,13 +244,44 @@ class GeminiCandidateVerifier:
             max_retries=2,
             api_key=api_key,
         )
-        structured_llm = llm.with_structured_output(CandidateVerificationResponse)
-        result = await structured_llm.ainvoke(
-            _build_prompt(
+        try:
+            structured_llm = llm.with_structured_output(
+                CandidateVerificationResponse,
+                include_raw=True,
+            )
+        except TypeError:
+            structured_llm = llm.with_structured_output(CandidateVerificationResponse)
+        invocation_result = await structured_llm.ainvoke(prompt)
+        result, raw_message = _extract_structured_result(invocation_result)
+
+        usage = _extract_usage(raw_message)
+        input_price_per_million_tokens_usd, output_price_per_million_tokens_usd = (
+            _resolve_token_pricing(model_name)
+        )
+        self._llm_call_records.append(
+            LlmCallRecord(
+                provider="google",
+                purpose="candidate_verification",
+                stage=f"{candidate_type}_verification",
+                model=_normalize_model_name(model_name) or model_name,
                 original_query=original_query,
                 query_focus=query_focus,
                 candidate_type=candidate_type,
-                candidates=candidates,
+                candidate_count=len(candidates),
+                prompt=prompt,
+                parsed_item_count=len(result.items),
+                usage=usage,
+                input_price_per_million_tokens_usd=input_price_per_million_tokens_usd,
+                output_price_per_million_tokens_usd=output_price_per_million_tokens_usd,
+                estimated_cost_usd=_estimate_cost_usd(
+                    usage,
+                    input_price_per_million_tokens_usd=(
+                        input_price_per_million_tokens_usd
+                    ),
+                    output_price_per_million_tokens_usd=(
+                        output_price_per_million_tokens_usd
+                    ),
+                ),
             )
         )
 

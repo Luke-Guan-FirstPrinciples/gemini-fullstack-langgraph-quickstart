@@ -89,7 +89,7 @@ python examples/cli_research.py "What are the latest trends in renewable energy?
 
 In production, the backend server serves the optimized static frontend build. LangGraph requires a Redis instance and a Postgres database. Redis is used as a pub-sub broker to enable streaming real time output from background runs. Postgres is used to store assistants, threads, runs, persist thread state and long term memory, and to manage the state of the background task queue with 'exactly once' semantics. For more details on how to deploy the backend server, take a look at the [LangGraph Documentation](https://langchain-ai.github.io/langgraph/concepts/deployment_options/). Below is an example of how to build a Docker image that includes the optimized frontend build and the backend server and run it via `docker-compose`.
 
-_Note: For the docker-compose.yml example you need a LangSmith API key, you can get one from [LangSmith](https://smith.langchain.com/settings)._
+_Note: LangSmith is optional. If `LANGSMITH_API_KEY` and related tracing env vars are present, docker-compose will pass them through to the backend. If they are absent, the app runs locally without LangSmith._
 
 _Note: If you are not running the docker-compose.yml example or exposing the backend server to the public internet, you should update the `apiUrl` in the `frontend/src/App.tsx` file to your host. Currently the `apiUrl` is set to `http://localhost:8123` for docker-compose or `http://localhost:2024` for development._
 
@@ -102,6 +102,9 @@ _Note: If you are not running the docker-compose.yml example or exposing the bac
 **2. Run the Production Server:**
 
    ```bash
+   GEMINI_API_KEY=<your_gemini_api_key> docker-compose up
+
+   # Optional LangSmith tracing
    GEMINI_API_KEY=<your_gemini_api_key> LANGSMITH_API_KEY=<your_langsmith_api_key> docker-compose up
    ```
 

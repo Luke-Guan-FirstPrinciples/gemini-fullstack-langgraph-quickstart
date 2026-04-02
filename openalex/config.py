@@ -93,6 +93,8 @@ class OpenAlexWorkflowSettings:
     verifier_model: str = "gemini-2.5-flash"
     verifier_temperature: float = 0.0
     fallback_to_unverified_candidates: bool = True
+    verifier_input_price_per_million_tokens_usd: float | None = None
+    verifier_output_price_per_million_tokens_usd: float | None = None
 
     candidate_limit: int = 30
     selection_limit: int = 5
@@ -183,6 +185,28 @@ class OpenAlexWorkflowSettings:
                     env_file_values,
                 ),
                 True,
+            ),
+            verifier_input_price_per_million_tokens_usd=(
+                _parse_float(raw, 0.0)
+                if (
+                    raw := _lookup_value(
+                        "OPENALEX_VERIFIER_INPUT_PRICE_PER_MILLION_TOKENS_USD",
+                        env_file_values,
+                    )
+                )
+                is not None
+                else None
+            ),
+            verifier_output_price_per_million_tokens_usd=(
+                _parse_float(raw, 0.0)
+                if (
+                    raw := _lookup_value(
+                        "OPENALEX_VERIFIER_OUTPUT_PRICE_PER_MILLION_TOKENS_USD",
+                        env_file_values,
+                    )
+                )
+                is not None
+                else None
             ),
             candidate_limit=_parse_int(
                 _lookup_value("OPENALEX_CANDIDATE_LIMIT", env_file_values),

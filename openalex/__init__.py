@@ -5,6 +5,9 @@ from .validation import LenientQueryValidator, QueryValidationResult
 from .pipeline import run_openalex_pipeline
 from .verifier import GeminiCandidateVerifier
 from .schemas import (
+    LlmCallRecord,
+    LlmTokenUsage,
+    LlmUsageSummary,
     OpenAlexPipelineOptions,
     OpenAlexRunResult,
     PipelineMode,
@@ -17,6 +20,9 @@ __all__ = [
     "GeminiCandidateVerifier",
     "HeuristicCandidateSelector",
     "JsonOpenAlexCatalogRepository",
+    "LlmCallRecord",
+    "LlmTokenUsage",
+    "LlmUsageSummary",
     "LenientQueryValidator",
     "OpenAlexPipelineOptions",
     "OpenAlexDependencies",
