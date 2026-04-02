@@ -1,0 +1,13 @@
+interface:
+  display_name: Quantum Info Literature Search
+  short_description: Map, screen, and iteratively expand quantum information literature
+    searches
+  icon_small: assets/icon.svg
+  icon_large: assets/icon.svg
+policy:
+  products:
+  - chatgpt
+  - codex
+  - api
+  - atlas
+  allow_implicit_invocation: true

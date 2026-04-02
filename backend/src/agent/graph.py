@@ -15,7 +15,7 @@ from agent.state import (
     ReflectionState,
     WebSearchState,
 )
-from agent.configuration import Configuration
+from agent.configuration import Configuration, normalize_gemini_model_name
 from agent.prompts import (
     get_current_date,
     query_writer_instructions,
@@ -44,7 +44,7 @@ genai_client = Client(api_key=os.getenv("GEMINI_API_KEY"))
 def generate_query(state: OverallState, config: RunnableConfig) -> QueryGenerationState:
     """LangGraph node that generates search queries based on the User's question.
 
-    Uses Gemini 2.0 Flash to create an optimized search queries for web research based on
+    Uses Gemini 2.5 Flash to create optimized search queries for web research based on
     the User's question.
 
     Args:
@@ -60,7 +60,7 @@ def generate_query(state: OverallState, config: RunnableConfig) -> QueryGenerati
     if state.get("initial_search_query_count") is None:
         state["initial_search_query_count"] = configurable.number_of_initial_queries
 
-    # init Gemini 2.0 Flash
+    # Initialize Gemini 2.5 Flash
     llm = ChatGoogleGenerativeAI(
         model=configurable.query_generator_model,
         temperature=1.0,
@@ -95,7 +95,7 @@ def continue_to_web_research(state: QueryGenerationState):
 def web_research(state: WebSearchState, config: RunnableConfig) -> OverallState:
     """LangGraph node that performs web research using the native Google Search API tool.
 
-    Executes a web search using the native Google Search API tool in combination with Gemini 2.0 Flash.
+    Executes a web search using the native Google Search API tool in combination with Gemini 2.5 Flash.
 
     Args:
         state: Current graph state containing the search query and research loop count
@@ -153,7 +153,9 @@ def reflection(state: OverallState, config: RunnableConfig) -> ReflectionState:
     configurable = Configuration.from_runnable_config(config)
     # Increment the research loop count and get the reasoning model
     state["research_loop_count"] = state.get("research_loop_count", 0) + 1
-    reasoning_model = state.get("reasoning_model", configurable.reflection_model)
+    reasoning_model = normalize_gemini_model_name(
+        state.get("reasoning_model", configurable.reflection_model)
+    )
 
     # Format the prompt
     current_date = get_current_date()
@@ -231,7 +233,9 @@ def finalize_answer(state: OverallState, config: RunnableConfig):
         Dictionary with state update, including running_summary key containing the formatted final summary with sources
     """
     configurable = Configuration.from_runnable_config(config)
-    reasoning_model = state.get("reasoning_model") or configurable.answer_model
+    reasoning_model = normalize_gemini_model_name(
+        state.get("reasoning_model") or configurable.answer_model
+    )
 
     # Format the prompt
     current_date = get_current_date()
@@ -241,7 +245,7 @@ def finalize_answer(state: OverallState, config: RunnableConfig):
         summaries="\n---\n\n".join(state["web_research_result"]),
     )
 
-    # init Reasoning Model, default to Gemini 2.5 Flash
+    # Initialize the reasoning model, defaulting to Gemini 2.5 Pro for final answers.
     llm = ChatGoogleGenerativeAI(
         model=reasoning_model,
         temperature=0,

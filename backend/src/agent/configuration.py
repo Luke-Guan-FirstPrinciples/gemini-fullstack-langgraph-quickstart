@@ -1,6 +1,7 @@
 import os
-from pydantic import BaseModel, Field
 from typing import Any, Optional
+
+from pydantic import BaseModel, Field
 
 from langchain_core.runnables import RunnableConfig
 
@@ -9,7 +10,7 @@ class Configuration(BaseModel):
     """The configuration for the agent."""
 
     query_generator_model: str = Field(
-        default="gemini-2.0-flash",
+        default="gemini-2.5-flash",
         metadata={
             "description": "The name of the language model to use for the agent's query generation."
         },
@@ -54,7 +55,27 @@ class Configuration(BaseModel):
             for name in cls.model_fields.keys()
         }
 
+        # Normalize model aliases so stale UI state or env values don't break requests.
+        for key in ("query_generator_model", "reflection_model", "answer_model"):
+            raw_values[key] = normalize_gemini_model_name(raw_values.get(key))
+
         # Filter out None values
         values = {k: v for k, v in raw_values.items() if v is not None}
 
         return cls(**values)
+
+
+LEGACY_GEMINI_MODEL_ALIASES = {
+    "gemini-2.0-flash": "gemini-2.5-flash",
+    "gemini-2.0-flash-lite": "gemini-2.5-flash",
+    "gemini-2.5-flash-preview-04-17": "gemini-2.5-flash",
+    "gemini-2.5-pro-preview-05-06": "gemini-2.5-pro",
+}
+
+
+def normalize_gemini_model_name(model_name: Optional[str]) -> Optional[str]:
+    """Map deprecated Gemini model aliases to supported stable model names."""
+    if model_name is None:
+        return None
+    canonical_name = model_name.removeprefix("models/")
+    return LEGACY_GEMINI_MODEL_ALIASES.get(canonical_name, canonical_name)
