@@ -1,0 +1,3387 @@
+{
+  "workflow_name": "openalex",
+  "mode": "natural_language_keywords_and_topics",
+  "target": "works_and_authors",
+  "input_query": " quantum computing and q-bit research breakthroughs after 2024",
+  "selector_model": null,
+  "selector_strategy": "heuristic",
+  "exact_query": null,
+  "query_modifiers": [
+    {
+      "source_phrase": "after 2024",
+      "filter_fragment": "from_publication_date:2025-01-01",
+      "reason": "Interpret publication-year language as a lower bound on publication date."
+    }
+  ],
+  "selected_keywords": [
+    {
+      "keyword_id": 709,
+      "keyword": "Quantum Computing",
+      "alias": "quantum-computing",
+      "topic_count": 2,
+      "lexical_score": 124.0,
+      "selection_rank": 1,
+      "selection_reason": "Selected by lexical fallback ranking."
+    }
+  ],
+  "selected_topics": [
+    {
+      "topic_id": 10682,
+      "openalex_id": "T10682",
+      "topic_name": "Quantum Computing Algorithms and Architecture",
+      "field_name": "Computer Science",
+      "subfield_name": "Artificial Intelligence",
+      "lexical_score": 47.0,
+      "selection_rank": 1,
+      "selection_reason": "Selected by lexical fallback ranking."
+    }
+  ],
+  "selected_author_topics": [
+    {
+      "topic_id": 10682,
+      "openalex_id": "T10682",
+      "topic_name": "Quantum Computing Algorithms and Architecture",
+      "field_name": "Computer Science",
+      "subfield_name": "Artificial Intelligence",
+      "lexical_score": 47.0,
+      "selection_rank": 1,
+      "selection_reason": "Selected by lexical fallback ranking."
+    }
+  ],
+  "candidate_verifications": [
+    {
+      "candidate_type": "keyword",
+      "candidate_id": 709,
+      "label": "Quantum Computing",
+      "source_value": "quantum-computing",
+      "included": true,
+      "verified": true,
+      "verifier": "GeminiCandidateVerifier",
+      "reason": "Directly matches 'quantum computing' in the query's topical focus.",
+      "lexical_score": 124.0,
+      "selection_rank": 1,
+      "selection_reason": "Selected by lexical fallback ranking."
+    },
+    {
+      "candidate_type": "keyword",
+      "candidate_id": 701,
+      "label": "Quantum",
+      "source_value": "quantum",
+      "included": false,
+      "verified": true,
+      "verifier": "GeminiCandidateVerifier",
+      "reason": "Too broad; 'Quantum' encompasses many fields beyond quantum computing and q-bit research.",
+      "lexical_score": 42.0,
+      "selection_rank": 2,
+      "selection_reason": "Selected by lexical fallback ranking."
+    },
+    {
+      "candidate_type": "keyword",
+      "candidate_id": 749,
+      "label": "Quantum-dot Cellular Automata",
+      "source_value": "quantum-dot-cellular-automata",
+      "included": false,
+      "verified": true,
+      "verifier": "GeminiCandidateVerifier",
+      "reason": "Specific subfield (quantum-dot cellular automata) not directly aligned with general quantum computing or q-bit research.",
+      "lexical_score": 35.0,
+      "selection_rank": 3,
+      "selection_reason": "Selected by lexical fallback ranking."
+    },
+    {
+      "candidate_type": "keyword",
+      "candidate_id": 740,
+      "label": "Quantum Spin Hall Effect",
+      "source_value": "quantum-spin-hall-effect",
+      "included": false,
+      "verified": true,
+      "verifier": "GeminiCandidateVerifier",
+      "reason": "Belongs to condensed matter physics (Quantum Spin Hall Effect), not directly quantum computing or q-bit research.",
+      "lexical_score": 35.0,
+      "selection_rank": 4,
+      "selection_reason": "Selected by lexical fallback ranking."
+    },
+    {
+      "candidate_type": "keyword",
+      "candidate_id": 703,
+      "label": "Quantum Anomalous Hall Effect",
+      "source_value": "quantum-anomalous-hall-effect",
+      "included": false,
+      "verified": true,
+      "verifier": "GeminiCandidateVerifier",
+      "reason": "Belongs to condensed matter physics (Quantum Anomalous Hall Effect), not directly quantum computing or q-bit research.",
+      "lexical_score": 35.0,
+      "selection_rank": 5,
+      "selection_reason": "Selected by lexical fallback ranking."
+    },
+    {
+      "candidate_type": "author_topic",
+      "candidate_id": 10682,
+      "label": "Quantum Computing Algorithms and Architecture",
+      "source_value": "T10682",
+      "included": true,
+      "verified": true,
+      "verifier": "GeminiCandidateVerifier",
+      "reason": "The label 'Quantum Computing Algorithms and Architecture' is highly relevant and specific to the query's focus on quantum computing research.",
+      "lexical_score": 94.0,
+      "selection_rank": 1,
+      "selection_reason": "Derived from keyword 'Quantum Computing' for author search."
+    },
+    {
+      "candidate_type": "topic",
+      "candidate_id": 10682,
+      "label": "Quantum Computing Algorithms and Architecture",
+      "source_value": "T10682",
+      "included": true,
+      "verified": true,
+      "verifier": "GeminiCandidateVerifier",
+      "reason": "Directly matches 'quantum computing' and its core aspects.",
+      "lexical_score": 47.0,
+      "selection_rank": 1,
+      "selection_reason": "Selected by lexical fallback ranking."
+    },
+    {
+      "candidate_type": "topic",
+      "candidate_id": 13182,
+      "label": "Quantum-Dot Cellular Automata",
+      "source_value": "T13182",
+      "included": false,
+      "verified": true,
+      "verifier": "GeminiCandidateVerifier",
+      "reason": "Focuses on 'Quantum-Dot Cellular Automata', which is a specific computational model, not general quantum computing or q-bit research.",
+      "lexical_score": 38.0,
+      "selection_rank": 2,
+      "selection_reason": "Selected by lexical fallback ranking."
+    },
+    {
+      "candidate_type": "topic",
+      "candidate_id": 10382,
+      "label": "Quantum and electron transport phenomena",
+      "source_value": "T10382",
+      "included": false,
+      "verified": true,
+      "verifier": "GeminiCandidateVerifier",
+      "reason": "Focuses on 'electron transport phenomena', a physics topic, not directly quantum computing.",
+      "lexical_score": 38.0,
+      "selection_rank": 3,
+      "selection_reason": "Selected by lexical fallback ranking."
+    },
+    {
+      "candidate_type": "topic",
+      "candidate_id": 11177,
+      "label": "Spectroscopy and Quantum Chemical Studies",
+      "source_value": "T11177",
+      "included": false,
+      "verified": true,
+      "verifier": "GeminiCandidateVerifier",
+      "reason": "Focuses on 'Spectroscopy and Quantum Chemical Studies', which is quantum chemistry, not quantum computing.",
+      "lexical_score": 27.0,
+      "selection_rank": 4,
+      "selection_reason": "Selected by lexical fallback ranking."
+    },
+    {
+      "candidate_type": "topic",
+      "candidate_id": 10022,
+      "label": "Semiconductor Quantum Structures and Devices",
+      "source_value": "T10022",
+      "included": false,
+      "verified": true,
+      "verifier": "GeminiCandidateVerifier",
+      "reason": "Focuses on 'Semiconductor Quantum Structures', which is too broad and not specifically 'quantum computing' or 'q-bit research breakthroughs'.",
+      "lexical_score": 27.0,
+      "selection_rank": 5,
+      "selection_reason": "Selected by lexical fallback ranking."
+    }
+  ],
+  "logs": [
+    {
+      "stage": "start",
+      "message": "Starting OpenAlex pipeline run.",
+      "details": {
+        "input_query": " quantum computing and q-bit research breakthroughs after 2024",
+        "mode": "natural_language_keywords_and_topics",
+        "target": "works_and_authors",
+        "selector_strategy": "heuristic",
+        "verify_candidate_relevance": true,
+        "verifier": "GeminiCandidateVerifier"
+      }
+    },
+    {
+      "stage": "query_validation",
+      "message": "Natural-language query validation passed or was not required.",
+      "details": {
+        "mode": "natural_language_keywords_and_topics",
+        "check_valid_topic": true
+      }
+    },
+    {
+      "stage": "query_focus",
+      "message": "Computed query focus and filter modifiers.",
+      "details": {
+        "query_focus": "quantum computing q bit research breakthroughs",
+        "query_modifiers": [
+          {
+            "source_phrase": "after 2024",
+            "filter_fragment": "from_publication_date:2025-01-01",
+            "reason": "Interpret publication-year language as a lower bound on publication date."
+          }
+        ],
+        "extra_filter_components": [
+          "from_publication_date:2025-01-01"
+        ]
+      }
+    },
+    {
+      "stage": "keyword_candidates",
+      "message": "Built 30 keyword candidates.",
+      "details": {
+        "query_intent": "quantum computing q bit research breakthroughs",
+        "top_candidates": [
+          {
+            "candidate_id": 709,
+            "label": "Quantum Computing",
+            "source_value": "quantum-computing",
+            "lexical_score": 124.0,
+            "topic_count": 2
+          },
+          {
+            "candidate_id": 701,
+            "label": "Quantum",
+            "source_value": "quantum",
+            "lexical_score": 42.0,
+            "topic_count": 1
+          },
+          {
+            "candidate_id": 749,
+            "label": "Quantum-dot Cellular Automata",
+            "source_value": "quantum-dot-cellular-automata",
+            "lexical_score": 35.0,
+            "topic_count": 1
+          },
+          {
+            "candidate_id": 740,
+            "label": "Quantum Spin Hall Effect",
+            "source_value": "quantum-spin-hall-effect",
+            "lexical_score": 35.0,
+            "topic_count": 1
+          },
+          {
+            "candidate_id": 703,
+            "label": "Quantum Anomalous Hall Effect",
+            "source_value": "quantum-anomalous-hall-effect",
+            "lexical_score": 35.0,
+            "topic_count": 1
+          },
+          {
+            "candidate_id": 263,
+            "label": "Fault-tolerant Quantum Computation",
+            "source_value": "fault-tolerant-quantum-computation",
+            "lexical_score": 35.0,
+            "topic_count": 1
+          },
+          {
+            "candidate_id": 997,
+            "label": "Variational Quantum Algorithms",
+            "source_value": "variational-quantum-algorithms",
+            "lexical_score": 29.0,
+            "topic_count": 1
+          },
+          {
+            "candidate_id": 968,
+            "label": "Topological Quantum Memory",
+            "source_value": "topological-quantum-memory",
+            "lexical_score": 29.0,
+            "topic_count": 1
+          },
+          {
+            "candidate_id": 967,
+            "label": "Topological Quantum Computation",
+            "source_value": "topological-quantum-computation",
+            "lexical_score": 29.0,
+            "topic_count": 1
+          },
+          {
+            "candidate_id": 818,
+            "label": "Semiconductor Quantum Dots",
+            "source_value": "semiconductor-quantum-dots",
+            "lexical_score": 29.0,
+            "topic_count": 1
+          }
+        ]
+      }
+    },
+    {
+      "stage": "keyword_selection",
+      "message": "Selected 5 keyword candidates before verification.",
+      "details": {
+        "selector_strategy": "heuristic",
+        "selected_candidates": [
+          {
+            "candidate_id": 709,
+            "label": "Quantum Computing",
+            "source_value": "quantum-computing",
+            "lexical_score": 124.0,
+            "selection_rank": 1,
+            "selection_reason": "Selected by lexical fallback ranking.",
+            "topic_count": 2
+          },
+          {
+            "candidate_id": 701,
+            "label": "Quantum",
+            "source_value": "quantum",
+            "lexical_score": 42.0,
+            "selection_rank": 2,
+            "selection_reason": "Selected by lexical fallback ranking.",
+            "topic_count": 1
+          },
+          {
+            "candidate_id": 749,
+            "label": "Quantum-dot Cellular Automata",
+            "source_value": "quantum-dot-cellular-automata",
+            "lexical_score": 35.0,
+            "selection_rank": 3,
+            "selection_reason": "Selected by lexical fallback ranking.",
+            "topic_count": 1
+          },
+          {
+            "candidate_id": 740,
+            "label": "Quantum Spin Hall Effect",
+            "source_value": "quantum-spin-hall-effect",
+            "lexical_score": 35.0,
+            "selection_rank": 4,
+            "selection_reason": "Selected by lexical fallback ranking.",
+            "topic_count": 1
+          },
+          {
+            "candidate_id": 703,
+            "label": "Quantum Anomalous Hall Effect",
+            "source_value": "quantum-anomalous-hall-effect",
+            "lexical_score": 35.0,
+            "selection_rank": 5,
+            "selection_reason": "Selected by lexical fallback ranking.",
+            "topic_count": 1
+          }
+        ]
+      }
+    },
+    {
+      "stage": "keyword_verification",
+      "message": "Verified 5 keyword candidates and kept 1.",
+      "details": {
+        "candidate_type": "keyword",
+        "verifier": "GeminiCandidateVerifier",
+        "kept_candidates": [
+          {
+            "candidate_id": 709,
+            "label": "Quantum Computing",
+            "source_value": "quantum-computing",
+            "lexical_score": 124.0,
+            "selection_rank": 1,
+            "selection_reason": "Selected by lexical fallback ranking.",
+            "topic_count": 2
+          }
+        ],
+        "rejected_candidates": [
+          {
+            "candidate_id": 701,
+            "label": "Quantum",
+            "source_value": "quantum",
+            "lexical_score": 42.0,
+            "selection_rank": 2,
+            "selection_reason": "Selected by lexical fallback ranking.",
+            "topic_count": 1,
+            "verification_reason": "Too broad; 'Quantum' encompasses many fields beyond quantum computing and q-bit research."
+          },
+          {
+            "candidate_id": 749,
+            "label": "Quantum-dot Cellular Automata",
+            "source_value": "quantum-dot-cellular-automata",
+            "lexical_score": 35.0,
+            "selection_rank": 3,
+            "selection_reason": "Selected by lexical fallback ranking.",
+            "topic_count": 1,
+            "verification_reason": "Specific subfield (quantum-dot cellular automata) not directly aligned with general quantum computing or q-bit research."
+          },
+          {
+            "candidate_id": 740,
+            "label": "Quantum Spin Hall Effect",
+            "source_value": "quantum-spin-hall-effect",
+            "lexical_score": 35.0,
+            "selection_rank": 4,
+            "selection_reason": "Selected by lexical fallback ranking.",
+            "topic_count": 1,
+            "verification_reason": "Belongs to condensed matter physics (Quantum Spin Hall Effect), not directly quantum computing or q-bit research."
+          },
+          {
+            "candidate_id": 703,
+            "label": "Quantum Anomalous Hall Effect",
+            "source_value": "quantum-anomalous-hall-effect",
+            "lexical_score": 35.0,
+            "selection_rank": 5,
+            "selection_reason": "Selected by lexical fallback ranking.",
+            "topic_count": 1,
+            "verification_reason": "Belongs to condensed matter physics (Quantum Anomalous Hall Effect), not directly quantum computing or q-bit research."
+          }
+        ]
+      }
+    },
+    {
+      "stage": "author_topic_derivation",
+      "message": "Derived 1 author-topic candidates from 1 verified keywords.",
+      "details": {
+        "verified_keywords": [
+          {
+            "candidate_id": 709,
+            "label": "Quantum Computing",
+            "source_value": "quantum-computing",
+            "lexical_score": 124.0,
+            "selection_rank": 1,
+            "selection_reason": "Selected by lexical fallback ranking.",
+            "topic_count": 2
+          }
+        ],
+        "derived_candidates": [
+          {
+            "candidate_id": 10682,
+            "label": "Quantum Computing Algorithms and Architecture",
+            "source_value": "T10682",
+            "lexical_score": 94.0,
+            "selection_rank": 1,
+            "selection_reason": "Derived from keyword 'Quantum Computing' for author search.",
+            "field_name": "Computer Science",
+            "subfield_name": "Artificial Intelligence"
+          }
+        ]
+      }
+    },
+    {
+      "stage": "author_topic_verification",
+      "message": "Verified 1 author_topic candidates and kept 1.",
+      "details": {
+        "candidate_type": "author_topic",
+        "verifier": "GeminiCandidateVerifier",
+        "kept_candidates": [
+          {
+            "candidate_id": 10682,
+            "label": "Quantum Computing Algorithms and Architecture",
+            "source_value": "T10682",
+            "lexical_score": 94.0,
+            "selection_rank": 1,
+            "selection_reason": "Derived from keyword 'Quantum Computing' for author search.",
+            "field_name": "Computer Science",
+            "subfield_name": "Artificial Intelligence"
+          }
+        ],
+        "rejected_candidates": []
+      }
+    },
+    {
+      "stage": "topic_candidates",
+      "message": "Built 30 topic candidates.",
+      "details": {
+        "query_focus": "quantum computing q bit research breakthroughs",
+        "top_candidates": [
+          {
+            "candidate_id": 10682,
+            "label": "Quantum Computing Algorithms and Architecture",
+            "source_value": "T10682",
+            "lexical_score": 47.0,
+            "field_name": "Computer Science",
+            "subfield_name": "Artificial Intelligence"
+          },
+          {
+            "candidate_id": 13182,
+            "label": "Quantum-Dot Cellular Automata",
+            "source_value": "T13182",
+            "lexical_score": 38.0,
+            "field_name": "Computer Science",
+            "subfield_name": "Computational Theory and Mathematics"
+          },
+          {
+            "candidate_id": 10382,
+            "label": "Quantum and electron transport phenomena",
+            "source_value": "T10382",
+            "lexical_score": 38.0,
+            "field_name": "Physics and Astronomy",
+            "subfield_name": "Atomic and Molecular Physics, and Optics"
+          },
+          {
+            "candidate_id": 11177,
+            "label": "Spectroscopy and Quantum Chemical Studies",
+            "source_value": "T11177",
+            "lexical_score": 27.0,
+            "field_name": "Physics and Astronomy",
+            "subfield_name": "Atomic and Molecular Physics, and Optics"
+          },
+          {
+            "candidate_id": 10022,
+            "label": "Semiconductor Quantum Structures and Devices",
+            "source_value": "T10022",
+            "lexical_score": 27.0,
+            "field_name": "Physics and Astronomy",
+            "subfield_name": "Atomic and Molecular Physics, and Optics"
+          },
+          {
+            "candidate_id": 11965,
+            "label": "Quantum, superfluid, helium dynamics",
+            "source_value": "T11965",
+            "lexical_score": 27.0,
+            "field_name": "Physics and Astronomy",
+            "subfield_name": "Atomic and Molecular Physics, and Optics"
+          },
+          {
+            "candidate_id": 11414,
+            "label": "Quantum optics and atomic interactions",
+            "source_value": "T11414",
+            "lexical_score": 27.0,
+            "field_name": "Physics and Astronomy",
+            "subfield_name": "Atomic and Molecular Physics, and Optics"
+          },
+          {
+            "candidate_id": 11262,
+            "label": "Quantum Mechanics and Non-Hermitian Physics",
+            "source_value": "T11262",
+            "lexical_score": 27.0,
+            "field_name": "Physics and Astronomy",
+            "subfield_name": "Atomic and Molecular Physics, and Optics"
+          },
+          {
+            "candidate_id": 10622,
+            "label": "Quantum Mechanics and Applications",
+            "source_value": "T10622",
+            "lexical_score": 27.0,
+            "field_name": "Physics and Astronomy",
+            "subfield_name": "Atomic and Molecular Physics, and Optics"
+          },
+          {
+            "candidate_id": 11804,
+            "label": "Quantum many-body systems",
+            "source_value": "T11804",
+            "lexical_score": 27.0,
+            "field_name": "Physics and Astronomy",
+            "subfield_name": "Atomic and Molecular Physics, and Optics"
+          }
+        ]
+      }
+    },
+    {
+      "stage": "topic_selection",
+      "message": "Selected 5 topic candidates before verification.",
+      "details": {
+        "selector_strategy": "heuristic",
+        "selected_candidates": [
+          {
+            "candidate_id": 10682,
+            "label": "Quantum Computing Algorithms and Architecture",
+            "source_value": "T10682",
+            "lexical_score": 47.0,
+            "selection_rank": 1,
+            "selection_reason": "Selected by lexical fallback ranking.",
+            "field_name": "Computer Science",
+            "subfield_name": "Artificial Intelligence"
+          },
+          {
+            "candidate_id": 13182,
+            "label": "Quantum-Dot Cellular Automata",
+            "source_value": "T13182",
+            "lexical_score": 38.0,
+            "selection_rank": 2,
+            "selection_reason": "Selected by lexical fallback ranking.",
+            "field_name": "Computer Science",
+            "subfield_name": "Computational Theory and Mathematics"
+          },
+          {
+            "candidate_id": 10382,
+            "label": "Quantum and electron transport phenomena",
+            "source_value": "T10382",
+            "lexical_score": 38.0,
+            "selection_rank": 3,
+            "selection_reason": "Selected by lexical fallback ranking.",
+            "field_name": "Physics and Astronomy",
+            "subfield_name": "Atomic and Molecular Physics, and Optics"
+          },
+          {
+            "candidate_id": 11177,
+            "label": "Spectroscopy and Quantum Chemical Studies",
+            "source_value": "T11177",
+            "lexical_score": 27.0,
+            "selection_rank": 4,
+            "selection_reason": "Selected by lexical fallback ranking.",
+            "field_name": "Physics and Astronomy",
+            "subfield_name": "Atomic and Molecular Physics, and Optics"
+          },
+          {
+            "candidate_id": 10022,
+            "label": "Semiconductor Quantum Structures and Devices",
+            "source_value": "T10022",
+            "lexical_score": 27.0,
+            "selection_rank": 5,
+            "selection_reason": "Selected by lexical fallback ranking.",
+            "field_name": "Physics and Astronomy",
+            "subfield_name": "Atomic and Molecular Physics, and Optics"
+          }
+        ]
+      }
+    },
+    {
+      "stage": "topic_verification",
+      "message": "Verified 5 topic candidates and kept 1.",
+      "details": {
+        "candidate_type": "topic",
+        "verifier": "GeminiCandidateVerifier",
+        "kept_candidates": [
+          {
+            "candidate_id": 10682,
+            "label": "Quantum Computing Algorithms and Architecture",
+            "source_value": "T10682",
+            "lexical_score": 47.0,
+            "selection_rank": 1,
+            "selection_reason": "Selected by lexical fallback ranking.",
+            "field_name": "Computer Science",
+            "subfield_name": "Artificial Intelligence"
+          }
+        ],
+        "rejected_candidates": [
+          {
+            "candidate_id": 13182,
+            "label": "Quantum-Dot Cellular Automata",
+            "source_value": "T13182",
+            "lexical_score": 38.0,
+            "selection_rank": 2,
+            "selection_reason": "Selected by lexical fallback ranking.",
+            "field_name": "Computer Science",
+            "subfield_name": "Computational Theory and Mathematics",
+            "verification_reason": "Focuses on 'Quantum-Dot Cellular Automata', which is a specific computational model, not general quantum computing or q-bit research."
+          },
+          {
+            "candidate_id": 10382,
+            "label": "Quantum and electron transport phenomena",
+            "source_value": "T10382",
+            "lexical_score": 38.0,
+            "selection_rank": 3,
+            "selection_reason": "Selected by lexical fallback ranking.",
+            "field_name": "Physics and Astronomy",
+            "subfield_name": "Atomic and Molecular Physics, and Optics",
+            "verification_reason": "Focuses on 'electron transport phenomena', a physics topic, not directly quantum computing."
+          },
+          {
+            "candidate_id": 11177,
+            "label": "Spectroscopy and Quantum Chemical Studies",
+            "source_value": "T11177",
+            "lexical_score": 27.0,
+            "selection_rank": 4,
+            "selection_reason": "Selected by lexical fallback ranking.",
+            "field_name": "Physics and Astronomy",
+            "subfield_name": "Atomic and Molecular Physics, and Optics",
+            "verification_reason": "Focuses on 'Spectroscopy and Quantum Chemical Studies', which is quantum chemistry, not quantum computing."
+          },
+          {
+            "candidate_id": 10022,
+            "label": "Semiconductor Quantum Structures and Devices",
+            "source_value": "T10022",
+            "lexical_score": 27.0,
+            "selection_rank": 5,
+            "selection_reason": "Selected by lexical fallback ranking.",
+            "field_name": "Physics and Astronomy",
+            "subfield_name": "Atomic and Molecular Physics, and Optics",
+            "verification_reason": "Focuses on 'Semiconductor Quantum Structures', which is too broad and not specifically 'quantum computing' or 'q-bit research breakthroughs'."
+          }
+        ]
+      }
+    },
+    {
+      "stage": "query_plan",
+      "message": "Prepared executable OpenAlex query bundles.",
+      "details": {
+        "work_queries": [
+          {
+            "label": "Quantum Computing",
+            "source_kind": "keyword",
+            "source_value": "Quantum Computing",
+            "endpoint": "/works",
+            "filter": "keywords.id:quantum-computing,from_publication_date:2025-01-01",
+            "search": null,
+            "sort": "cited_by_count:desc"
+          },
+          {
+            "label": "Quantum Computing Algorithms and Architecture",
+            "source_kind": "topic",
+            "source_value": "T10682",
+            "endpoint": "/works",
+            "filter": "primary_topic.id:T10682,from_publication_date:2025-01-01",
+            "search": null,
+            "sort": "cited_by_count:desc"
+          }
+        ],
+        "author_queries": [
+          {
+            "label": "Quantum Computing Algorithms and Architecture",
+            "source_kind": "topic",
+            "source_value": "T10682",
+            "endpoint": "/authors",
+            "filter": "topics.id:T10682",
+            "search": null,
+            "sort": "cited_by_count:desc"
+          },
+          {
+            "label": "Quantum Computing Algorithms and Architecture",
+            "source_kind": "topic_from_keyword",
+            "source_value": "T10682",
+            "endpoint": "/authors",
+            "filter": "topics.id:T10682",
+            "search": null,
+            "sort": "cited_by_count:desc"
+          }
+        ]
+      }
+    },
+    {
+      "stage": "work_execution",
+      "message": "Executed 2 work queries.",
+      "details": {
+        "queries": [
+          {
+            "label": "Quantum Computing",
+            "source_kind": "keyword",
+            "returned_count": 0
+          },
+          {
+            "label": "Quantum Computing Algorithms and Architecture",
+            "source_kind": "topic",
+            "returned_count": 20
+          }
+        ],
+        "top_k_returned": 20
+      }
+    },
+    {
+      "stage": "author_execution",
+      "message": "Executed 2 author queries.",
+      "details": {
+        "queries": [
+          {
+            "label": "Quantum Computing Algorithms and Architecture",
+            "source_kind": "topic",
+            "returned_count": 20
+          },
+          {
+            "label": "Quantum Computing Algorithms and Architecture",
+            "source_kind": "topic_from_keyword",
+            "returned_count": 20
+          }
+        ],
+        "top_k_returned": 20
+      }
+    }
+  ],
+  "executions": [
+    {
+      "entity_type": "work",
+      "label": "Quantum Computing",
+      "source_kind": "keyword",
+      "source_value": "Quantum Computing",
+      "query": {
+        "endpoint": "/works",
+        "search": null,
+        "filter": "keywords.id:quantum-computing,from_publication_date:2025-01-01",
+        "sort": "cited_by_count:desc",
+        "per_page": null,
+        "page": null,
+        "cursor": null,
+        "extra_params": {},
+        "original_input": null
+      },
+      "max_results_requested": 20,
+      "per_page_requested": 200,
+      "request_params": {
+        "filter": "keywords.id:quantum-computing,from_publication_date:2025-01-01",
+        "sort": "cited_by_count:desc",
+        "per-page": "200"
+      },
+      "request_urls": [
+        "https://api.openalex.org/works?filter=keywords.id%3Aquantum-computing%2Cfrom_publication_date%3A2025-01-01&sort=cited_by_count%3Adesc&per-page=20&cursor=%2A&api_key=%5BREDACTED%5D"
+      ],
+      "api_result_count": 0,
+      "returned_count": 0,
+      "result_ids": []
+    },
+    {
+      "entity_type": "work",
+      "label": "Quantum Computing Algorithms and Architecture",
+      "source_kind": "topic",
+      "source_value": "T10682",
+      "query": {
+        "endpoint": "/works",
+        "search": null,
+        "filter": "primary_topic.id:T10682,from_publication_date:2025-01-01",
+        "sort": "cited_by_count:desc",
+        "per_page": null,
+        "page": null,
+        "cursor": null,
+        "extra_params": {},
+        "original_input": null
+      },
+      "max_results_requested": 20,
+      "per_page_requested": 200,
+      "request_params": {
+        "filter": "primary_topic.id:T10682,from_publication_date:2025-01-01",
+        "sort": "cited_by_count:desc",
+        "per-page": "200"
+      },
+      "request_urls": [
+        "https://api.openalex.org/works?filter=primary_topic.id%3AT10682%2Cfrom_publication_date%3A2025-01-01&sort=cited_by_count%3Adesc&per-page=20&cursor=%2A&api_key=%5BREDACTED%5D"
+      ],
+      "api_result_count": 17561,
+      "returned_count": 20,
+      "result_ids": [
+        "W4225259930",
+        "W4408847956",
+        "W4406693713",
+        "W4409126690",
+        "W4406617380",
+        "W4408109527",
+        "W4407957966",
+        "W4205563446",
+        "W4411401800",
+        "W4293861557",
+        "W4408275769",
+        "W4408791114",
+        "W4413527309",
+        "W4406957844",
+        "W4406150672",
+        "W4406678143",
+        "W4408850289",
+        "W4408226607",
+        "W4411983890",
+        "W4406122603"
+      ]
+    }
+  ],
+  "summary": {
+    "total_queries_executed": 2,
+    "total_results_retrieved": 20,
+    "total_unique_results": 20,
+    "overlap_results": 0,
+    "unique_only_results": 20,
+    "top_k_returned": 20,
+    "query_summaries": [
+      {
+        "label": "Quantum Computing",
+        "source_kind": "keyword",
+        "returned_count": 0,
+        "unique_count": 0,
+        "overlap_count": 0
+      },
+      {
+        "label": "Quantum Computing Algorithms and Architecture",
+        "source_kind": "topic",
+        "returned_count": 20,
+        "unique_count": 20,
+        "overlap_count": 0
+      }
+    ]
+  },
+  "author_executions": [
+    {
+      "entity_type": "author",
+      "label": "Quantum Computing Algorithms and Architecture",
+      "source_kind": "topic",
+      "source_value": "T10682",
+      "query": {
+        "endpoint": "/authors",
+        "search": null,
+        "filter": "topics.id:T10682",
+        "sort": "cited_by_count:desc",
+        "per_page": null,
+        "page": null,
+        "cursor": null,
+        "extra_params": {},
+        "original_input": null
+      },
+      "max_results_requested": 20,
+      "per_page_requested": 200,
+      "request_params": {
+        "filter": "topics.id:T10682",
+        "sort": "cited_by_count:desc",
+        "per-page": "200"
+      },
+      "request_urls": [
+        "https://api.openalex.org/authors?filter=topics.id%3AT10682&sort=cited_by_count%3Adesc&per-page=20&cursor=%2A&api_key=%5BREDACTED%5D"
+      ],
+      "api_result_count": 73693,
+      "returned_count": 20,
+      "result_ids": [
+        "A5083228566",
+        "A5066245772",
+        "A5016282235",
+        "A5048800312",
+        "A5001105113",
+        "A5071495561",
+        "A5053166798",
+        "A5042449260",
+        "A5032785303",
+        "A5038060570",
+        "A5103046966",
+        "A5046083937",
+        "A5078065002",
+        "A5068294840",
+        "A5089631322",
+        "A5041819685",
+        "A5005759724",
+        "A5056095913",
+        "A5043938679",
+        "A5020744800"
+      ]
+    },
+    {
+      "entity_type": "author",
+      "label": "Quantum Computing Algorithms and Architecture",
+      "source_kind": "topic_from_keyword",
+      "source_value": "T10682",
+      "query": {
+        "endpoint": "/authors",
+        "search": null,
+        "filter": "topics.id:T10682",
+        "sort": "cited_by_count:desc",
+        "per_page": null,
+        "page": null,
+        "cursor": null,
+        "extra_params": {},
+        "original_input": null
+      },
+      "max_results_requested": 20,
+      "per_page_requested": 200,
+      "request_params": {
+        "filter": "topics.id:T10682",
+        "sort": "cited_by_count:desc",
+        "per-page": "200"
+      },
+      "request_urls": [
+        "https://api.openalex.org/authors?filter=topics.id%3AT10682&sort=cited_by_count%3Adesc&per-page=20&cursor=%2A&api_key=%5BREDACTED%5D"
+      ],
+      "api_result_count": 73693,
+      "returned_count": 20,
+      "result_ids": [
+        "A5083228566",
+        "A5066245772",
+        "A5016282235",
+        "A5048800312",
+        "A5001105113",
+        "A5071495561",
+        "A5053166798",
+        "A5042449260",
+        "A5032785303",
+        "A5038060570",
+        "A5103046966",
+        "A5046083937",
+        "A5078065002",
+        "A5068294840",
+        "A5089631322",
+        "A5041819685",
+        "A5005759724",
+        "A5056095913",
+        "A5043938679",
+        "A5020744800"
+      ]
+    }
+  ],
+  "author_summary": {
+    "total_queries_executed": 2,
+    "total_results_retrieved": 40,
+    "total_unique_results": 20,
+    "overlap_results": 0,
+    "unique_only_results": 20,
+    "top_k_returned": 20,
+    "query_summaries": [
+      {
+        "label": "Quantum Computing Algorithms and Architecture",
+        "source_kind": "topic",
+        "returned_count": 20,
+        "unique_count": 20,
+        "overlap_count": 0
+      },
+      {
+        "label": "Quantum Computing Algorithms and Architecture",
+        "source_kind": "topic_from_keyword",
+        "returned_count": 20,
+        "unique_count": 20,
+        "overlap_count": 0
+      }
+    ]
+  },
+  "papers": [
+    {
+      "openalex_id": "W4225259930",
+      "title": "Engineering Non-Linear Decay Dynamics: Pulse-Level Control and Software-Defined Qubit Rescue on Superconducting Processors",
+      "cited_by_count": 731,
+      "publication_year": 2025,
+      "publication_date": "2025-12-27",
+      "doi": "https://doi.org/10.5281/zenodo.18067974",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "Zenodo (CERN European Organization for Nuclear Research)",
+        "source_openalex_id": "S4306400562",
+        "landing_page_url": "https://doi.org/10.5281/zenodo.18067974",
+        "pdf_url": null,
+        "is_oa": true
+      },
+      "authors": [
+        {
+          "name": "K S, Unnikuttan",
+          "openalex_id": null
+        }
+      ],
+      "topics": [
+        "Quantum Computing Algorithms and Architecture",
+        "Quantum Information and Cryptography",
+        "Neural Networks and Reservoir Computing"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Computing Algorithms and Architecture",
+          "source_kind": "topic",
+          "source_value": "T10682"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "W4408847956",
+      "title": "Barren plateaus in variational quantum computing",
+      "cited_by_count": 136,
+      "publication_year": 2025,
+      "publication_date": "2025-03-26",
+      "doi": "https://doi.org/10.1038/s42254-025-00813-9",
+      "work_type": "review",
+      "primary_location": {
+        "source_display_name": "Nature Reviews Physics",
+        "source_openalex_id": "S4210234670",
+        "landing_page_url": "https://doi.org/10.1038/s42254-025-00813-9",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [
+        {
+          "name": "Martín Larocca",
+          "openalex_id": "A5077735586"
+        },
+        {
+          "name": "Supanut Thanasilp",
+          "openalex_id": "A5068470039"
+        },
+        {
+          "name": "Samson Wang",
+          "openalex_id": "A5065087289"
+        },
+        {
+          "name": "Kunal Sharma",
+          "openalex_id": "A5082224136"
+        },
+        {
+          "name": "Jacob Biamonte",
+          "openalex_id": "A5079523895"
+        },
+        {
+          "name": "Patrick J. Coles",
+          "openalex_id": "A5088973719"
+        },
+        {
+          "name": "Łukasz Cincio",
+          "openalex_id": "A5022166378"
+        },
+        {
+          "name": "Jarrod R. McClean",
+          "openalex_id": "A5023528725"
+        },
+        {
+          "name": "Zoë Holmes",
+          "openalex_id": "A5071652167"
+        },
+        {
+          "name": "M. Cerezo",
+          "openalex_id": "A5074921335"
+        }
+      ],
+      "topics": [
+        "Quantum Computing Algorithms and Architecture",
+        "Neural Networks and Reservoir Computing",
+        "Quantum Information and Cryptography"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Computing Algorithms and Architecture",
+          "source_kind": "topic",
+          "source_value": "T10682"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "W4406693713",
+      "title": "Scaling and networking a modular photonic quantum computer",
+      "cited_by_count": 116,
+      "publication_year": 2025,
+      "publication_date": "2025-01-22",
+      "doi": "https://doi.org/10.1038/s41586-024-08406-9",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "Nature",
+        "source_openalex_id": "S137773608",
+        "landing_page_url": "https://doi.org/10.1038/s41586-024-08406-9",
+        "pdf_url": "https://www.nature.com/articles/s41586-024-08406-9.pdf",
+        "is_oa": true
+      },
+      "authors": [
+        {
+          "name": "H. Aghaee Rad",
+          "openalex_id": "A5115979052"
+        },
+        {
+          "name": "T. L. Ainsworth",
+          "openalex_id": "A5060813465"
+        },
+        {
+          "name": "Rafael N. Alexander",
+          "openalex_id": "A5076663454"
+        },
+        {
+          "name": "B. Altieri",
+          "openalex_id": "A5055320940"
+        },
+        {
+          "name": "Mohsen Falamarzi Askarani",
+          "openalex_id": "A5020068687"
+        },
+        {
+          "name": "R. Baby",
+          "openalex_id": "A5115979057"
+        },
+        {
+          "name": "Leonardo Banchi",
+          "openalex_id": "A5069913087"
+        },
+        {
+          "name": "Ben Q. Baragiola",
+          "openalex_id": "A5050734302"
+        },
+        {
+          "name": "J. Eli Bourassa",
+          "openalex_id": "A5008633046"
+        },
+        {
+          "name": "Rachel S. Chadwick",
+          "openalex_id": "A5070592520"
+        },
+        {
+          "name": "I. Charania",
+          "openalex_id": "A5115979053"
+        },
+        {
+          "name": "Hongxiang Chen",
+          "openalex_id": "A5101473110"
+        }
+      ],
+      "topics": [
+        "Quantum Computing Algorithms and Architecture",
+        "Quantum Information and Cryptography",
+        "Neural Networks and Reservoir Computing"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Computing Algorithms and Architecture",
+          "source_kind": "topic",
+          "source_value": "T10682"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "W4409126690",
+      "title": "IBM quantum computers: evolution, performance, and future directions",
+      "cited_by_count": 96,
+      "publication_year": 2025,
+      "publication_date": "2025-04-01",
+      "doi": "https://doi.org/10.1007/s11227-025-07047-7",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "The Journal of Supercomputing",
+        "source_openalex_id": "S32326811",
+        "landing_page_url": "https://doi.org/10.1007/s11227-025-07047-7",
+        "pdf_url": "https://link.springer.com/content/pdf/10.1007/s11227-025-07047-7.pdf",
+        "is_oa": true
+      },
+      "authors": [
+        {
+          "name": "M. AbuGhanem",
+          "openalex_id": "A5061351938"
+        }
+      ],
+      "topics": [
+        "Quantum Computing Algorithms and Architecture",
+        "Quantum Information and Cryptography",
+        "Quantum-Dot Cellular Automata"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Computing Algorithms and Architecture",
+          "source_kind": "topic",
+          "source_value": "T10682"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "W4406617380",
+      "title": "Sparse Blossom: correcting a million errors per core second with minimum-weight matching",
+      "cited_by_count": 77,
+      "publication_year": 2025,
+      "publication_date": "2025-01-20",
+      "doi": "https://doi.org/10.22331/q-2025-01-20-1600",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "Quantum",
+        "source_openalex_id": "S4210226432",
+        "landing_page_url": "https://doi.org/10.22331/q-2025-01-20-1600",
+        "pdf_url": "https://quantum-journal.org/papers/q-2025-01-20-1600/pdf/",
+        "is_oa": true
+      },
+      "authors": [
+        {
+          "name": "Oscar Higgott",
+          "openalex_id": "A5067802518"
+        },
+        {
+          "name": "Craig Gidney",
+          "openalex_id": "A5112474957"
+        }
+      ],
+      "topics": [
+        "Quantum Computing Algorithms and Architecture",
+        "Stochastic Gradient Optimization Techniques",
+        "Quantum Information and Cryptography"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Computing Algorithms and Architecture",
+          "source_kind": "topic",
+          "source_value": "T10682"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "W4408109527",
+      "title": "Establishing a New Benchmark in Quantum Computational Advantage with 105-qubit Zuchongzhi 3.0 Processor",
+      "cited_by_count": 75,
+      "publication_year": 2025,
+      "publication_date": "2025-03-03",
+      "doi": "https://doi.org/10.1103/physrevlett.134.090601",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "Physical Review Letters",
+        "source_openalex_id": "S24807848",
+        "landing_page_url": "https://doi.org/10.1103/physrevlett.134.090601",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [
+        {
+          "name": "Dongxin Gao",
+          "openalex_id": "A5004446359"
+        },
+        {
+          "name": "Daojin Fan",
+          "openalex_id": "A5086604922"
+        },
+        {
+          "name": "Chen Zha",
+          "openalex_id": "A5089608761"
+        },
+        {
+          "name": "Bei Jiang",
+          "openalex_id": "A5006027178"
+        },
+        {
+          "name": "Guoqing Cai",
+          "openalex_id": "A5112983662"
+        },
+        {
+          "name": "Jianbin Cai",
+          "openalex_id": "A5103182460"
+        },
+        {
+          "name": "Sirui Cao",
+          "openalex_id": "A5103123396"
+        },
+        {
+          "name": "Fusheng Chen",
+          "openalex_id": "A5101481018"
+        },
+        {
+          "name": "Chen Jiang",
+          "openalex_id": "A5100612951"
+        },
+        {
+          "name": "K.Y. Chen",
+          "openalex_id": "A5014122227"
+        },
+        {
+          "name": "Xi Chen",
+          "openalex_id": "A5100330070"
+        },
+        {
+          "name": "Xiqing Chen",
+          "openalex_id": "A5070937762"
+        }
+      ],
+      "topics": [
+        "Quantum Computing Algorithms and Architecture",
+        "Quantum Information and Cryptography"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Computing Algorithms and Architecture",
+          "source_kind": "topic",
+          "source_value": "T10682"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "W4407957966",
+      "title": "Hardware-efficient quantum error correction via concatenated bosonic qubits",
+      "cited_by_count": 74,
+      "publication_year": 2025,
+      "publication_date": "2025-02-26",
+      "doi": "https://doi.org/10.1038/s41586-025-08642-7",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "Nature",
+        "source_openalex_id": "S137773608",
+        "landing_page_url": "https://doi.org/10.1038/s41586-025-08642-7",
+        "pdf_url": "https://www.nature.com/articles/s41586-025-08642-7.pdf",
+        "is_oa": true
+      },
+      "authors": [
+        {
+          "name": "Harald Putterman",
+          "openalex_id": "A5027882429"
+        },
+        {
+          "name": "Kyungjoo Noh",
+          "openalex_id": "A5016945729"
+        },
+        {
+          "name": "Connor T. Hann",
+          "openalex_id": "A5058369122"
+        },
+        {
+          "name": "Gregory S. MacCabe",
+          "openalex_id": "A5069227599"
+        },
+        {
+          "name": "Shahriar Aghaeimeibodi",
+          "openalex_id": "A5064193226"
+        },
+        {
+          "name": "Rishi N. Patel",
+          "openalex_id": "A5078816688"
+        },
+        {
+          "name": "Menyoung Lee",
+          "openalex_id": "A5016866420"
+        },
+        {
+          "name": "William M. Jones",
+          "openalex_id": "A5067685315"
+        },
+        {
+          "name": "Hesam Moradinejad",
+          "openalex_id": "A5060770077"
+        },
+        {
+          "name": "Roberto Rodríguez",
+          "openalex_id": "A5103556645"
+        },
+        {
+          "name": "Neha Mahuli",
+          "openalex_id": "A5094208126"
+        },
+        {
+          "name": "J. Rose",
+          "openalex_id": "A5113088237"
+        }
+      ],
+      "topics": [
+        "Quantum Computing Algorithms and Architecture",
+        "Quantum Information and Cryptography",
+        "Quantum and electron transport phenomena"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Computing Algorithms and Architecture",
+          "source_kind": "topic",
+          "source_value": "T10682"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "W4205563446",
+      "title": "Semiconductor Physics, Quantum Electronics and Optoelectronics",
+      "cited_by_count": 64,
+      "publication_year": 2026,
+      "publication_date": "2026-03-29",
+      "doi": "https://doi.org/10.15407/spqeo",
+      "work_type": "paratext",
+      "primary_location": {
+        "source_display_name": "Semiconductor Physics Quantum Electronics & Optoelectronics",
+        "source_openalex_id": "S4210208552",
+        "landing_page_url": "https://doi.org/10.15407/spqeo",
+        "pdf_url": null,
+        "is_oa": true
+      },
+      "authors": [],
+      "topics": [
+        "Quantum Computing Algorithms and Architecture"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Computing Algorithms and Architecture",
+          "source_kind": "topic",
+          "source_value": "T10682"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "W4411401800",
+      "title": "Chemistry beyond the scale of exact diagonalization on a quantum-centric supercomputer",
+      "cited_by_count": 60,
+      "publication_year": 2025,
+      "publication_date": "2025-06-18",
+      "doi": "https://doi.org/10.1126/sciadv.adu9991",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "Science Advances",
+        "source_openalex_id": "S2737427234",
+        "landing_page_url": "https://doi.org/10.1126/sciadv.adu9991",
+        "pdf_url": null,
+        "is_oa": true
+      },
+      "authors": [
+        {
+          "name": "Javier Robledo Moreno",
+          "openalex_id": "A5077411007"
+        },
+        {
+          "name": "Mário Motta",
+          "openalex_id": "A5017327903"
+        },
+        {
+          "name": "Holger Haas",
+          "openalex_id": "A5108928295"
+        },
+        {
+          "name": "Ali Javadi-Abhari",
+          "openalex_id": "A5045226769"
+        },
+        {
+          "name": "Petar Jurcevic",
+          "openalex_id": "A5033526345"
+        },
+        {
+          "name": "William Kirby",
+          "openalex_id": "A5076538487"
+        },
+        {
+          "name": "Simon Martiel",
+          "openalex_id": "A5082324311"
+        },
+        {
+          "name": "Kunal Sharma",
+          "openalex_id": "A5082224136"
+        },
+        {
+          "name": "Sandeep Sharma",
+          "openalex_id": "A5027243406"
+        },
+        {
+          "name": "Tomonori Shirakawa",
+          "openalex_id": "A5077875234"
+        },
+        {
+          "name": "Iskandar Sitdikov",
+          "openalex_id": "A5074127930"
+        },
+        {
+          "name": "Rong-Yang Sun",
+          "openalex_id": "A5062511389"
+        }
+      ],
+      "topics": [
+        "Quantum Computing Algorithms and Architecture",
+        "Quantum and electron transport phenomena",
+        "Quantum Information and Cryptography"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Computing Algorithms and Architecture",
+          "source_kind": "topic",
+          "source_value": "T10682"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "W4293861557",
+      "title": "Quantum Simultaneous Protocols Without Public Coins Using Modified Equality Queries",
+      "cited_by_count": 59,
+      "publication_year": 2025,
+      "publication_date": "2025-01-01",
+      "doi": "https://doi.org/10.4230/lipics.opodis.2024.34",
+      "work_type": "preprint",
+      "primary_location": {
+        "source_display_name": "arXiv (Cornell University)",
+        "source_openalex_id": "S4306400194",
+        "landing_page_url": "http://arxiv.org/abs/1607.05256",
+        "pdf_url": "https://arxiv.org/pdf/1607.05256",
+        "is_oa": true
+      },
+      "authors": [
+        {
+          "name": "Le Gall, François",
+          "openalex_id": null
+        },
+        {
+          "name": "Nadler, Oran",
+          "openalex_id": null
+        },
+        {
+          "name": "Nishimura, Harumichi",
+          "openalex_id": null
+        },
+        {
+          "name": "Oshman, Rotem",
+          "openalex_id": null
+        }
+      ],
+      "topics": [
+        "Quantum Computing Algorithms and Architecture",
+        "Computability, Logic, AI Algorithms"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Computing Algorithms and Architecture",
+          "source_kind": "topic",
+          "source_value": "T10682"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "W4408275769",
+      "title": "Quantum Computing and Machine Learning in Medical Decision-Making: A Comprehensive Review",
+      "cited_by_count": 58,
+      "publication_year": 2025,
+      "publication_date": "2025-03-09",
+      "doi": "https://doi.org/10.3390/a18030156",
+      "work_type": "review",
+      "primary_location": {
+        "source_display_name": "Algorithms",
+        "source_openalex_id": "S190629608",
+        "landing_page_url": "https://doi.org/10.3390/a18030156",
+        "pdf_url": "https://www.mdpi.com/1999-4893/18/3/156/pdf?version=1741510245",
+        "is_oa": true
+      },
+      "authors": [
+        {
+          "name": "James C. L. Chow",
+          "openalex_id": "A5082345605"
+        }
+      ],
+      "topics": [
+        "Quantum Computing Algorithms and Architecture",
+        "Quantum Information and Cryptography",
+        "Blockchain Technology Applications and Security"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Computing Algorithms and Architecture",
+          "source_kind": "topic",
+          "source_value": "T10682"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "W4408791114",
+      "title": "Review of Distributed Quantum Computing: From single QPU to High Performance Quantum Computing",
+      "cited_by_count": 57,
+      "publication_year": 2025,
+      "publication_date": "2025-03-24",
+      "doi": "https://doi.org/10.1016/j.cosrev.2025.100747",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "Computer Science Review",
+        "source_openalex_id": "S73121659",
+        "landing_page_url": "https://doi.org/10.1016/j.cosrev.2025.100747",
+        "pdf_url": null,
+        "is_oa": true
+      },
+      "authors": [
+        {
+          "name": "David Barral",
+          "openalex_id": "A5032445002"
+        },
+        {
+          "name": "F. Javier Cardama",
+          "openalex_id": "A5040917504"
+        },
+        {
+          "name": "Guillermo Díaz-Camacho",
+          "openalex_id": "A5042352278"
+        },
+        {
+          "name": "Daniel Faílde",
+          "openalex_id": "A5033984343"
+        },
+        {
+          "name": "Iago F. Llovo",
+          "openalex_id": "A5051529692"
+        },
+        {
+          "name": "Mariamo Mussa-Juane",
+          "openalex_id": "A5020739147"
+        },
+        {
+          "name": "Jorge Vázquez-Pérez",
+          "openalex_id": "A5093844922"
+        },
+        {
+          "name": "Juan Villasuso",
+          "openalex_id": "A5094363539"
+        },
+        {
+          "name": "César Piñeiro",
+          "openalex_id": "A5082957396"
+        },
+        {
+          "name": "Natalia Costas",
+          "openalex_id": "A5028347072"
+        },
+        {
+          "name": "Juan C. Pichel",
+          "openalex_id": "A5007913294"
+        },
+        {
+          "name": "Tomás F. Pena",
+          "openalex_id": "A5084306280"
+        }
+      ],
+      "topics": [
+        "Quantum Computing Algorithms and Architecture",
+        "Quantum Information and Cryptography",
+        "Quantum Mechanics and Applications"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Computing Algorithms and Architecture",
+          "source_kind": "topic",
+          "source_value": "T10682"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "W4413527309",
+      "title": "Does provable absence of barren plateaus imply classical simulability?",
+      "cited_by_count": 48,
+      "publication_year": 2025,
+      "publication_date": "2025-08-25",
+      "doi": "https://doi.org/10.1038/s41467-025-63099-6",
+      "work_type": "review",
+      "primary_location": {
+        "source_display_name": "Nature Communications",
+        "source_openalex_id": "S64187185",
+        "landing_page_url": "https://doi.org/10.1038/s41467-025-63099-6",
+        "pdf_url": "https://www.nature.com/articles/s41467-025-63099-6.pdf",
+        "is_oa": true
+      },
+      "authors": [
+        {
+          "name": "M. Cerezo",
+          "openalex_id": "A5074921335"
+        },
+        {
+          "name": "Martín Larocca",
+          "openalex_id": "A5077735586"
+        },
+        {
+          "name": "Diego García-Martín",
+          "openalex_id": "A5075695352"
+        },
+        {
+          "name": "N. L. Diaz",
+          "openalex_id": "A5055463516"
+        },
+        {
+          "name": "Paolo Braccia",
+          "openalex_id": "A5032322279"
+        },
+        {
+          "name": "Enrico Fontana",
+          "openalex_id": "A5075527337"
+        },
+        {
+          "name": "Manuel S. Rudolph",
+          "openalex_id": "A5059600722"
+        },
+        {
+          "name": "Pablo Bermejo",
+          "openalex_id": "A5075612878"
+        },
+        {
+          "name": "Aroosa Ijaz",
+          "openalex_id": "A5038280355"
+        },
+        {
+          "name": "Supanut Thanasilp",
+          "openalex_id": "A5068470039"
+        },
+        {
+          "name": "Eric R. Anschuetz",
+          "openalex_id": "A5082508399"
+        },
+        {
+          "name": "Zoë Holmes",
+          "openalex_id": "A5071652167"
+        }
+      ],
+      "topics": [
+        "Quantum Computing Algorithms and Architecture",
+        "Quantum many-body systems",
+        "Neural Networks and Reservoir Computing"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Computing Algorithms and Architecture",
+          "source_kind": "topic",
+          "source_value": "T10682"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "W4406957844",
+      "title": "Quantum Software Engineering: Roadmap and Challenges Ahead",
+      "cited_by_count": 40,
+      "publication_year": 2025,
+      "publication_date": "2025-01-29",
+      "doi": "https://doi.org/10.1145/3712002",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "ACM Transactions on Software Engineering and Methodology",
+        "source_openalex_id": "S142627899",
+        "landing_page_url": "https://doi.org/10.1145/3712002",
+        "pdf_url": null,
+        "is_oa": true
+      },
+      "authors": [
+        {
+          "name": "Juan M. Murillo",
+          "openalex_id": "A5028549815"
+        },
+        {
+          "name": "José Garcí­a-Alonso",
+          "openalex_id": "A5029686194"
+        },
+        {
+          "name": "Enrique Moguel",
+          "openalex_id": "A5051971157"
+        },
+        {
+          "name": "Johanna Barzen",
+          "openalex_id": "A5008301697"
+        },
+        {
+          "name": "Frank Leymann",
+          "openalex_id": "A5028884505"
+        },
+        {
+          "name": "Shaukat Ali",
+          "openalex_id": "A5076142098"
+        },
+        {
+          "name": "Tao Yue",
+          "openalex_id": "A5058828089"
+        },
+        {
+          "name": "Paolo Arcaini",
+          "openalex_id": "A5021486887"
+        },
+        {
+          "name": "Ricardo Pérez‐Castillo",
+          "openalex_id": "A5013429893"
+        },
+        {
+          "name": "Ignacio García‐Rodríguez de Guzmán",
+          "openalex_id": "A5014330110"
+        },
+        {
+          "name": "Mario Piattini",
+          "openalex_id": "A5083263115"
+        },
+        {
+          "name": "Antonio Ruiz–Cortés",
+          "openalex_id": "A5072611940"
+        }
+      ],
+      "topics": [
+        "Quantum Computing Algorithms and Architecture",
+        "Cloud Computing and Resource Management",
+        "Quantum Information and Cryptography"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Computing Algorithms and Architecture",
+          "source_kind": "topic",
+          "source_value": "T10682"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "W4406150672",
+      "title": "Benchmarking quantum computers",
+      "cited_by_count": 39,
+      "publication_year": 2025,
+      "publication_date": "2025-01-07",
+      "doi": "https://doi.org/10.1038/s42254-024-00796-z",
+      "work_type": "review",
+      "primary_location": {
+        "source_display_name": "Nature Reviews Physics",
+        "source_openalex_id": "S4210234670",
+        "landing_page_url": "https://doi.org/10.1038/s42254-024-00796-z",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [
+        {
+          "name": "Timothy Proctor",
+          "openalex_id": "A5089944153"
+        },
+        {
+          "name": "Kevin Young",
+          "openalex_id": "A5011333791"
+        },
+        {
+          "name": "Andrew Baczewski",
+          "openalex_id": "A5013279300"
+        },
+        {
+          "name": "Robin Blume-Kohout",
+          "openalex_id": "A5032976159"
+        }
+      ],
+      "topics": [
+        "Quantum Computing Algorithms and Architecture",
+        "Quantum Information and Cryptography",
+        "Quantum and electron transport phenomena"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Computing Algorithms and Architecture",
+          "source_kind": "topic",
+          "source_value": "T10682"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "W4406678143",
+      "title": "Quantum Error Correction with Surface Code Analysis on Quantum Computing platform",
+      "cited_by_count": 38,
+      "publication_year": 2025,
+      "publication_date": "2025-01-21",
+      "doi": "https://doi.org/10.18576/amis/190216",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "Applied Mathematics & Information Sciences",
+        "source_openalex_id": "S4210172656",
+        "landing_page_url": "https://doi.org/10.18576/amis/190216",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [],
+      "topics": [
+        "Quantum Computing Algorithms and Architecture",
+        "Quantum Information and Cryptography"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Computing Algorithms and Architecture",
+          "source_kind": "topic",
+          "source_value": "T10682"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "W4408850289",
+      "title": "Simulating two-dimensional lattice gauge theories on a qudit quantum computer",
+      "cited_by_count": 38,
+      "publication_year": 2025,
+      "publication_date": "2025-03-25",
+      "doi": "https://doi.org/10.1038/s41567-025-02797-w",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "Nature Physics",
+        "source_openalex_id": "S156274416",
+        "landing_page_url": "https://doi.org/10.1038/s41567-025-02797-w",
+        "pdf_url": "https://www.nature.com/articles/s41567-025-02797-w.pdf",
+        "is_oa": true
+      },
+      "authors": [
+        {
+          "name": "M. Meth",
+          "openalex_id": "A5025568346"
+        },
+        {
+          "name": "Jinglei Zhang",
+          "openalex_id": "A5044504160"
+        },
+        {
+          "name": "Jan F. Haase",
+          "openalex_id": "A5026612054"
+        },
+        {
+          "name": "Claire Edmunds",
+          "openalex_id": "A5081504998"
+        },
+        {
+          "name": "Lukas Postler",
+          "openalex_id": "A5023853428"
+        },
+        {
+          "name": "Andrew Jena",
+          "openalex_id": "A5030214413"
+        },
+        {
+          "name": "Alex Steiner",
+          "openalex_id": "A5028457243"
+        },
+        {
+          "name": "Luca Dellantonio",
+          "openalex_id": "A5022928718"
+        },
+        {
+          "name": "R. Blatt",
+          "openalex_id": "A5040977712"
+        },
+        {
+          "name": "P. Zoller",
+          "openalex_id": "A5016282235"
+        },
+        {
+          "name": "Thomas Monz",
+          "openalex_id": "A5066295139"
+        },
+        {
+          "name": "Philipp Schindler",
+          "openalex_id": "A5033654155"
+        }
+      ],
+      "topics": [
+        "Quantum Computing Algorithms and Architecture",
+        "Quantum Information and Cryptography",
+        "Quantum and electron transport phenomena"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Computing Algorithms and Architecture",
+          "source_kind": "topic",
+          "source_value": "T10682"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "W4408226607",
+      "title": "Quantum State Designs with Clifford-Enhanced Matrix Product States",
+      "cited_by_count": 37,
+      "publication_year": 2025,
+      "publication_date": "2025-03-07",
+      "doi": "https://doi.org/10.1103/prxquantum.6.010345",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "PRX Quantum",
+        "source_openalex_id": "S4210195673",
+        "landing_page_url": "https://doi.org/10.1103/prxquantum.6.010345",
+        "pdf_url": null,
+        "is_oa": true
+      },
+      "authors": [
+        {
+          "name": "Guglielmo Lami",
+          "openalex_id": "A5041684923"
+        },
+        {
+          "name": "Tobias Haug",
+          "openalex_id": "A5030920804"
+        },
+        {
+          "name": "Jacopo De Nardis",
+          "openalex_id": "A5016712389"
+        }
+      ],
+      "topics": [
+        "Quantum Computing Algorithms and Architecture",
+        "Quantum many-body systems",
+        "Quantum Information and Cryptography"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Computing Algorithms and Architecture",
+          "source_kind": "topic",
+          "source_value": "T10682"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "W4411983890",
+      "title": "Random unitaries in extremely low depth",
+      "cited_by_count": 37,
+      "publication_year": 2025,
+      "publication_date": "2025-07-03",
+      "doi": "https://doi.org/10.1126/science.adv8590",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "Science",
+        "source_openalex_id": "S3880285",
+        "landing_page_url": "https://doi.org/10.1126/science.adv8590",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [
+        {
+          "name": "Thomas Schuster",
+          "openalex_id": "A5060345555"
+        },
+        {
+          "name": "Jonas Haferkamp",
+          "openalex_id": "A5064304818"
+        },
+        {
+          "name": "Hsin-Yuan Huang",
+          "openalex_id": "A5015222692"
+        }
+      ],
+      "topics": [
+        "Quantum Computing Algorithms and Architecture",
+        "Stochastic Gradient Optimization Techniques",
+        "Ferroelectric and Negative Capacitance Devices"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Computing Algorithms and Architecture",
+          "source_kind": "topic",
+          "source_value": "T10682"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "W4406122603",
+      "title": "Towards large-scale quantum optimization solvers with few qubits",
+      "cited_by_count": 36,
+      "publication_year": 2025,
+      "publication_date": "2025-01-08",
+      "doi": "https://doi.org/10.1038/s41467-024-55346-z",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "Nature Communications",
+        "source_openalex_id": "S64187185",
+        "landing_page_url": "https://doi.org/10.1038/s41467-024-55346-z",
+        "pdf_url": "https://www.nature.com/articles/s41467-024-55346-z.pdf",
+        "is_oa": true
+      },
+      "authors": [
+        {
+          "name": "Marco Sciorilli",
+          "openalex_id": "A5093744101"
+        },
+        {
+          "name": "Lucas R. Borges",
+          "openalex_id": "A5049857806"
+        },
+        {
+          "name": "Taylor L. Patti",
+          "openalex_id": "A5041559873"
+        },
+        {
+          "name": "Diego García-Martín",
+          "openalex_id": "A5075695352"
+        },
+        {
+          "name": "Giancarlo Camilo",
+          "openalex_id": "A5013608011"
+        },
+        {
+          "name": "Anima Anandkumar",
+          "openalex_id": "A5014498545"
+        },
+        {
+          "name": "Leandro Aolita",
+          "openalex_id": "A5003151858"
+        }
+      ],
+      "topics": [
+        "Quantum Computing Algorithms and Architecture",
+        "Quantum Information and Cryptography",
+        "Stochastic Gradient Optimization Techniques"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Computing Algorithms and Architecture",
+          "source_kind": "topic",
+          "source_value": "T10682"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    }
+  ],
+  "authors": [
+    {
+      "openalex_id": "A5083228566",
+      "display_name": "J. I. Cirac",
+      "orcid": "https://orcid.org/0000-0003-3359-1743",
+      "works_count": 901,
+      "cited_by_count": 102801,
+      "summary_stats": {
+        "two_year_mean_citedness": 4.763636363636364,
+        "h_index": 147,
+        "i10_index": 516
+      },
+      "last_known_institutions": [
+        {
+          "display_name": "Max Planck Institute of Quantum Optics",
+          "openalex_id": "I4210120293",
+          "country_code": "DE",
+          "institution_type": "facility"
+        },
+        {
+          "display_name": "Munich Center for Quantum Science and Technology",
+          "openalex_id": "I4210142743",
+          "country_code": "DE",
+          "institution_type": "education"
+        }
+      ],
+      "topics": [
+        {
+          "openalex_id": "T10020",
+          "display_name": "Quantum Information and Cryptography",
+          "count": 441
+        },
+        {
+          "openalex_id": "T10425",
+          "display_name": "Cold Atom Physics and Bose-Einstein Condensates",
+          "count": 283
+        },
+        {
+          "openalex_id": "T11804",
+          "display_name": "Quantum many-body systems",
+          "count": 269
+        },
+        {
+          "openalex_id": "T10682",
+          "display_name": "Quantum Computing Algorithms and Architecture",
+          "count": 265
+        },
+        {
+          "openalex_id": "T10622",
+          "display_name": "Quantum Mechanics and Applications",
+          "count": 262
+        }
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Computing Algorithms and Architecture",
+          "source_kind": "topic",
+          "source_value": "T10682"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "A5066245772",
+      "display_name": "Mikhail D. Lukin",
+      "orcid": "https://orcid.org/0000-0002-8658-1007",
+      "works_count": 958,
+      "cited_by_count": 95055,
+      "summary_stats": {
+        "two_year_mean_citedness": 12.048780487804878,
+        "h_index": 157,
+        "i10_index": 390
+      },
+      "last_known_institutions": [
+        {
+          "display_name": "Harvard University",
+          "openalex_id": "I136199984",
+          "country_code": "US",
+          "institution_type": "education"
+        },
+        {
+          "display_name": "Harvard University Press",
+          "openalex_id": "I2801851002",
+          "country_code": "US",
+          "institution_type": "other"
+        }
+      ],
+      "topics": [
+        {
+          "openalex_id": "T10020",
+          "display_name": "Quantum Information and Cryptography",
+          "count": 314
+        },
+        {
+          "openalex_id": "T10425",
+          "display_name": "Cold Atom Physics and Bose-Einstein Condensates",
+          "count": 254
+        },
+        {
+          "openalex_id": "T11414",
+          "display_name": "Quantum optics and atomic interactions",
+          "count": 233
+        },
+        {
+          "openalex_id": "T10478",
+          "display_name": "Diamond and Carbon-based Materials Research",
+          "count": 188
+        },
+        {
+          "openalex_id": "T10682",
+          "display_name": "Quantum Computing Algorithms and Architecture",
+          "count": 130
+        }
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Computing Algorithms and Architecture",
+          "source_kind": "topic",
+          "source_value": "T10682"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "A5016282235",
+      "display_name": "P. Zoller",
+      "orcid": "https://orcid.org/0000-0003-4014-1505",
+      "works_count": 812,
+      "cited_by_count": 94720,
+      "summary_stats": {
+        "two_year_mean_citedness": 7.583333333333333,
+        "h_index": 148,
+        "i10_index": 459
+      },
+      "last_known_institutions": [
+        {
+          "display_name": "Centre National de la Recherche Scientifique",
+          "openalex_id": "I1294671590",
+          "country_code": "FR",
+          "institution_type": "government"
+        },
+        {
+          "display_name": "Austrian Academy of Sciences",
+          "openalex_id": "I138211613",
+          "country_code": "AT",
+          "institution_type": "government"
+        },
+        {
+          "display_name": "Universität Innsbruck",
+          "openalex_id": "I190249584",
+          "country_code": "AT",
+          "institution_type": "education"
+        }
+      ],
+      "topics": [
+        {
+          "openalex_id": "T10425",
+          "display_name": "Cold Atom Physics and Bose-Einstein Condensates",
+          "count": 399
+        },
+        {
+          "openalex_id": "T10020",
+          "display_name": "Quantum Information and Cryptography",
+          "count": 360
+        },
+        {
+          "openalex_id": "T11414",
+          "display_name": "Quantum optics and atomic interactions",
+          "count": 174
+        },
+        {
+          "openalex_id": "T10622",
+          "display_name": "Quantum Mechanics and Applications",
+          "count": 165
+        },
+        {
+          "openalex_id": "T10682",
+          "display_name": "Quantum Computing Algorithms and Architecture",
+          "count": 136
+        }
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Computing Algorithms and Architecture",
+          "source_kind": "topic",
+          "source_value": "T10682"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "A5048800312",
+      "display_name": "Franco Nori",
+      "orcid": "https://orcid.org/0000-0003-3682-7432",
+      "works_count": 1441,
+      "cited_by_count": 88221,
+      "summary_stats": {
+        "two_year_mean_citedness": 6.105590062111801,
+        "h_index": 130,
+        "i10_index": 769
+      },
+      "last_known_institutions": [
+        {
+          "display_name": "University of Michigan",
+          "openalex_id": "I27837315",
+          "country_code": "US",
+          "institution_type": "education"
+        },
+        {
+          "display_name": "Institute for Quantum Optics and Quantum Information Innsbruck",
+          "openalex_id": "I3132079568",
+          "country_code": "AT",
+          "institution_type": "facility"
+        },
+        {
+          "display_name": "RIKEN",
+          "openalex_id": "I4210110652",
+          "country_code": "JP",
+          "institution_type": "facility"
+        }
+      ],
+      "topics": [
+        {
+          "openalex_id": "T10020",
+          "display_name": "Quantum Information and Cryptography",
+          "count": 575
+        },
+        {
+          "openalex_id": "T11449",
+          "display_name": "Mechanical and Optical Resonators",
+          "count": 323
+        },
+        {
+          "openalex_id": "T10382",
+          "display_name": "Quantum and electron transport phenomena",
+          "count": 322
+        },
+        {
+          "openalex_id": "T10682",
+          "display_name": "Quantum Computing Algorithms and Architecture",
+          "count": 217
+        },
+        {
+          "openalex_id": "T11414",
+          "display_name": "Quantum optics and atomic interactions",
+          "count": 175
+        }
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Computing Algorithms and Architecture",
+          "source_kind": "topic",
+          "source_value": "T10682"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "A5001105113",
+      "display_name": "Anton Zeilinger",
+      "orcid": "https://orcid.org/0000-0002-6778-0887",
+      "works_count": 602,
+      "cited_by_count": 73222,
+      "summary_stats": {
+        "two_year_mean_citedness": 2.857142857142857,
+        "h_index": 116,
+        "i10_index": 301
+      },
+      "last_known_institutions": [
+        {
+          "display_name": "Austrian Academy of Sciences",
+          "openalex_id": "I138211613",
+          "country_code": "AT",
+          "institution_type": "government"
+        },
+        {
+          "display_name": "Vienna Center for Quantum Science and Technology",
+          "openalex_id": "I4210100980",
+          "country_code": "AT",
+          "institution_type": "education"
+        }
+      ],
+      "topics": [
+        {
+          "openalex_id": "T10020",
+          "display_name": "Quantum Information and Cryptography",
+          "count": 354
+        },
+        {
+          "openalex_id": "T10622",
+          "display_name": "Quantum Mechanics and Applications",
+          "count": 347
+        },
+        {
+          "openalex_id": "T10682",
+          "display_name": "Quantum Computing Algorithms and Architecture",
+          "count": 167
+        },
+        {
+          "openalex_id": "T10490",
+          "display_name": "Orbital Angular Momentum in Optics",
+          "count": 62
+        },
+        {
+          "openalex_id": "T10425",
+          "display_name": "Cold Atom Physics and Bose-Einstein Condensates",
+          "count": 58
+        }
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Computing Algorithms and Architecture",
+          "source_kind": "topic",
+          "source_value": "T10682"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "A5071495561",
+      "display_name": "Alán Aspuru‐Guzik",
+      "orcid": "https://orcid.org/0000-0002-8277-4434",
+      "works_count": 929,
+      "cited_by_count": 70265,
+      "summary_stats": {
+        "two_year_mean_citedness": 11.393548387096773,
+        "h_index": 114,
+        "i10_index": 409
+      },
+      "last_known_institutions": [
+        {
+          "display_name": "Canadian Institute for Advanced Research",
+          "openalex_id": "I109736498",
+          "country_code": "CA",
+          "institution_type": "facility"
+        },
+        {
+          "display_name": "Nvidia (United Kingdom)",
+          "openalex_id": "I1304085615",
+          "country_code": "GB",
+          "institution_type": "company"
+        },
+        {
+          "display_name": "Fleming College",
+          "openalex_id": "I14232583",
+          "country_code": "CA",
+          "institution_type": "education"
+        }
+      ],
+      "topics": [
+        {
+          "openalex_id": "T11948",
+          "display_name": "Machine Learning in Materials Science",
+          "count": 228
+        },
+        {
+          "openalex_id": "T10682",
+          "display_name": "Quantum Computing Algorithms and Architecture",
+          "count": 169
+        },
+        {
+          "openalex_id": "T10020",
+          "display_name": "Quantum Information and Cryptography",
+          "count": 142
+        },
+        {
+          "openalex_id": "T11177",
+          "display_name": "Spectroscopy and Quantum Chemical Studies",
+          "count": 130
+        },
+        {
+          "openalex_id": "T10211",
+          "display_name": "Computational Drug Discovery Methods",
+          "count": 126
+        }
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Computing Algorithms and Architecture",
+          "source_kind": "topic",
+          "source_value": "T10682"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "A5053166798",
+      "display_name": "Charles H. Bennett",
+      "orcid": "https://orcid.org/0000-0002-0414-3733",
+      "works_count": 206,
+      "cited_by_count": 69051,
+      "summary_stats": {
+        "two_year_mean_citedness": 0.0,
+        "h_index": 58,
+        "i10_index": 91
+      },
+      "last_known_institutions": [],
+      "topics": [
+        {
+          "openalex_id": "T10682",
+          "display_name": "Quantum Computing Algorithms and Architecture",
+          "count": 72
+        },
+        {
+          "openalex_id": "T10622",
+          "display_name": "Quantum Mechanics and Applications",
+          "count": 55
+        },
+        {
+          "openalex_id": "T10020",
+          "display_name": "Quantum Information and Cryptography",
+          "count": 52
+        },
+        {
+          "openalex_id": "T12002",
+          "display_name": "Computability, Logic, AI Algorithms",
+          "count": 22
+        },
+        {
+          "openalex_id": "T10591",
+          "display_name": "Theoretical and Computational Physics",
+          "count": 9
+        }
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Computing Algorithms and Architecture",
+          "source_kind": "topic",
+          "source_value": "T10682"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "A5042449260",
+      "display_name": "Jian-Wei Pan",
+      "orcid": "https://orcid.org/0000-0002-6100-5142",
+      "works_count": 871,
+      "cited_by_count": 66975,
+      "summary_stats": {
+        "two_year_mean_citedness": 9.375,
+        "h_index": 123,
+        "i10_index": 422
+      },
+      "last_known_institutions": [
+        {
+          "display_name": "University of Science and Technology of China",
+          "openalex_id": "I126520041",
+          "country_code": "CN",
+          "institution_type": "education"
+        }
+      ],
+      "topics": [
+        {
+          "openalex_id": "T10020",
+          "display_name": "Quantum Information and Cryptography",
+          "count": 552
+        },
+        {
+          "openalex_id": "T10622",
+          "display_name": "Quantum Mechanics and Applications",
+          "count": 305
+        },
+        {
+          "openalex_id": "T10682",
+          "display_name": "Quantum Computing Algorithms and Architecture",
+          "count": 287
+        },
+        {
+          "openalex_id": "T11414",
+          "display_name": "Quantum optics and atomic interactions",
+          "count": 155
+        },
+        {
+          "openalex_id": "T10425",
+          "display_name": "Cold Atom Physics and Bose-Einstein Condensates",
+          "count": 136
+        }
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Computing Algorithms and Architecture",
+          "source_kind": "topic",
+          "source_value": "T10682"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "A5032785303",
+      "display_name": "Nicolas Gisin",
+      "orcid": "https://orcid.org/0000-0003-0788-3494",
+      "works_count": 798,
+      "cited_by_count": 65754,
+      "summary_stats": {
+        "two_year_mean_citedness": 2.0,
+        "h_index": 124,
+        "i10_index": 422
+      },
+      "last_known_institutions": [
+        {
+          "display_name": "University of Geneva",
+          "openalex_id": "I114457229",
+          "country_code": "CH",
+          "institution_type": "education"
+        },
+        {
+          "display_name": "Constructor University",
+          "openalex_id": "I193619901",
+          "country_code": "DE",
+          "institution_type": "education"
+        },
+        {
+          "display_name": "Constructing Excellence",
+          "openalex_id": "I2801221094",
+          "country_code": "GB",
+          "institution_type": "other"
+        }
+      ],
+      "topics": [
+        {
+          "openalex_id": "T10020",
+          "display_name": "Quantum Information and Cryptography",
+          "count": 461
+        },
+        {
+          "openalex_id": "T10622",
+          "display_name": "Quantum Mechanics and Applications",
+          "count": 436
+        },
+        {
+          "openalex_id": "T10682",
+          "display_name": "Quantum Computing Algorithms and Architecture",
+          "count": 227
+        },
+        {
+          "openalex_id": "T11414",
+          "display_name": "Quantum optics and atomic interactions",
+          "count": 134
+        },
+        {
+          "openalex_id": "T10299",
+          "display_name": "Photonic and Optical Devices",
+          "count": 91
+        }
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Computing Algorithms and Architecture",
+          "source_kind": "topic",
+          "source_value": "T10682"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "A5038060570",
+      "display_name": "Seth Lloyd",
+      "orcid": "https://orcid.org/0000-0003-0353-4529",
+      "works_count": 551,
+      "cited_by_count": 65253,
+      "summary_stats": {
+        "two_year_mean_citedness": 8.478260869565217,
+        "h_index": 95,
+        "i10_index": 256
+      },
+      "last_known_institutions": [
+        {
+          "display_name": "Massachusetts Institute of Technology",
+          "openalex_id": "I63966007",
+          "country_code": "US",
+          "institution_type": "education"
+        }
+      ],
+      "topics": [
+        {
+          "openalex_id": "T10020",
+          "display_name": "Quantum Information and Cryptography",
+          "count": 318
+        },
+        {
+          "openalex_id": "T10682",
+          "display_name": "Quantum Computing Algorithms and Architecture",
+          "count": 299
+        },
+        {
+          "openalex_id": "T10622",
+          "display_name": "Quantum Mechanics and Applications",
+          "count": 193
+        },
+        {
+          "openalex_id": "T10382",
+          "display_name": "Quantum and electron transport phenomena",
+          "count": 65
+        },
+        {
+          "openalex_id": "T11520",
+          "display_name": "Advanced Thermodynamics and Statistical Mechanics",
+          "count": 38
+        }
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Computing Algorithms and Architecture",
+          "source_kind": "topic",
+          "source_value": "T10682"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "A5103046966",
+      "display_name": "Isaac L. Chuang",
+      "orcid": null,
+      "works_count": 439,
+      "cited_by_count": 56077,
+      "summary_stats": {
+        "two_year_mean_citedness": 2.619047619047619,
+        "h_index": 67,
+        "i10_index": 181
+      },
+      "last_known_institutions": [
+        {
+          "display_name": "Massachusetts Institute of Technology",
+          "openalex_id": "I63966007",
+          "country_code": "US",
+          "institution_type": "education"
+        }
+      ],
+      "topics": [
+        {
+          "openalex_id": "T10682",
+          "display_name": "Quantum Computing Algorithms and Architecture",
+          "count": 232
+        },
+        {
+          "openalex_id": "T10020",
+          "display_name": "Quantum Information and Cryptography",
+          "count": 228
+        },
+        {
+          "openalex_id": "T10622",
+          "display_name": "Quantum Mechanics and Applications",
+          "count": 73
+        },
+        {
+          "openalex_id": "T10382",
+          "display_name": "Quantum and electron transport phenomena",
+          "count": 58
+        },
+        {
+          "openalex_id": "T10425",
+          "display_name": "Cold Atom Physics and Bose-Einstein Condensates",
+          "count": 57
+        }
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Computing Algorithms and Architecture",
+          "source_kind": "topic",
+          "source_value": "T10682"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "A5046083937",
+      "display_name": "S. M. Girvin",
+      "orcid": "https://orcid.org/0000-0002-6470-5494",
+      "works_count": 565,
+      "cited_by_count": 53977,
+      "summary_stats": {
+        "two_year_mean_citedness": 9.12,
+        "h_index": 103,
+        "i10_index": 248
+      },
+      "last_known_institutions": [
+        {
+          "display_name": "Yale University",
+          "openalex_id": "I32971472",
+          "country_code": "US",
+          "institution_type": "education"
+        }
+      ],
+      "topics": [
+        {
+          "openalex_id": "T10382",
+          "display_name": "Quantum and electron transport phenomena",
+          "count": 263
+        },
+        {
+          "openalex_id": "T10020",
+          "display_name": "Quantum Information and Cryptography",
+          "count": 195
+        },
+        {
+          "openalex_id": "T10682",
+          "display_name": "Quantum Computing Algorithms and Architecture",
+          "count": 135
+        },
+        {
+          "openalex_id": "T10037",
+          "display_name": "Physics of Superconductivity and Magnetism",
+          "count": 116
+        },
+        {
+          "openalex_id": "T11449",
+          "display_name": "Mechanical and Optical Resonators",
+          "count": 63
+        }
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Computing Algorithms and Architecture",
+          "source_kind": "topic",
+          "source_value": "T10682"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "A5078065002",
+      "display_name": "William K. Wootters",
+      "orcid": "https://orcid.org/0000-0001-7117-1366",
+      "works_count": 115,
+      "cited_by_count": 51991,
+      "summary_stats": {
+        "two_year_mean_citedness": 0.5,
+        "h_index": 43,
+        "i10_index": 60
+      },
+      "last_known_institutions": [
+        {
+          "display_name": "Williams College",
+          "openalex_id": "I22675022",
+          "country_code": "US",
+          "institution_type": "education"
+        }
+      ],
+      "topics": [
+        {
+          "openalex_id": "T10622",
+          "display_name": "Quantum Mechanics and Applications",
+          "count": 74
+        },
+        {
+          "openalex_id": "T10020",
+          "display_name": "Quantum Information and Cryptography",
+          "count": 64
+        },
+        {
+          "openalex_id": "T10682",
+          "display_name": "Quantum Computing Algorithms and Architecture",
+          "count": 51
+        },
+        {
+          "openalex_id": "T11520",
+          "display_name": "Advanced Thermodynamics and Statistical Mechanics",
+          "count": 11
+        },
+        {
+          "openalex_id": "T12261",
+          "display_name": "Statistical Mechanics and Entropy",
+          "count": 8
+        }
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Computing Algorithms and Architecture",
+          "source_kind": "topic",
+          "source_value": "T10682"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "A5068294840",
+      "display_name": "Martin B. Plenio",
+      "orcid": "https://orcid.org/0000-0003-4238-8843",
+      "works_count": 654,
+      "cited_by_count": 51039,
+      "summary_stats": {
+        "two_year_mean_citedness": 4.173913043478261,
+        "h_index": 106,
+        "i10_index": 356
+      },
+      "last_known_institutions": [
+        {
+          "display_name": "Universität Ulm",
+          "openalex_id": "I196349391",
+          "country_code": "DE",
+          "institution_type": "education"
+        }
+      ],
+      "topics": [
+        {
+          "openalex_id": "T10020",
+          "display_name": "Quantum Information and Cryptography",
+          "count": 328
+        },
+        {
+          "openalex_id": "T10622",
+          "display_name": "Quantum Mechanics and Applications",
+          "count": 189
+        },
+        {
+          "openalex_id": "T10682",
+          "display_name": "Quantum Computing Algorithms and Architecture",
+          "count": 168
+        },
+        {
+          "openalex_id": "T11177",
+          "display_name": "Spectroscopy and Quantum Chemical Studies",
+          "count": 117
+        },
+        {
+          "openalex_id": "T10478",
+          "display_name": "Diamond and Carbon-based Materials Research",
+          "count": 77
+        }
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Computing Algorithms and Architecture",
+          "source_kind": "topic",
+          "source_value": "T10682"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "A5089631322",
+      "display_name": "Michel Devoret",
+      "orcid": "https://orcid.org/0000-0002-2883-9575",
+      "works_count": 591,
+      "cited_by_count": 49566,
+      "summary_stats": {
+        "two_year_mean_citedness": 28.535714285714285,
+        "h_index": 106,
+        "i10_index": 223
+      },
+      "last_known_institutions": [
+        {
+          "display_name": "Google (United States)",
+          "openalex_id": "I1291425158",
+          "country_code": "US",
+          "institution_type": "company"
+        },
+        {
+          "display_name": "University of California, Santa Barbara",
+          "openalex_id": "I154570441",
+          "country_code": "US",
+          "institution_type": "education"
+        },
+        {
+          "display_name": "Yale University",
+          "openalex_id": "I32971472",
+          "country_code": "US",
+          "institution_type": "education"
+        }
+      ],
+      "topics": [
+        {
+          "openalex_id": "T10020",
+          "display_name": "Quantum Information and Cryptography",
+          "count": 277
+        },
+        {
+          "openalex_id": "T10382",
+          "display_name": "Quantum and electron transport phenomena",
+          "count": 263
+        },
+        {
+          "openalex_id": "T10682",
+          "display_name": "Quantum Computing Algorithms and Architecture",
+          "count": 152
+        },
+        {
+          "openalex_id": "T11449",
+          "display_name": "Mechanical and Optical Resonators",
+          "count": 83
+        },
+        {
+          "openalex_id": "T10037",
+          "display_name": "Physics of Superconductivity and Magnetism",
+          "count": 82
+        }
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Computing Algorithms and Architecture",
+          "source_kind": "topic",
+          "source_value": "T10682"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "A5041819685",
+      "display_name": "C. Bauer",
+      "orcid": "https://orcid.org/0000-0001-9820-5810",
+      "works_count": 452,
+      "cited_by_count": 49359,
+      "summary_stats": {
+        "two_year_mean_citedness": 119.21739130434783,
+        "h_index": 69,
+        "i10_index": 250
+      },
+      "last_known_institutions": [
+        {
+          "display_name": "Lawrence Berkeley National Laboratory",
+          "openalex_id": "I148283060",
+          "country_code": "US",
+          "institution_type": "facility"
+        },
+        {
+          "display_name": "University of California System",
+          "openalex_id": "I2803209242",
+          "country_code": "US",
+          "institution_type": "education"
+        },
+        {
+          "display_name": "Max Planck Institute for Nuclear Physics",
+          "openalex_id": "I4210156266",
+          "country_code": "DE",
+          "institution_type": "nonprofit"
+        }
+      ],
+      "topics": [
+        {
+          "openalex_id": "T10048",
+          "display_name": "Particle physics theoretical and experimental studies",
+          "count": 274
+        },
+        {
+          "openalex_id": "T10224",
+          "display_name": "Quantum Chromodynamics and Particle Interactions",
+          "count": 217
+        },
+        {
+          "openalex_id": "T10527",
+          "display_name": "High-Energy Particle Collisions Research",
+          "count": 153
+        },
+        {
+          "openalex_id": "T10682",
+          "display_name": "Quantum Computing Algorithms and Architecture",
+          "count": 38
+        },
+        {
+          "openalex_id": "T11044",
+          "display_name": "Particle Detector Development and Performance",
+          "count": 38
+        }
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Computing Algorithms and Architecture",
+          "source_kind": "topic",
+          "source_value": "T10682"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "A5005759724",
+      "display_name": "C. Monroe",
+      "orcid": "https://orcid.org/0000-0003-0551-3713",
+      "works_count": 505,
+      "cited_by_count": 47814,
+      "summary_stats": {
+        "two_year_mean_citedness": 5.769230769230769,
+        "h_index": 92,
+        "i10_index": 193
+      },
+      "last_known_institutions": [],
+      "topics": [
+        {
+          "openalex_id": "T10020",
+          "display_name": "Quantum Information and Cryptography",
+          "count": 312
+        },
+        {
+          "openalex_id": "T10682",
+          "display_name": "Quantum Computing Algorithms and Architecture",
+          "count": 192
+        },
+        {
+          "openalex_id": "T10622",
+          "display_name": "Quantum Mechanics and Applications",
+          "count": 162
+        },
+        {
+          "openalex_id": "T10425",
+          "display_name": "Cold Atom Physics and Bose-Einstein Condensates",
+          "count": 135
+        },
+        {
+          "openalex_id": "T11414",
+          "display_name": "Quantum optics and atomic interactions",
+          "count": 83
+        }
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Computing Algorithms and Architecture",
+          "source_kind": "topic",
+          "source_value": "T10682"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "A5056095913",
+      "display_name": "David P. DiVincenzo",
+      "orcid": "https://orcid.org/0000-0003-4332-645X",
+      "works_count": 350,
+      "cited_by_count": 47295,
+      "summary_stats": {
+        "two_year_mean_citedness": 4.7,
+        "h_index": 75,
+        "i10_index": 165
+      },
+      "last_known_institutions": [
+        {
+          "display_name": "RWTH Aachen University",
+          "openalex_id": "I887968799",
+          "country_code": "DE",
+          "institution_type": "education"
+        }
+      ],
+      "topics": [
+        {
+          "openalex_id": "T10682",
+          "display_name": "Quantum Computing Algorithms and Architecture",
+          "count": 159
+        },
+        {
+          "openalex_id": "T10020",
+          "display_name": "Quantum Information and Cryptography",
+          "count": 152
+        },
+        {
+          "openalex_id": "T10382",
+          "display_name": "Quantum and electron transport phenomena",
+          "count": 137
+        },
+        {
+          "openalex_id": "T10622",
+          "display_name": "Quantum Mechanics and Applications",
+          "count": 53
+        },
+        {
+          "openalex_id": "T10037",
+          "display_name": "Physics of Superconductivity and Magnetism",
+          "count": 25
+        }
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Computing Algorithms and Architecture",
+          "source_kind": "topic",
+          "source_value": "T10682"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "A5043938679",
+      "display_name": "Harald Weinfurter",
+      "orcid": "https://orcid.org/0000-0001-6882-3909",
+      "works_count": 405,
+      "cited_by_count": 45011,
+      "summary_stats": {
+        "two_year_mean_citedness": 3.0,
+        "h_index": 83,
+        "i10_index": 169
+      },
+      "last_known_institutions": [
+        {
+          "display_name": "Max Planck Institute of Quantum Optics",
+          "openalex_id": "I4210120293",
+          "country_code": "DE",
+          "institution_type": "facility"
+        },
+        {
+          "display_name": "Munich Center for Quantum Science and Technology",
+          "openalex_id": "I4210142743",
+          "country_code": "DE",
+          "institution_type": "education"
+        },
+        {
+          "display_name": "Ludwig-Maximilians-Universität München",
+          "openalex_id": "I8204097",
+          "country_code": "DE",
+          "institution_type": "education"
+        }
+      ],
+      "topics": [
+        {
+          "openalex_id": "T10020",
+          "display_name": "Quantum Information and Cryptography",
+          "count": 285
+        },
+        {
+          "openalex_id": "T10622",
+          "display_name": "Quantum Mechanics and Applications",
+          "count": 253
+        },
+        {
+          "openalex_id": "T10682",
+          "display_name": "Quantum Computing Algorithms and Architecture",
+          "count": 153
+        },
+        {
+          "openalex_id": "T11414",
+          "display_name": "Quantum optics and atomic interactions",
+          "count": 52
+        },
+        {
+          "openalex_id": "T10425",
+          "display_name": "Cold Atom Physics and Bose-Einstein Condensates",
+          "count": 36
+        }
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Computing Algorithms and Architecture",
+          "source_kind": "topic",
+          "source_value": "T10682"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "A5020744800",
+      "display_name": "Peter W. Shor",
+      "orcid": null,
+      "works_count": 265,
+      "cited_by_count": 44925,
+      "summary_stats": {
+        "two_year_mean_citedness": 1.2,
+        "h_index": 65,
+        "i10_index": 155
+      },
+      "last_known_institutions": [
+        {
+          "display_name": "Massachusetts Institute of Technology",
+          "openalex_id": "I63966007",
+          "country_code": "US",
+          "institution_type": "education"
+        }
+      ],
+      "topics": [
+        {
+          "openalex_id": "T10682",
+          "display_name": "Quantum Computing Algorithms and Architecture",
+          "count": 145
+        },
+        {
+          "openalex_id": "T10020",
+          "display_name": "Quantum Information and Cryptography",
+          "count": 121
+        },
+        {
+          "openalex_id": "T10622",
+          "display_name": "Quantum Mechanics and Applications",
+          "count": 76
+        },
+        {
+          "openalex_id": "T13182",
+          "display_name": "Quantum-Dot Cellular Automata",
+          "count": 25
+        },
+        {
+          "openalex_id": "T12176",
+          "display_name": "Optimization and Packing Problems",
+          "count": 21
+        }
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Computing Algorithms and Architecture",
+          "source_kind": "topic",
+          "source_value": "T10682"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    }
+  ],
+  "output_path": null,
+  "generated_at": "2026-04-02T19:25:31.504001Z"
+}

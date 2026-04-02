@@ -1,0 +1,1864 @@
+{
+  "workflow_name": "openalex",
+  "mode": "natural_language_keywords",
+  "input_query": "recent quantum error correction",
+  "selector_model": null,
+  "selector_strategy": "heuristic",
+  "exact_query": null,
+  "query_modifiers": [
+    {
+      "source_phrase": "recent",
+      "filter_fragment": "from_publication_date:2020-01-01",
+      "reason": "Interpret recency language as papers published on or after January 1, 2020."
+    }
+  ],
+  "selected_keywords": [
+    {
+      "keyword_id": 715,
+      "keyword": "Quantum Error Correction",
+      "alias": "quantum-error-correction",
+      "topic_count": 1,
+      "lexical_score": 277.0,
+      "selection_rank": 1,
+      "selection_reason": "Selected by lexical fallback ranking."
+    },
+    {
+      "keyword_id": 701,
+      "keyword": "Quantum",
+      "alias": "quantum",
+      "topic_count": 1,
+      "lexical_score": 42.0,
+      "selection_rank": 2,
+      "selection_reason": "Selected by lexical fallback ranking."
+    },
+    {
+      "keyword_id": 749,
+      "keyword": "Quantum-dot Cellular Automata",
+      "alias": "quantum-dot-cellular-automata",
+      "topic_count": 1,
+      "lexical_score": 35.0,
+      "selection_rank": 3,
+      "selection_reason": "Selected by lexical fallback ranking."
+    },
+    {
+      "keyword_id": 740,
+      "keyword": "Quantum Spin Hall Effect",
+      "alias": "quantum-spin-hall-effect",
+      "topic_count": 1,
+      "lexical_score": 35.0,
+      "selection_rank": 4,
+      "selection_reason": "Selected by lexical fallback ranking."
+    },
+    {
+      "keyword_id": 703,
+      "keyword": "Quantum Anomalous Hall Effect",
+      "alias": "quantum-anomalous-hall-effect",
+      "topic_count": 1,
+      "lexical_score": 35.0,
+      "selection_rank": 5,
+      "selection_reason": "Selected by lexical fallback ranking."
+    }
+  ],
+  "selected_topics": [],
+  "executions": [
+    {
+      "label": "Quantum Error Correction",
+      "source_kind": "keyword",
+      "source_value": "Quantum Error Correction",
+      "query": {
+        "endpoint": "/works",
+        "search": null,
+        "filter": "keywords.id:quantum-error-correction,from_publication_date:2020-01-01",
+        "sort": "cited_by_count:desc",
+        "per_page": null,
+        "page": null,
+        "cursor": null,
+        "extra_params": {},
+        "original_input": null
+      },
+      "max_results_requested": 20,
+      "per_page_requested": 200,
+      "request_params": {
+        "filter": "keywords.id:quantum-error-correction,from_publication_date:2020-01-01",
+        "sort": "cited_by_count:desc",
+        "per-page": "200"
+      },
+      "request_urls": [
+        "https://api.openalex.org/works?filter=keywords.id%3Aquantum-error-correction%2Cfrom_publication_date%3A2020-01-01&sort=cited_by_count%3Adesc&per-page=20&cursor=%2A&api_key=%5BREDACTED%5D"
+      ],
+      "api_result_count": 8751,
+      "returned_count": 20,
+      "paper_ids": [
+        "W3111162498",
+        "W3173899054",
+        "W4321610982",
+        "W3012599914",
+        "W4224254118",
+        "W4389672456",
+        "W4206313080",
+        "W3094656610",
+        "W4206801895",
+        "W3043723517",
+        "W3216031933",
+        "W3128504623",
+        "W3048796215",
+        "W4387542025",
+        "W3211718387",
+        "W3009488372",
+        "W3178633198",
+        "W4353055437",
+        "W3084393414",
+        "W4393234688"
+      ]
+    },
+    {
+      "label": "Quantum",
+      "source_kind": "keyword",
+      "source_value": "Quantum",
+      "query": {
+        "endpoint": "/works",
+        "search": null,
+        "filter": "keywords.id:quantum,from_publication_date:2020-01-01",
+        "sort": "cited_by_count:desc",
+        "per_page": null,
+        "page": null,
+        "cursor": null,
+        "extra_params": {},
+        "original_input": null
+      },
+      "max_results_requested": 20,
+      "per_page_requested": 200,
+      "request_params": {
+        "filter": "keywords.id:quantum,from_publication_date:2020-01-01",
+        "sort": "cited_by_count:desc",
+        "per-page": "200"
+      },
+      "request_urls": [
+        "https://api.openalex.org/works?filter=keywords.id%3Aquantum%2Cfrom_publication_date%3A2020-01-01&sort=cited_by_count%3Adesc&per-page=20&cursor=%2A&api_key=%5BREDACTED%5D"
+      ],
+      "api_result_count": 252066,
+      "returned_count": 20,
+      "paper_ids": [
+        "W1500256440",
+        "W3111162498",
+        "W3006234984",
+        "W3107463944",
+        "W1521266393",
+        "W4382656182",
+        "W2948602808",
+        "W2994665279",
+        "W2889126882",
+        "W3000852548",
+        "W4213212652",
+        "W3034071862",
+        "W3004357554",
+        "W4211200453",
+        "W3140615080",
+        "W3014097088",
+        "W3025424660",
+        "W3173899054",
+        "W149674972",
+        "W2999029452"
+      ]
+    },
+    {
+      "label": "Quantum-dot Cellular Automata",
+      "source_kind": "keyword",
+      "source_value": "Quantum-dot Cellular Automata",
+      "query": {
+        "endpoint": "/works",
+        "search": null,
+        "filter": "keywords.id:quantum-dot-cellular-automata,from_publication_date:2020-01-01",
+        "sort": "cited_by_count:desc",
+        "per_page": null,
+        "page": null,
+        "cursor": null,
+        "extra_params": {},
+        "original_input": null
+      },
+      "max_results_requested": 20,
+      "per_page_requested": 200,
+      "request_params": {
+        "filter": "keywords.id:quantum-dot-cellular-automata,from_publication_date:2020-01-01",
+        "sort": "cited_by_count:desc",
+        "per-page": "200"
+      },
+      "request_urls": [
+        "https://api.openalex.org/works?filter=keywords.id%3Aquantum-dot-cellular-automata%2Cfrom_publication_date%3A2020-01-01&sort=cited_by_count%3Adesc&per-page=20&cursor=%2A&api_key=%5BREDACTED%5D"
+      ],
+      "api_result_count": 0,
+      "returned_count": 0,
+      "paper_ids": []
+    },
+    {
+      "label": "Quantum Spin Hall Effect",
+      "source_kind": "keyword",
+      "source_value": "Quantum Spin Hall Effect",
+      "query": {
+        "endpoint": "/works",
+        "search": null,
+        "filter": "keywords.id:quantum-spin-hall-effect,from_publication_date:2020-01-01",
+        "sort": "cited_by_count:desc",
+        "per_page": null,
+        "page": null,
+        "cursor": null,
+        "extra_params": {},
+        "original_input": null
+      },
+      "max_results_requested": 20,
+      "per_page_requested": 200,
+      "request_params": {
+        "filter": "keywords.id:quantum-spin-hall-effect,from_publication_date:2020-01-01",
+        "sort": "cited_by_count:desc",
+        "per-page": "200"
+      },
+      "request_urls": [
+        "https://api.openalex.org/works?filter=keywords.id%3Aquantum-spin-hall-effect%2Cfrom_publication_date%3A2020-01-01&sort=cited_by_count%3Adesc&per-page=20&cursor=%2A&api_key=%5BREDACTED%5D"
+      ],
+      "api_result_count": 1861,
+      "returned_count": 20,
+      "paper_ids": [
+        "W3009214734",
+        "W4380625319",
+        "W4385948524",
+        "W4385295632",
+        "W4392015766",
+        "W2964346366",
+        "W3197487995",
+        "W4387097381",
+        "W4380769261",
+        "W2999433068",
+        "W3046053327",
+        "W4392984790",
+        "W3201008375",
+        "W3003401771",
+        "W3204306482",
+        "W3020183639",
+        "W4381481111",
+        "W3014348600",
+        "W3037400820",
+        "W3099877787"
+      ]
+    },
+    {
+      "label": "Quantum Anomalous Hall Effect",
+      "source_kind": "keyword",
+      "source_value": "Quantum Anomalous Hall Effect",
+      "query": {
+        "endpoint": "/works",
+        "search": null,
+        "filter": "keywords.id:quantum-anomalous-hall-effect,from_publication_date:2020-01-01",
+        "sort": "cited_by_count:desc",
+        "per_page": null,
+        "page": null,
+        "cursor": null,
+        "extra_params": {},
+        "original_input": null
+      },
+      "max_results_requested": 20,
+      "per_page_requested": 200,
+      "request_params": {
+        "filter": "keywords.id:quantum-anomalous-hall-effect,from_publication_date:2020-01-01",
+        "sort": "cited_by_count:desc",
+        "per-page": "200"
+      },
+      "request_urls": [
+        "https://api.openalex.org/works?filter=keywords.id%3Aquantum-anomalous-hall-effect%2Cfrom_publication_date%3A2020-01-01&sort=cited_by_count%3Adesc&per-page=20&cursor=%2A&api_key=%5BREDACTED%5D"
+      ],
+      "api_result_count": 948,
+      "returned_count": 20,
+      "paper_ids": [
+        "W3000852548",
+        "W3009214734",
+        "W4380625319",
+        "W4317759359",
+        "W3042899672",
+        "W2943777786",
+        "W3106135435",
+        "W3036766168",
+        "W3037390032",
+        "W4229365020",
+        "W3003401771",
+        "W3112991750",
+        "W3009593707",
+        "W4381481111",
+        "W3014348600",
+        "W4390674865",
+        "W4221143218",
+        "W3157485082",
+        "W3205400487",
+        "W2995856215"
+      ]
+    }
+  ],
+  "summary": {
+    "total_queries_executed": 5,
+    "total_works_retrieved": 80,
+    "total_unique_works": 72,
+    "overlap_works": 8,
+    "unique_only_works": 64,
+    "top_k_returned": 25,
+    "query_summaries": [
+      {
+        "label": "Quantum Error Correction",
+        "source_kind": "keyword",
+        "returned_count": 20,
+        "unique_count": 18,
+        "overlap_count": 2
+      },
+      {
+        "label": "Quantum",
+        "source_kind": "keyword",
+        "returned_count": 20,
+        "unique_count": 17,
+        "overlap_count": 3
+      },
+      {
+        "label": "Quantum-dot Cellular Automata",
+        "source_kind": "keyword",
+        "returned_count": 0,
+        "unique_count": 0,
+        "overlap_count": 0
+      },
+      {
+        "label": "Quantum Spin Hall Effect",
+        "source_kind": "keyword",
+        "returned_count": 20,
+        "unique_count": 15,
+        "overlap_count": 5
+      },
+      {
+        "label": "Quantum Anomalous Hall Effect",
+        "source_kind": "keyword",
+        "returned_count": 20,
+        "unique_count": 14,
+        "overlap_count": 6
+      }
+    ]
+  },
+  "papers": [
+    {
+      "openalex_id": "W3111162498",
+      "title": "Variational quantum algorithms",
+      "cited_by_count": 2723,
+      "publication_year": 2021,
+      "publication_date": "2021-08-12",
+      "doi": "https://doi.org/10.1038/s42254-021-00348-9",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "Nature Reviews Physics",
+        "source_openalex_id": "S4210234670",
+        "landing_page_url": "https://doi.org/10.1038/s42254-021-00348-9",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [
+        {
+          "name": "M. Cerezo",
+          "openalex_id": null
+        },
+        {
+          "name": "Andrew Arrasmith",
+          "openalex_id": null
+        },
+        {
+          "name": "Ryan Babbush",
+          "openalex_id": null
+        },
+        {
+          "name": "Simon C. Benjamin",
+          "openalex_id": null
+        },
+        {
+          "name": "Suguru Endo",
+          "openalex_id": null
+        },
+        {
+          "name": "Keisuke Fujii",
+          "openalex_id": null
+        },
+        {
+          "name": "Jarrod R. McClean",
+          "openalex_id": null
+        },
+        {
+          "name": "Kosuke Mitarai",
+          "openalex_id": null
+        },
+        {
+          "name": "Xiao Yuan",
+          "openalex_id": null
+        },
+        {
+          "name": "Lukasz Cincio",
+          "openalex_id": null
+        },
+        {
+          "name": "Patrick J. Coles",
+          "openalex_id": null
+        }
+      ],
+      "topics": [
+        "Quantum Computing Algorithms and Architecture",
+        "Quantum-Dot Cellular Automata",
+        "Quantum Information and Cryptography"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum",
+          "source_kind": "keyword",
+          "source_value": "Quantum"
+        },
+        {
+          "label": "Quantum Error Correction",
+          "source_kind": "keyword",
+          "source_value": "Quantum Error Correction"
+        }
+      ],
+      "matched_query_count": 2,
+      "overlap_type": "overlap"
+    },
+    {
+      "openalex_id": "W3000852548",
+      "title": "Quantum anomalous Hall effect in intrinsic magnetic topological insulator MnBi <sub>2</sub> Te <sub>4</sub>",
+      "cited_by_count": 1569,
+      "publication_year": 2020,
+      "publication_date": "2020-01-24",
+      "doi": "https://doi.org/10.1126/science.aax8156",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "Science",
+        "source_openalex_id": "S3880285",
+        "landing_page_url": "https://doi.org/10.1126/science.aax8156",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [
+        {
+          "name": "Yujun Deng",
+          "openalex_id": "A5026557886"
+        },
+        {
+          "name": "Yijun Yu",
+          "openalex_id": "A5066455710"
+        },
+        {
+          "name": "Meng Zhu Shi",
+          "openalex_id": "A5109394443"
+        },
+        {
+          "name": "Zhongxun Guo",
+          "openalex_id": "A5102732709"
+        },
+        {
+          "name": "Zihan Xu",
+          "openalex_id": "A5021399686"
+        },
+        {
+          "name": "Jing Wang",
+          "openalex_id": "A5100378521"
+        },
+        {
+          "name": "Xian Hui Chen",
+          "openalex_id": "A5112271628"
+        },
+        {
+          "name": "Yuanbo Zhang",
+          "openalex_id": "A5101593866"
+        }
+      ],
+      "topics": [
+        "Topological Materials and Phenomena",
+        "Quantum many-body systems",
+        "Graphene research and applications"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum",
+          "source_kind": "keyword",
+          "source_value": "Quantum"
+        },
+        {
+          "label": "Quantum Anomalous Hall Effect",
+          "source_kind": "keyword",
+          "source_value": "Quantum Anomalous Hall Effect"
+        }
+      ],
+      "matched_query_count": 2,
+      "overlap_type": "overlap"
+    },
+    {
+      "openalex_id": "W3173899054",
+      "title": "Strong Quantum Computational Advantage Using a Superconducting Quantum Processor",
+      "cited_by_count": 1088,
+      "publication_year": 2021,
+      "publication_date": "2021-10-25",
+      "doi": "https://doi.org/10.1103/physrevlett.127.180501",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "Physical Review Letters",
+        "source_openalex_id": "S24807848",
+        "landing_page_url": "https://doi.org/10.1103/physrevlett.127.180501",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [
+        {
+          "name": "Yulin Wu",
+          "openalex_id": "A5002200171"
+        },
+        {
+          "name": "Wan‐Su Bao",
+          "openalex_id": "A5100947912"
+        },
+        {
+          "name": "Sirui Cao",
+          "openalex_id": "A5103123396"
+        },
+        {
+          "name": "Fusheng Chen",
+          "openalex_id": "A5101481018"
+        },
+        {
+          "name": "Ming-Cheng Chen",
+          "openalex_id": "A5028512714"
+        },
+        {
+          "name": "Xiawei Chen",
+          "openalex_id": "A5050211816"
+        },
+        {
+          "name": "Tung-Hsun Chung",
+          "openalex_id": "A5103936065"
+        },
+        {
+          "name": "Huiqiu Deng",
+          "openalex_id": "A5052875226"
+        },
+        {
+          "name": "Yajie Du",
+          "openalex_id": "A5090428110"
+        },
+        {
+          "name": "Daojin Fan",
+          "openalex_id": "A5086604922"
+        },
+        {
+          "name": "Ming Gong",
+          "openalex_id": "A5042782318"
+        },
+        {
+          "name": "Cheng Guo",
+          "openalex_id": "A5074419962"
+        }
+      ],
+      "topics": [
+        "Quantum Computing Algorithms and Architecture",
+        "Quantum Information and Cryptography",
+        "Quantum and electron transport phenomena"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum",
+          "source_kind": "keyword",
+          "source_value": "Quantum"
+        },
+        {
+          "label": "Quantum Error Correction",
+          "source_kind": "keyword",
+          "source_value": "Quantum Error Correction"
+        }
+      ],
+      "matched_query_count": 2,
+      "overlap_type": "overlap"
+    },
+    {
+      "openalex_id": "W3009214734",
+      "title": "Tunable correlated Chern insulator and ferromagnetism in a moiré superlattice",
+      "cited_by_count": 662,
+      "publication_year": 2020,
+      "publication_date": "2020-03-04",
+      "doi": "https://doi.org/10.1038/s41586-020-2049-7",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "Nature",
+        "source_openalex_id": "S137773608",
+        "landing_page_url": "https://doi.org/10.1038/s41586-020-2049-7",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [
+        {
+          "name": "Guorui Chen",
+          "openalex_id": null
+        },
+        {
+          "name": "Aaron L. Sharpe",
+          "openalex_id": null
+        },
+        {
+          "name": "Eli J. Fox",
+          "openalex_id": null
+        },
+        {
+          "name": "Ya-Hui Zhang",
+          "openalex_id": null
+        },
+        {
+          "name": "Shaoxin Wang",
+          "openalex_id": null
+        },
+        {
+          "name": "Lili Jiang",
+          "openalex_id": null
+        },
+        {
+          "name": "Bosai Lyu",
+          "openalex_id": null
+        },
+        {
+          "name": "Hongyuan Li",
+          "openalex_id": null
+        },
+        {
+          "name": "Kenji Watanabe",
+          "openalex_id": null
+        },
+        {
+          "name": "Takashi Taniguchi",
+          "openalex_id": null
+        },
+        {
+          "name": "Zhiwen Shi",
+          "openalex_id": null
+        },
+        {
+          "name": "T. Senthil",
+          "openalex_id": null
+        }
+      ],
+      "topics": [
+        "Topological Materials and Phenomena",
+        "Graphene research and applications",
+        "Chemical and Physical Properties of Materials"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Anomalous Hall Effect",
+          "source_kind": "keyword",
+          "source_value": "Quantum Anomalous Hall Effect"
+        },
+        {
+          "label": "Quantum Spin Hall Effect",
+          "source_kind": "keyword",
+          "source_value": "Quantum Spin Hall Effect"
+        }
+      ],
+      "matched_query_count": 2,
+      "overlap_type": "overlap"
+    },
+    {
+      "openalex_id": "W4380625319",
+      "title": "Signatures of fractional quantum anomalous Hall states in twisted MoTe2",
+      "cited_by_count": 608,
+      "publication_year": 2023,
+      "publication_date": "2023-06-14",
+      "doi": "https://doi.org/10.1038/s41586-023-06289-w",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "Nature",
+        "source_openalex_id": "S137773608",
+        "landing_page_url": "https://doi.org/10.1038/s41586-023-06289-w",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [
+        {
+          "name": "Jiaqi Cai",
+          "openalex_id": "A5060413645"
+        },
+        {
+          "name": "Eric Anderson",
+          "openalex_id": "A5073238416"
+        },
+        {
+          "name": "Chong Wang",
+          "openalex_id": "A5100329457"
+        },
+        {
+          "name": "Xiaowei Zhang",
+          "openalex_id": "A5100353434"
+        },
+        {
+          "name": "Xiaoyu Liu",
+          "openalex_id": "A5092165373"
+        },
+        {
+          "name": "William Holtzmann",
+          "openalex_id": "A5007107775"
+        },
+        {
+          "name": "Yinong Zhang",
+          "openalex_id": "A5023557418"
+        },
+        {
+          "name": "Feng‐Ren Fan",
+          "openalex_id": "A5085461829"
+        },
+        {
+          "name": "Takashi Taniguchi",
+          "openalex_id": "A5041573207"
+        },
+        {
+          "name": "Kenji Watanabe",
+          "openalex_id": "A5045096283"
+        },
+        {
+          "name": "Ying Ran",
+          "openalex_id": "A5068032136"
+        },
+        {
+          "name": "Ting Cao",
+          "openalex_id": "A5061455084"
+        }
+      ],
+      "topics": [
+        "Topological Materials and Phenomena",
+        "Graphene research and applications",
+        "Quantum and electron transport phenomena"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Anomalous Hall Effect",
+          "source_kind": "keyword",
+          "source_value": "Quantum Anomalous Hall Effect"
+        },
+        {
+          "label": "Quantum Spin Hall Effect",
+          "source_kind": "keyword",
+          "source_value": "Quantum Spin Hall Effect"
+        }
+      ],
+      "matched_query_count": 2,
+      "overlap_type": "overlap"
+    },
+    {
+      "openalex_id": "W3003401771",
+      "title": "High-temperature quantum anomalous Hall regime in a MnBi2Te4/Bi2Te3 superlattice",
+      "cited_by_count": 148,
+      "publication_year": 2020,
+      "publication_date": "2020-08-17",
+      "doi": "https://doi.org/10.1038/s41567-020-0998-2",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "Nature Physics",
+        "source_openalex_id": "S156274416",
+        "landing_page_url": "https://doi.org/10.1038/s41567-020-0998-2",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [
+        {
+          "name": "Haiming Deng",
+          "openalex_id": null
+        },
+        {
+          "name": "Zhiyi Chen",
+          "openalex_id": null
+        },
+        {
+          "name": "Agnieszka Wołoś",
+          "openalex_id": null
+        },
+        {
+          "name": "Marcin Konczykowski",
+          "openalex_id": null
+        },
+        {
+          "name": "Kamil Sobczak",
+          "openalex_id": null
+        },
+        {
+          "name": "Joanna Sitnicka",
+          "openalex_id": null
+        },
+        {
+          "name": "Irina V. Fedorchenko",
+          "openalex_id": null
+        },
+        {
+          "name": "Jolanta Borysiuk",
+          "openalex_id": null
+        },
+        {
+          "name": "Tristan Heider",
+          "openalex_id": null
+        },
+        {
+          "name": "Łukasz Pluciński",
+          "openalex_id": null
+        },
+        {
+          "name": "Kyungwha Park",
+          "openalex_id": null
+        },
+        {
+          "name": "Alexandru B. Georgescu",
+          "openalex_id": null
+        }
+      ],
+      "topics": [
+        "Topological Materials and Phenomena",
+        "Chemical and Physical Properties of Materials",
+        "Advanced Physical and Chemical Molecular Interactions"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Anomalous Hall Effect",
+          "source_kind": "keyword",
+          "source_value": "Quantum Anomalous Hall Effect"
+        },
+        {
+          "label": "Quantum Spin Hall Effect",
+          "source_kind": "keyword",
+          "source_value": "Quantum Spin Hall Effect"
+        }
+      ],
+      "matched_query_count": 2,
+      "overlap_type": "overlap"
+    },
+    {
+      "openalex_id": "W4381481111",
+      "title": "Realization of a fractional quantum Hall state with ultracold atoms",
+      "cited_by_count": 129,
+      "publication_year": 2023,
+      "publication_date": "2023-06-21",
+      "doi": "https://doi.org/10.1038/s41586-023-06122-4",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "Nature",
+        "source_openalex_id": "S137773608",
+        "landing_page_url": "https://doi.org/10.1038/s41586-023-06122-4",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [
+        {
+          "name": "Julian Léonard",
+          "openalex_id": "A5069555561"
+        },
+        {
+          "name": "Sooshin Kim",
+          "openalex_id": "A5033530804"
+        },
+        {
+          "name": "Joyce Kwan",
+          "openalex_id": "A5054267931"
+        },
+        {
+          "name": "Perrin Segura",
+          "openalex_id": "A5036840282"
+        },
+        {
+          "name": "Fabian Grusdt",
+          "openalex_id": "A5013404739"
+        },
+        {
+          "name": "Cécile Repellin",
+          "openalex_id": "A5042711934"
+        },
+        {
+          "name": "Nathan Goldman",
+          "openalex_id": "A5083932690"
+        },
+        {
+          "name": "Markus Greiner",
+          "openalex_id": "A5027431609"
+        }
+      ],
+      "topics": [
+        "Quantum and electron transport phenomena",
+        "Cold Atom Physics and Bose-Einstein Condensates",
+        "Topological Materials and Phenomena"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Anomalous Hall Effect",
+          "source_kind": "keyword",
+          "source_value": "Quantum Anomalous Hall Effect"
+        },
+        {
+          "label": "Quantum Spin Hall Effect",
+          "source_kind": "keyword",
+          "source_value": "Quantum Spin Hall Effect"
+        }
+      ],
+      "matched_query_count": 2,
+      "overlap_type": "overlap"
+    },
+    {
+      "openalex_id": "W3014348600",
+      "title": "Quantum Anomalous Hall Effects in Graphene from Proximity-Induced Uniform and Staggered Spin-Orbit and Exchange Coupling",
+      "cited_by_count": 125,
+      "publication_year": 2020,
+      "publication_date": "2020-03-30",
+      "doi": "https://doi.org/10.1103/physrevlett.124.136403",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "Physical Review Letters",
+        "source_openalex_id": "S24807848",
+        "landing_page_url": "https://doi.org/10.1103/physrevlett.124.136403",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [
+        {
+          "name": "Petra Högl",
+          "openalex_id": "A5011004675"
+        },
+        {
+          "name": "Tobias Frank",
+          "openalex_id": "A5075698722"
+        },
+        {
+          "name": "Klaus Zollner",
+          "openalex_id": "A5030735740"
+        },
+        {
+          "name": "Denis Kochan",
+          "openalex_id": "A5018656540"
+        },
+        {
+          "name": "Martin Gmitra",
+          "openalex_id": "A5091217927"
+        },
+        {
+          "name": "Jaroslav Fabian",
+          "openalex_id": "A5010417859"
+        }
+      ],
+      "topics": [
+        "Graphene research and applications",
+        "Topological Materials and Phenomena",
+        "Quantum and electron transport phenomena"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Anomalous Hall Effect",
+          "source_kind": "keyword",
+          "source_value": "Quantum Anomalous Hall Effect"
+        },
+        {
+          "label": "Quantum Spin Hall Effect",
+          "source_kind": "keyword",
+          "source_value": "Quantum Spin Hall Effect"
+        }
+      ],
+      "matched_query_count": 2,
+      "overlap_type": "overlap"
+    },
+    {
+      "openalex_id": "W1500256440",
+      "title": "Modern Quantum Mechanics",
+      "cited_by_count": 3616,
+      "publication_year": 2020,
+      "publication_date": "2020-09-17",
+      "doi": "https://doi.org/10.1017/9781108587280",
+      "work_type": "book",
+      "primary_location": {
+        "source_display_name": "Cambridge University Press eBooks",
+        "source_openalex_id": "S4306462995",
+        "landing_page_url": "https://doi.org/10.1017/9781108587280",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [
+        {
+          "name": "J. J. Sakurai",
+          "openalex_id": "A5111773958"
+        },
+        {
+          "name": "Jim Napolitano",
+          "openalex_id": "A5104363395"
+        }
+      ],
+      "topics": [
+        "Quantum Mechanics and Applications"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum",
+          "source_kind": "keyword",
+          "source_value": "Quantum"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "W3006234984",
+      "title": "Automated exploration of the low-energy chemical space with fast quantum chemical methods",
+      "cited_by_count": 2195,
+      "publication_year": 2020,
+      "publication_date": "2020-01-01",
+      "doi": "https://doi.org/10.1039/c9cp06869d",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "Physical Chemistry Chemical Physics",
+        "source_openalex_id": "S181332294",
+        "landing_page_url": "https://doi.org/10.1039/c9cp06869d",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [
+        {
+          "name": "Philipp Pracht",
+          "openalex_id": "A5070405326"
+        },
+        {
+          "name": "Fabian Bohle",
+          "openalex_id": "A5077626171"
+        },
+        {
+          "name": "Stefan Grimme",
+          "openalex_id": "A5042863303"
+        }
+      ],
+      "topics": [
+        "Mass Spectrometry Techniques and Applications",
+        "Machine Learning in Materials Science",
+        "Molecular spectroscopy and chirality"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum",
+          "source_kind": "keyword",
+          "source_value": "Quantum"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "W3107463944",
+      "title": "Quantum computational advantage using photons",
+      "cited_by_count": 2148,
+      "publication_year": 2020,
+      "publication_date": "2020-12-18",
+      "doi": "https://doi.org/10.1126/science.abe8770",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "Science",
+        "source_openalex_id": "S3880285",
+        "landing_page_url": "https://doi.org/10.1126/science.abe8770",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [
+        {
+          "name": "Han-Sen Zhong",
+          "openalex_id": null
+        },
+        {
+          "name": "Hui Wang",
+          "openalex_id": null
+        },
+        {
+          "name": "Yu-Hao Deng",
+          "openalex_id": null
+        },
+        {
+          "name": "Ming-Cheng Chen",
+          "openalex_id": null
+        },
+        {
+          "name": "Li-Chao Peng",
+          "openalex_id": null
+        },
+        {
+          "name": "Yi-Han Luo",
+          "openalex_id": null
+        },
+        {
+          "name": "Jian Qin",
+          "openalex_id": null
+        },
+        {
+          "name": "Dian Wu",
+          "openalex_id": null
+        },
+        {
+          "name": "Xing Ding",
+          "openalex_id": null
+        },
+        {
+          "name": "Yi Hu",
+          "openalex_id": null
+        },
+        {
+          "name": "Peng Hu",
+          "openalex_id": null
+        },
+        {
+          "name": "Xiao-Yan Yang",
+          "openalex_id": null
+        }
+      ],
+      "topics": [
+        "Quantum Information and Cryptography",
+        "Mechanical and Optical Resonators",
+        "Quantum Computing Algorithms and Architecture"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum",
+          "source_kind": "keyword",
+          "source_value": "Quantum"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "W1521266393",
+      "title": "Circuit quantum electrodynamics",
+      "cited_by_count": 1762,
+      "publication_year": 2021,
+      "publication_date": "2021-05-19",
+      "doi": "https://doi.org/10.1103/revmodphys.93.025005",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "Reviews of Modern Physics",
+        "source_openalex_id": "S73260565",
+        "landing_page_url": "https://doi.org/10.1103/revmodphys.93.025005",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [
+        {
+          "name": "Alexandre Blais",
+          "openalex_id": "A5066703927"
+        },
+        {
+          "name": "Arne L. Grimsmo",
+          "openalex_id": "A5037785703"
+        },
+        {
+          "name": "S. M. Girvin",
+          "openalex_id": "A5070262242"
+        },
+        {
+          "name": "Andreas Wallraff",
+          "openalex_id": "A5016075205"
+        }
+      ],
+      "topics": [
+        "Quantum Information and Cryptography",
+        "Quantum and electron transport phenomena",
+        "Quantum Mechanics and Applications"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum",
+          "source_kind": "keyword",
+          "source_value": "Quantum"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "W4382656182",
+      "title": "Quantum physics in one dimension",
+      "cited_by_count": 1682,
+      "publication_year": 2023,
+      "publication_date": "2023-06-30",
+      "doi": "https://doi.org/10.1016/b978-0-323-90800-9.00233-x",
+      "work_type": "book-chapter",
+      "primary_location": {
+        "source_display_name": "Elsevier eBooks",
+        "source_openalex_id": "S4306463230",
+        "landing_page_url": "https://doi.org/10.1016/b978-0-323-90800-9.00233-x",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [
+        {
+          "name": "Thierry Giamarchi",
+          "openalex_id": "A5000480954"
+        }
+      ],
+      "topics": [
+        "Cold Atom Physics and Bose-Einstein Condensates",
+        "Quantum many-body systems",
+        "Quantum, superfluid, helium dynamics"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum",
+          "source_kind": "keyword",
+          "source_value": "Quantum"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "W2948602808",
+      "title": "Advances in quantum cryptography",
+      "cited_by_count": 1663,
+      "publication_year": 2020,
+      "publication_date": "2020-02-27",
+      "doi": "https://doi.org/10.1364/aop.361502",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "Advances in Optics and Photonics",
+        "source_openalex_id": "S191306374",
+        "landing_page_url": "https://doi.org/10.1364/aop.361502",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [
+        {
+          "name": "S. Pirandola",
+          "openalex_id": null
+        },
+        {
+          "name": "U. L. Andersen",
+          "openalex_id": null
+        },
+        {
+          "name": "L. Banchi",
+          "openalex_id": null
+        },
+        {
+          "name": "M. Berta",
+          "openalex_id": null
+        },
+        {
+          "name": "D. Bunandar",
+          "openalex_id": null
+        },
+        {
+          "name": "R. Colbeck",
+          "openalex_id": null
+        },
+        {
+          "name": "D. Englund",
+          "openalex_id": null
+        },
+        {
+          "name": "T. Gehring",
+          "openalex_id": null
+        },
+        {
+          "name": "C. Lupo",
+          "openalex_id": null
+        },
+        {
+          "name": "C. Ottaviani",
+          "openalex_id": null
+        },
+        {
+          "name": "J. L. Pereira",
+          "openalex_id": null
+        },
+        {
+          "name": "M. Razavi",
+          "openalex_id": null
+        }
+      ],
+      "topics": [
+        "Quantum Information and Cryptography",
+        "Quantum Computing Algorithms and Architecture",
+        "Quantum Mechanics and Applications"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum",
+          "source_kind": "keyword",
+          "source_value": "Quantum"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "W2994665279",
+      "title": "Exceptional topology of non-Hermitian systems",
+      "cited_by_count": 1603,
+      "publication_year": 2021,
+      "publication_date": "2021-02-24",
+      "doi": "https://doi.org/10.1103/revmodphys.93.015005",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "Reviews of Modern Physics",
+        "source_openalex_id": "S73260565",
+        "landing_page_url": "https://doi.org/10.1103/revmodphys.93.015005",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [
+        {
+          "name": "Emil J. Bergholtz",
+          "openalex_id": "A5056417959"
+        },
+        {
+          "name": "Jan Carl Budich",
+          "openalex_id": "A5007187040"
+        },
+        {
+          "name": "Flore K. Kunst",
+          "openalex_id": "A5087942707"
+        }
+      ],
+      "topics": [
+        "Quantum Mechanics and Non-Hermitian Physics",
+        "Topological Materials and Phenomena",
+        "Quantum, superfluid, helium dynamics"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum",
+          "source_kind": "keyword",
+          "source_value": "Quantum"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "W2889126882",
+      "title": "Quantum computational chemistry",
+      "cited_by_count": 1569,
+      "publication_year": 2020,
+      "publication_date": "2020-03-30",
+      "doi": "https://doi.org/10.1103/revmodphys.92.015003",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "Reviews of Modern Physics",
+        "source_openalex_id": "S73260565",
+        "landing_page_url": "https://doi.org/10.1103/revmodphys.92.015003",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [
+        {
+          "name": "Sam McArdle",
+          "openalex_id": "A5022780389"
+        },
+        {
+          "name": "Suguru Endo",
+          "openalex_id": "A5082360196"
+        },
+        {
+          "name": "Alán Aspuru‐Guzik",
+          "openalex_id": "A5071495561"
+        },
+        {
+          "name": "Simon C. Benjamin",
+          "openalex_id": "A5012132706"
+        },
+        {
+          "name": "Xiao Yuan",
+          "openalex_id": "A5090412627"
+        }
+      ],
+      "topics": [
+        "Quantum Computing Algorithms and Architecture",
+        "Quantum Information and Cryptography",
+        "Quantum and electron transport phenomena"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum",
+          "source_kind": "keyword",
+          "source_value": "Quantum"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "W4213212652",
+      "title": "Noisy intermediate-scale quantum algorithms",
+      "cited_by_count": 1552,
+      "publication_year": 2022,
+      "publication_date": "2022-02-15",
+      "doi": "https://doi.org/10.1103/revmodphys.94.015004",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "Reviews of Modern Physics",
+        "source_openalex_id": "S73260565",
+        "landing_page_url": "https://doi.org/10.1103/revmodphys.94.015004",
+        "pdf_url": "http://link.aps.org/pdf/10.1103/RevModPhys.94.015004",
+        "is_oa": true
+      },
+      "authors": [
+        {
+          "name": "Kishor Bharti",
+          "openalex_id": "A5061413142"
+        },
+        {
+          "name": "Alba Cervera-Lierta",
+          "openalex_id": "A5031306679"
+        },
+        {
+          "name": "Thi Ha Kyaw",
+          "openalex_id": "A5088770397"
+        },
+        {
+          "name": "Tobias Haug",
+          "openalex_id": "A5030920804"
+        },
+        {
+          "name": "Sumner Alperin-Lea",
+          "openalex_id": "A5045363686"
+        },
+        {
+          "name": "Abhinav Anand",
+          "openalex_id": "A5061367654"
+        },
+        {
+          "name": "Matthias Degroote",
+          "openalex_id": "A5000821684"
+        },
+        {
+          "name": "Hermanni Heimonen",
+          "openalex_id": "A5013912304"
+        },
+        {
+          "name": "Jakob S. Kottmann",
+          "openalex_id": "A5091863640"
+        },
+        {
+          "name": "Tim Menke",
+          "openalex_id": "A5007778441"
+        },
+        {
+          "name": "Wai‐Keong Mok",
+          "openalex_id": "A5015947580"
+        },
+        {
+          "name": "Sukin Sim",
+          "openalex_id": "A5071358233"
+        }
+      ],
+      "topics": [
+        "Quantum Computing Algorithms and Architecture",
+        "Quantum Information and Cryptography",
+        "Quantum many-body systems"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum",
+          "source_kind": "keyword",
+          "source_value": "Quantum"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "W3034071862",
+      "title": "Non-Hermitian physics",
+      "cited_by_count": 1527,
+      "publication_year": 2020,
+      "publication_date": "2020-07-02",
+      "doi": "https://doi.org/10.1080/00018732.2021.1876991",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "Advances In Physics",
+        "source_openalex_id": "S137691401",
+        "landing_page_url": "https://doi.org/10.1080/00018732.2021.1876991",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [
+        {
+          "name": "Yuto Ashida",
+          "openalex_id": null
+        },
+        {
+          "name": "Zongping Gong",
+          "openalex_id": null
+        },
+        {
+          "name": "Masahito Ueda",
+          "openalex_id": null
+        }
+      ],
+      "topics": [
+        "Quantum Mechanics and Non-Hermitian Physics",
+        "Quantum chaos and dynamical systems",
+        "Advanced Physical and Chemical Molecular Interactions"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum",
+          "source_kind": "keyword",
+          "source_value": "Quantum"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "W3004357554",
+      "title": "Secure quantum key distribution with realistic devices",
+      "cited_by_count": 1419,
+      "publication_year": 2020,
+      "publication_date": "2020-05-26",
+      "doi": "https://doi.org/10.1103/revmodphys.92.025002",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "Reviews of Modern Physics",
+        "source_openalex_id": "S73260565",
+        "landing_page_url": "https://doi.org/10.1103/revmodphys.92.025002",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [
+        {
+          "name": "Feihu Xu",
+          "openalex_id": "A5032522624"
+        },
+        {
+          "name": "Xiongfeng Ma",
+          "openalex_id": "A5055298323"
+        },
+        {
+          "name": "Qiang Zhang",
+          "openalex_id": "A5100381996"
+        },
+        {
+          "name": "Hoi‐Kwong Lo",
+          "openalex_id": "A5011884682"
+        },
+        {
+          "name": "Jian-Wei Pan",
+          "openalex_id": "A5042449260"
+        }
+      ],
+      "topics": [
+        "Quantum Information and Cryptography",
+        "Quantum Computing Algorithms and Architecture",
+        "Quantum Mechanics and Applications"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum",
+          "source_kind": "keyword",
+          "source_value": "Quantum"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "W4211200453",
+      "title": "Structured light",
+      "cited_by_count": 1193,
+      "publication_year": 2021,
+      "publication_date": "2021-03-30",
+      "doi": "https://doi.org/10.1038/s41566-021-00780-4",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "Nature Photonics",
+        "source_openalex_id": "S120392215",
+        "landing_page_url": "https://doi.org/10.1038/s41566-021-00780-4",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [
+        {
+          "name": "Andrew Forbes",
+          "openalex_id": "A5048181488"
+        },
+        {
+          "name": "Michael De Oliveira",
+          "openalex_id": "A5083147867"
+        },
+        {
+          "name": "Mark R. Dennis",
+          "openalex_id": "A5035538560"
+        }
+      ],
+      "topics": [
+        "Orbital Angular Momentum in Optics",
+        "Photonic and Optical Devices",
+        "Advanced Fiber Laser Technologies"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum",
+          "source_kind": "keyword",
+          "source_value": "Quantum"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "W3140615080",
+      "title": "Shermo: A general code for calculating molecular thermochemistry properties",
+      "cited_by_count": 1141,
+      "publication_year": 2021,
+      "publication_date": "2021-04-01",
+      "doi": "https://doi.org/10.1016/j.comptc.2021.113249",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "Computational and Theoretical Chemistry",
+        "source_openalex_id": "S137947318",
+        "landing_page_url": "https://doi.org/10.1016/j.comptc.2021.113249",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [
+        {
+          "name": "Tian Lu",
+          "openalex_id": "A5069147938"
+        },
+        {
+          "name": "Qinxue Chen",
+          "openalex_id": "A5050841410"
+        }
+      ],
+      "topics": [
+        "Advanced Chemical Physics Studies",
+        "Spectroscopy and Quantum Chemical Studies",
+        "Chemical Thermodynamics and Molecular Structure"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum",
+          "source_kind": "keyword",
+          "source_value": "Quantum"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "W3014097088",
+      "title": "Sensitivity optimization for NV-diamond magnetometry",
+      "cited_by_count": 1135,
+      "publication_year": 2020,
+      "publication_date": "2020-03-31",
+      "doi": "https://doi.org/10.1103/revmodphys.92.015004",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "Reviews of Modern Physics",
+        "source_openalex_id": "S73260565",
+        "landing_page_url": "https://doi.org/10.1103/revmodphys.92.015004",
+        "pdf_url": "http://link.aps.org/pdf/10.1103/RevModPhys.92.015004",
+        "is_oa": true
+      },
+      "authors": [
+        {
+          "name": "John F. Barry",
+          "openalex_id": "A5079511092"
+        },
+        {
+          "name": "Jennifer M. Schloss",
+          "openalex_id": "A5007316750"
+        },
+        {
+          "name": "Erik Bauch",
+          "openalex_id": "A5045864874"
+        },
+        {
+          "name": "Matthew Turner",
+          "openalex_id": "A5049251962"
+        },
+        {
+          "name": "Connor Hart",
+          "openalex_id": "A5057080760"
+        },
+        {
+          "name": "Linh Pham",
+          "openalex_id": "A5109295222"
+        },
+        {
+          "name": "Ronald L. Walsworth",
+          "openalex_id": "A5020065768"
+        }
+      ],
+      "topics": [
+        "Diamond and Carbon-based Materials Research",
+        "High-pressure geophysics and materials",
+        "Metal and Thin Film Mechanics"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum",
+          "source_kind": "keyword",
+          "source_value": "Quantum"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "W3025424660",
+      "title": "TURBOMOLE: Modular program suite for <i>ab initio</i> quantum-chemical and condensed-matter simulations",
+      "cited_by_count": 1097,
+      "publication_year": 2020,
+      "publication_date": "2020-05-13",
+      "doi": "https://doi.org/10.1063/5.0004635",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "The Journal of Chemical Physics",
+        "source_openalex_id": "S77047749",
+        "landing_page_url": "https://doi.org/10.1063/5.0004635",
+        "pdf_url": "https://aip.scitation.org/doi/pdf/10.1063/5.0004635",
+        "is_oa": true
+      },
+      "authors": [
+        {
+          "name": "Sree Ganesh Balasubramani",
+          "openalex_id": "A5044556425"
+        },
+        {
+          "name": "Guo P. Chen",
+          "openalex_id": "A5035326725"
+        },
+        {
+          "name": "Sonia Coriani",
+          "openalex_id": "A5072227524"
+        },
+        {
+          "name": "Michael Diedenhofen",
+          "openalex_id": "A5037926718"
+        },
+        {
+          "name": "Marius S. Frank",
+          "openalex_id": "A5072533670"
+        },
+        {
+          "name": "Yannick J. Franzke",
+          "openalex_id": "A5079304905"
+        },
+        {
+          "name": "Filipp Furche",
+          "openalex_id": "A5048985003"
+        },
+        {
+          "name": "Robin Grotjahn",
+          "openalex_id": "A5008097975"
+        },
+        {
+          "name": "Michael E. Harding",
+          "openalex_id": "A5076461765"
+        },
+        {
+          "name": "Christof Hättig",
+          "openalex_id": "A5019753746"
+        },
+        {
+          "name": "Arnim Hellweg",
+          "openalex_id": "A5028192324"
+        },
+        {
+          "name": "Benjamin Helmich‐Paris",
+          "openalex_id": "A5033351482"
+        }
+      ],
+      "topics": [
+        "Advanced Chemical Physics Studies",
+        "Catalysis and Oxidation Reactions",
+        "Quantum, superfluid, helium dynamics"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum",
+          "source_kind": "keyword",
+          "source_value": "Quantum"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "W149674972",
+      "title": "Relativistic Quantum Theory",
+      "cited_by_count": 1046,
+      "publication_year": 2020,
+      "publication_date": "2020-09-15",
+      "doi": "https://doi.org/10.1017/9781108616270.006",
+      "work_type": "book-chapter",
+      "primary_location": {
+        "source_display_name": "Cambridge University Press eBooks",
+        "source_openalex_id": "S4306462995",
+        "landing_page_url": "https://doi.org/10.1017/9781108616270.006",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [
+        {
+          "name": "James E. Dodd",
+          "openalex_id": "A5064194739"
+        },
+        {
+          "name": "Ben Gripaios",
+          "openalex_id": "A5008592065"
+        }
+      ],
+      "topics": [
+        "Relativity and Gravitational Theory",
+        "Quantum Mechanics and Applications"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum",
+          "source_kind": "keyword",
+          "source_value": "Quantum"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "W2999029452",
+      "title": "Many-body physics with individually controlled Rydberg atoms",
+      "cited_by_count": 1025,
+      "publication_year": 2020,
+      "publication_date": "2020-01-20",
+      "doi": "https://doi.org/10.1038/s41567-019-0733-z",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "Nature Physics",
+        "source_openalex_id": "S156274416",
+        "landing_page_url": "https://doi.org/10.1038/s41567-019-0733-z",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [
+        {
+          "name": "Antoine Browaeys",
+          "openalex_id": null
+        },
+        {
+          "name": "Thierry Lahaye",
+          "openalex_id": null
+        }
+      ],
+      "topics": [
+        "Cold Atom Physics and Bose-Einstein Condensates",
+        "Quantum Information and Cryptography",
+        "Quantum many-body systems"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum",
+          "source_kind": "keyword",
+          "source_value": "Quantum"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    }
+  ],
+  "output_path": null,
+  "generated_at": "2026-04-02T15:14:58.348388Z"
+}

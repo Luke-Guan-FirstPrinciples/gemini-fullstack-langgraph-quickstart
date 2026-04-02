@@ -1,0 +1,4287 @@
+{
+  "workflow_name": "openalex",
+  "mode": "natural_language_keywords_and_topics",
+  "target": "works_and_authors",
+  "input_query": "very recent quantum information theory",
+  "selector_model": null,
+  "selector_strategy": "heuristic",
+  "exact_query": null,
+  "query_modifiers": [
+    {
+      "source_phrase": "recent",
+      "filter_fragment": "from_publication_date:2020-01-01",
+      "reason": "Interpret recency language as papers published on or after January 1, 2020."
+    }
+  ],
+  "selected_keywords": [
+    {
+      "keyword_id": 723,
+      "keyword": "Quantum Information",
+      "alias": "quantum-information",
+      "topic_count": 3,
+      "lexical_score": 125.0,
+      "selection_rank": 1,
+      "selection_reason": "Selected by lexical fallback ranking."
+    },
+    {
+      "keyword_id": 397,
+      "keyword": "Information Theory",
+      "alias": "information-theory",
+      "topic_count": 1,
+      "lexical_score": 123.0,
+      "selection_rank": 2,
+      "selection_reason": "Selected by lexical fallback ranking."
+    },
+    {
+      "keyword_id": 781,
+      "keyword": "Relativistic Quantum Theory",
+      "alias": "relativistic-quantum-theory",
+      "topic_count": 1,
+      "lexical_score": 69.0,
+      "selection_rank": 3,
+      "selection_reason": "Selected by lexical fallback ranking."
+    },
+    {
+      "keyword_id": 716,
+      "keyword": "Quantum Field Theory",
+      "alias": "quantum-field-theory",
+      "topic_count": 1,
+      "lexical_score": 69.0,
+      "selection_rank": 4,
+      "selection_reason": "Selected by lexical fallback ranking."
+    },
+    {
+      "keyword_id": 701,
+      "keyword": "Quantum",
+      "alias": "quantum",
+      "topic_count": 1,
+      "lexical_score": 42.0,
+      "selection_rank": 5,
+      "selection_reason": "Selected by lexical fallback ranking."
+    }
+  ],
+  "selected_topics": [
+    {
+      "topic_id": 10020,
+      "openalex_id": "T10020",
+      "topic_name": "Quantum Information and Cryptography",
+      "field_name": "Computer Science",
+      "subfield_name": "Artificial Intelligence",
+      "lexical_score": 47.0,
+      "selection_rank": 1,
+      "selection_reason": "Selected by lexical fallback ranking."
+    },
+    {
+      "topic_id": 10622,
+      "openalex_id": "T10622",
+      "topic_name": "Quantum Mechanics and Applications",
+      "field_name": "Physics and Astronomy",
+      "subfield_name": "Atomic and Molecular Physics, and Optics",
+      "lexical_score": 42.0,
+      "selection_rank": 2,
+      "selection_reason": "Selected by lexical fallback ranking."
+    },
+    {
+      "topic_id": 11960,
+      "openalex_id": "T11960",
+      "topic_name": "Relativity and Gravitational Theory",
+      "field_name": "Physics and Astronomy",
+      "subfield_name": "Astronomy and Astrophysics",
+      "lexical_score": 38.0,
+      "selection_rank": 3,
+      "selection_reason": "Selected by lexical fallback ranking."
+    },
+    {
+      "topic_id": 11261,
+      "openalex_id": "T11261",
+      "topic_name": "Quantum chaos and dynamical systems",
+      "field_name": "Physics and Astronomy",
+      "subfield_name": "Statistical and Nonlinear Physics",
+      "lexical_score": 38.0,
+      "selection_rank": 4,
+      "selection_reason": "Selected by lexical fallback ranking."
+    },
+    {
+      "topic_id": 11683,
+      "openalex_id": "T11683",
+      "topic_name": "Quantum and Classical Electrodynamics",
+      "field_name": "Physics and Astronomy",
+      "subfield_name": "Atomic and Molecular Physics, and Optics",
+      "lexical_score": 38.0,
+      "selection_rank": 5,
+      "selection_reason": "Selected by lexical fallback ranking."
+    }
+  ],
+  "selected_author_topics": [
+    {
+      "topic_id": 10020,
+      "openalex_id": "T10020",
+      "topic_name": "Quantum Information and Cryptography",
+      "field_name": "Computer Science",
+      "subfield_name": "Artificial Intelligence",
+      "lexical_score": 47.0,
+      "selection_rank": 1,
+      "selection_reason": "Selected by lexical fallback ranking."
+    },
+    {
+      "topic_id": 10622,
+      "openalex_id": "T10622",
+      "topic_name": "Quantum Mechanics and Applications",
+      "field_name": "Physics and Astronomy",
+      "subfield_name": "Atomic and Molecular Physics, and Optics",
+      "lexical_score": 42.0,
+      "selection_rank": 2,
+      "selection_reason": "Selected by lexical fallback ranking."
+    },
+    {
+      "topic_id": 11960,
+      "openalex_id": "T11960",
+      "topic_name": "Relativity and Gravitational Theory",
+      "field_name": "Physics and Astronomy",
+      "subfield_name": "Astronomy and Astrophysics",
+      "lexical_score": 38.0,
+      "selection_rank": 3,
+      "selection_reason": "Selected by lexical fallback ranking."
+    },
+    {
+      "topic_id": 11261,
+      "openalex_id": "T11261",
+      "topic_name": "Quantum chaos and dynamical systems",
+      "field_name": "Physics and Astronomy",
+      "subfield_name": "Statistical and Nonlinear Physics",
+      "lexical_score": 38.0,
+      "selection_rank": 4,
+      "selection_reason": "Selected by lexical fallback ranking."
+    },
+    {
+      "topic_id": 11683,
+      "openalex_id": "T11683",
+      "topic_name": "Quantum and Classical Electrodynamics",
+      "field_name": "Physics and Astronomy",
+      "subfield_name": "Atomic and Molecular Physics, and Optics",
+      "lexical_score": 38.0,
+      "selection_rank": 5,
+      "selection_reason": "Selected by lexical fallback ranking."
+    },
+    {
+      "topic_id": 11166,
+      "openalex_id": "T11166",
+      "topic_name": "Analytic Number Theory Research",
+      "field_name": "Mathematics",
+      "subfield_name": "Algebra and Number Theory",
+      "lexical_score": 31.0,
+      "selection_rank": 6,
+      "selection_reason": "Derived from keyword 'Information Theory' for author search."
+    },
+    {
+      "topic_id": 11177,
+      "openalex_id": "T11177",
+      "topic_name": "Spectroscopy and Quantum Chemical Studies",
+      "field_name": "Physics and Astronomy",
+      "subfield_name": "Atomic and Molecular Physics, and Optics",
+      "lexical_score": 72.0,
+      "selection_rank": 7,
+      "selection_reason": "Derived from keyword 'Quantum' for author search."
+    }
+  ],
+  "executions": [
+    {
+      "entity_type": "work",
+      "label": "Quantum Information",
+      "source_kind": "keyword",
+      "source_value": "Quantum Information",
+      "query": {
+        "endpoint": "/works",
+        "search": null,
+        "filter": "keywords.id:quantum-information,from_publication_date:2020-01-01",
+        "sort": "cited_by_count:desc",
+        "per_page": null,
+        "page": null,
+        "cursor": null,
+        "extra_params": {},
+        "original_input": null
+      },
+      "max_results_requested": 20,
+      "per_page_requested": 200,
+      "request_params": {
+        "filter": "keywords.id:quantum-information,from_publication_date:2020-01-01",
+        "sort": "cited_by_count:desc",
+        "per-page": "200"
+      },
+      "request_urls": [
+        "https://api.openalex.org/works?filter=keywords.id%3Aquantum-information%2Cfrom_publication_date%3A2020-01-01&sort=cited_by_count%3Adesc&per-page=20&cursor=%2A&api_key=%5BREDACTED%5D"
+      ],
+      "api_result_count": 17470,
+      "returned_count": 20,
+      "result_ids": [
+        "W3111162498",
+        "W1521266393",
+        "W2948602808",
+        "W3034071862",
+        "W3004357554",
+        "W4389703832",
+        "W3117469420",
+        "W3216297445",
+        "W2994877072",
+        "W3015390178",
+        "W4225259930",
+        "W2999629616",
+        "W3035099916",
+        "W4288051764",
+        "W3012599914",
+        "W3000833961",
+        "W3217066553",
+        "W2990831233",
+        "W3147660836",
+        "W2954939433"
+      ]
+    },
+    {
+      "entity_type": "work",
+      "label": "Information Theory",
+      "source_kind": "keyword",
+      "source_value": "Information Theory",
+      "query": {
+        "endpoint": "/works",
+        "search": null,
+        "filter": "keywords.id:information-theory,from_publication_date:2020-01-01",
+        "sort": "cited_by_count:desc",
+        "per_page": null,
+        "page": null,
+        "cursor": null,
+        "extra_params": {},
+        "original_input": null
+      },
+      "max_results_requested": 20,
+      "per_page_requested": 200,
+      "request_params": {
+        "filter": "keywords.id:information-theory,from_publication_date:2020-01-01",
+        "sort": "cited_by_count:desc",
+        "per-page": "200"
+      },
+      "request_urls": [
+        "https://api.openalex.org/works?filter=keywords.id%3Ainformation-theory%2Cfrom_publication_date%3A2020-01-01&sort=cited_by_count%3Adesc&per-page=20&cursor=%2A&api_key=%5BREDACTED%5D"
+      ],
+      "api_result_count": 5898,
+      "returned_count": 20,
+      "result_ids": [
+        "W4200283578",
+        "W3095296270",
+        "W4226150551",
+        "W4320018468",
+        "W3110268194",
+        "W2095674846",
+        "W3011208721",
+        "W3089013258",
+        "W3201464020",
+        "W4390729136",
+        "W3141610964",
+        "W3012157825",
+        "W2805653582",
+        "W4366816023",
+        "W3023624456",
+        "W3040948389",
+        "W4321366351",
+        "W2948068983",
+        "W3003841403",
+        "W3006348122"
+      ]
+    },
+    {
+      "entity_type": "work",
+      "label": "Relativistic Quantum Theory",
+      "source_kind": "keyword",
+      "source_value": "Relativistic Quantum Theory",
+      "query": {
+        "endpoint": "/works",
+        "search": null,
+        "filter": "keywords.id:relativistic-quantum-theory,from_publication_date:2020-01-01",
+        "sort": "cited_by_count:desc",
+        "per_page": null,
+        "page": null,
+        "cursor": null,
+        "extra_params": {},
+        "original_input": null
+      },
+      "max_results_requested": 20,
+      "per_page_requested": 200,
+      "request_params": {
+        "filter": "keywords.id:relativistic-quantum-theory,from_publication_date:2020-01-01",
+        "sort": "cited_by_count:desc",
+        "per-page": "200"
+      },
+      "request_urls": [
+        "https://api.openalex.org/works?filter=keywords.id%3Arelativistic-quantum-theory%2Cfrom_publication_date%3A2020-01-01&sort=cited_by_count%3Adesc&per-page=20&cursor=%2A&api_key=%5BREDACTED%5D"
+      ],
+      "api_result_count": 0,
+      "returned_count": 0,
+      "result_ids": []
+    },
+    {
+      "entity_type": "work",
+      "label": "Quantum Field Theory",
+      "source_kind": "keyword",
+      "source_value": "Quantum Field Theory",
+      "query": {
+        "endpoint": "/works",
+        "search": null,
+        "filter": "keywords.id:quantum-field-theory,from_publication_date:2020-01-01",
+        "sort": "cited_by_count:desc",
+        "per_page": null,
+        "page": null,
+        "cursor": null,
+        "extra_params": {},
+        "original_input": null
+      },
+      "max_results_requested": 20,
+      "per_page_requested": 200,
+      "request_params": {
+        "filter": "keywords.id:quantum-field-theory,from_publication_date:2020-01-01",
+        "sort": "cited_by_count:desc",
+        "per-page": "200"
+      },
+      "request_urls": [
+        "https://api.openalex.org/works?filter=keywords.id%3Aquantum-field-theory%2Cfrom_publication_date%3A2020-01-01&sort=cited_by_count%3Adesc&per-page=20&cursor=%2A&api_key=%5BREDACTED%5D"
+      ],
+      "api_result_count": 13720,
+      "returned_count": 20,
+      "result_ids": [
+        "W1520510487",
+        "W4382656182",
+        "W3034071862",
+        "W2041827155",
+        "W4322490984",
+        "W3212878805",
+        "W2975983799",
+        "W4384023756",
+        "W4386089622",
+        "W3092416736",
+        "W3048635669",
+        "W3033427938",
+        "W2945961528",
+        "W646794073",
+        "W3100909180",
+        "W3030284184",
+        "W2343647190",
+        "W3102870732",
+        "W3013403132",
+        "W2954914737"
+      ]
+    },
+    {
+      "entity_type": "work",
+      "label": "Quantum",
+      "source_kind": "keyword",
+      "source_value": "Quantum",
+      "query": {
+        "endpoint": "/works",
+        "search": null,
+        "filter": "keywords.id:quantum,from_publication_date:2020-01-01",
+        "sort": "cited_by_count:desc",
+        "per_page": null,
+        "page": null,
+        "cursor": null,
+        "extra_params": {},
+        "original_input": null
+      },
+      "max_results_requested": 20,
+      "per_page_requested": 200,
+      "request_params": {
+        "filter": "keywords.id:quantum,from_publication_date:2020-01-01",
+        "sort": "cited_by_count:desc",
+        "per-page": "200"
+      },
+      "request_urls": [
+        "https://api.openalex.org/works?filter=keywords.id%3Aquantum%2Cfrom_publication_date%3A2020-01-01&sort=cited_by_count%3Adesc&per-page=20&cursor=%2A&api_key=%5BREDACTED%5D"
+      ],
+      "api_result_count": 253211,
+      "returned_count": 20,
+      "result_ids": [
+        "W1500256440",
+        "W3111162498",
+        "W3006234984",
+        "W3107463944",
+        "W1521266393",
+        "W4382656182",
+        "W2948602808",
+        "W2994665279",
+        "W2889126882",
+        "W3000852548",
+        "W4213212652",
+        "W3034071862",
+        "W3004357554",
+        "W4211200453",
+        "W3140615080",
+        "W3014097088",
+        "W3025424660",
+        "W3173899054",
+        "W149674972",
+        "W3006823398"
+      ]
+    },
+    {
+      "entity_type": "work",
+      "label": "Quantum Information and Cryptography",
+      "source_kind": "topic",
+      "source_value": "T10020",
+      "query": {
+        "endpoint": "/works",
+        "search": null,
+        "filter": "primary_topic.id:T10020,from_publication_date:2020-01-01",
+        "sort": "cited_by_count:desc",
+        "per_page": null,
+        "page": null,
+        "cursor": null,
+        "extra_params": {},
+        "original_input": null
+      },
+      "max_results_requested": 20,
+      "per_page_requested": 200,
+      "request_params": {
+        "filter": "primary_topic.id:T10020,from_publication_date:2020-01-01",
+        "sort": "cited_by_count:desc",
+        "per-page": "200"
+      },
+      "request_urls": [
+        "https://api.openalex.org/works?filter=primary_topic.id%3AT10020%2Cfrom_publication_date%3A2020-01-01&sort=cited_by_count%3Adesc&per-page=20&cursor=%2A&api_key=%5BREDACTED%5D"
+      ],
+      "api_result_count": 36127,
+      "returned_count": 20,
+      "result_ids": [
+        "W3107463944",
+        "W1521266393",
+        "W2948602808",
+        "W3004357554",
+        "W3118428022",
+        "W2994877072",
+        "W3035099916",
+        "W3127491185",
+        "W2989247906",
+        "W3039533824",
+        "W2990831233",
+        "W3147660836",
+        "W4224254118",
+        "W4200332922",
+        "W4205938675",
+        "W3048796215",
+        "W4387542025",
+        "W3038098813",
+        "W4389990376",
+        "W4206598149"
+      ]
+    },
+    {
+      "entity_type": "work",
+      "label": "Quantum Mechanics and Applications",
+      "source_kind": "topic",
+      "source_value": "T10622",
+      "query": {
+        "endpoint": "/works",
+        "search": null,
+        "filter": "primary_topic.id:T10622,from_publication_date:2020-01-01",
+        "sort": "cited_by_count:desc",
+        "per_page": null,
+        "page": null,
+        "cursor": null,
+        "extra_params": {},
+        "original_input": null
+      },
+      "max_results_requested": 20,
+      "per_page_requested": 200,
+      "request_params": {
+        "filter": "primary_topic.id:T10622,from_publication_date:2020-01-01",
+        "sort": "cited_by_count:desc",
+        "per-page": "200"
+      },
+      "request_urls": [
+        "https://api.openalex.org/works?filter=primary_topic.id%3AT10622%2Cfrom_publication_date%3A2020-01-01&sort=cited_by_count%3Adesc&per-page=20&cursor=%2A&api_key=%5BREDACTED%5D"
+      ],
+      "api_result_count": 32908,
+      "returned_count": 20,
+      "result_ids": [
+        "W3039083618",
+        "W1500256440",
+        "W3161114015",
+        "W1481161909",
+        "W4389703832",
+        "W4312562922",
+        "W1586797410",
+        "W2952169450",
+        "W4313458796",
+        "W2071803563",
+        "W2968338697",
+        "W4237131612",
+        "W4394808183",
+        "W3014933249",
+        "W4288052074",
+        "W3157892791",
+        "W4288052217",
+        "W4251509861",
+        "W3105205584",
+        "W3104348698"
+      ]
+    },
+    {
+      "entity_type": "work",
+      "label": "Relativity and Gravitational Theory",
+      "source_kind": "topic",
+      "source_value": "T11960",
+      "query": {
+        "endpoint": "/works",
+        "search": null,
+        "filter": "primary_topic.id:T11960,from_publication_date:2020-01-01",
+        "sort": "cited_by_count:desc",
+        "per_page": null,
+        "page": null,
+        "cursor": null,
+        "extra_params": {},
+        "original_input": null
+      },
+      "max_results_requested": 20,
+      "per_page_requested": 200,
+      "request_params": {
+        "filter": "primary_topic.id:T11960,from_publication_date:2020-01-01",
+        "sort": "cited_by_count:desc",
+        "per-page": "200"
+      },
+      "request_urls": [
+        "https://api.openalex.org/works?filter=primary_topic.id%3AT11960%2Cfrom_publication_date%3A2020-01-01&sort=cited_by_count%3Adesc&per-page=20&cursor=%2A&api_key=%5BREDACTED%5D"
+      ],
+      "api_result_count": 17103,
+      "returned_count": 20,
+      "result_ids": [
+        "W2529326969",
+        "W149674972",
+        "W2267350356",
+        "W4385298530",
+        "W3011383080",
+        "W4235099459",
+        "W4386106318",
+        "W2295986996",
+        "W2995068263",
+        "W4288084071",
+        "W3154559424",
+        "W4405774745",
+        "W4226069134",
+        "W4244518168",
+        "W1569861340",
+        "W4387215996",
+        "W4247249861",
+        "W2998628945",
+        "W3010304931",
+        "W4293751767"
+      ]
+    },
+    {
+      "entity_type": "work",
+      "label": "Quantum chaos and dynamical systems",
+      "source_kind": "topic",
+      "source_value": "T11261",
+      "query": {
+        "endpoint": "/works",
+        "search": null,
+        "filter": "primary_topic.id:T11261,from_publication_date:2020-01-01",
+        "sort": "cited_by_count:desc",
+        "per_page": null,
+        "page": null,
+        "cursor": null,
+        "extra_params": {},
+        "original_input": null
+      },
+      "max_results_requested": 20,
+      "per_page_requested": 200,
+      "request_params": {
+        "filter": "primary_topic.id:T11261,from_publication_date:2020-01-01",
+        "sort": "cited_by_count:desc",
+        "per-page": "200"
+      },
+      "request_urls": [
+        "https://api.openalex.org/works?filter=primary_topic.id%3AT11261%2Cfrom_publication_date%3A2020-01-01&sort=cited_by_count%3Adesc&per-page=20&cursor=%2A&api_key=%5BREDACTED%5D"
+      ],
+      "api_result_count": 10556,
+      "returned_count": 20,
+      "result_ids": [
+        "W3165729882",
+        "W3106051480",
+        "W3047703801",
+        "W3137962867",
+        "W2947727683",
+        "W3000169322",
+        "W3006857755",
+        "W2994989816",
+        "W2945948862",
+        "W4386292029",
+        "W3157027468",
+        "W3207333085",
+        "W3202798753",
+        "W1488929050",
+        "W3047239568",
+        "W3102188916",
+        "W3014390757",
+        "W4214492281",
+        "W3037073695",
+        "W3040373293"
+      ]
+    },
+    {
+      "entity_type": "work",
+      "label": "Quantum and Classical Electrodynamics",
+      "source_kind": "topic",
+      "source_value": "T11683",
+      "query": {
+        "endpoint": "/works",
+        "search": null,
+        "filter": "primary_topic.id:T11683,from_publication_date:2020-01-01",
+        "sort": "cited_by_count:desc",
+        "per_page": null,
+        "page": null,
+        "cursor": null,
+        "extra_params": {},
+        "original_input": null
+      },
+      "max_results_requested": 20,
+      "per_page_requested": 200,
+      "request_params": {
+        "filter": "primary_topic.id:T11683,from_publication_date:2020-01-01",
+        "sort": "cited_by_count:desc",
+        "per-page": "200"
+      },
+      "request_urls": [
+        "https://api.openalex.org/works?filter=primary_topic.id%3AT11683%2Cfrom_publication_date%3A2020-01-01&sort=cited_by_count%3Adesc&per-page=20&cursor=%2A&api_key=%5BREDACTED%5D"
+      ],
+      "api_result_count": 7042,
+      "returned_count": 20,
+      "result_ids": [
+        "W4206042620",
+        "W4313124094",
+        "W4318950899",
+        "W1497292870",
+        "W4285377750",
+        "W3216830277",
+        "W3160998383",
+        "W4404977106",
+        "W4393976357",
+        "W1578281921",
+        "W3190910614",
+        "W608454973",
+        "W3015628630",
+        "W3112206979",
+        "W3033344510",
+        "W3167910669",
+        "W4390009393",
+        "W7140365191",
+        "W3014202204",
+        "W3093529503"
+      ]
+    }
+  ],
+  "summary": {
+    "total_queries_executed": 10,
+    "total_results_retrieved": 180,
+    "total_unique_results": 162,
+    "overlap_results": 14,
+    "unique_only_results": 148,
+    "top_k_returned": 25,
+    "query_summaries": [
+      {
+        "label": "Quantum Information",
+        "source_kind": "keyword",
+        "returned_count": 20,
+        "unique_count": 10,
+        "overlap_count": 10
+      },
+      {
+        "label": "Information Theory",
+        "source_kind": "keyword",
+        "returned_count": 20,
+        "unique_count": 20,
+        "overlap_count": 0
+      },
+      {
+        "label": "Relativistic Quantum Theory",
+        "source_kind": "keyword",
+        "returned_count": 0,
+        "unique_count": 0,
+        "overlap_count": 0
+      },
+      {
+        "label": "Quantum Field Theory",
+        "source_kind": "keyword",
+        "returned_count": 20,
+        "unique_count": 18,
+        "overlap_count": 2
+      },
+      {
+        "label": "Quantum",
+        "source_kind": "keyword",
+        "returned_count": 20,
+        "unique_count": 11,
+        "overlap_count": 9
+      },
+      {
+        "label": "Quantum Information and Cryptography",
+        "source_kind": "topic",
+        "returned_count": 20,
+        "unique_count": 12,
+        "overlap_count": 8
+      },
+      {
+        "label": "Quantum Mechanics and Applications",
+        "source_kind": "topic",
+        "returned_count": 20,
+        "unique_count": 18,
+        "overlap_count": 2
+      },
+      {
+        "label": "Relativity and Gravitational Theory",
+        "source_kind": "topic",
+        "returned_count": 20,
+        "unique_count": 19,
+        "overlap_count": 1
+      },
+      {
+        "label": "Quantum chaos and dynamical systems",
+        "source_kind": "topic",
+        "returned_count": 20,
+        "unique_count": 20,
+        "overlap_count": 0
+      },
+      {
+        "label": "Quantum and Classical Electrodynamics",
+        "source_kind": "topic",
+        "returned_count": 20,
+        "unique_count": 20,
+        "overlap_count": 0
+      }
+    ]
+  },
+  "author_executions": [
+    {
+      "entity_type": "author",
+      "label": "Quantum Information and Cryptography",
+      "source_kind": "topic",
+      "source_value": "T10020",
+      "query": {
+        "endpoint": "/authors",
+        "search": null,
+        "filter": "topics.id:T10020",
+        "sort": "cited_by_count:desc",
+        "per_page": null,
+        "page": null,
+        "cursor": null,
+        "extra_params": {},
+        "original_input": null
+      },
+      "max_results_requested": 20,
+      "per_page_requested": 200,
+      "request_params": {
+        "filter": "topics.id:T10020",
+        "sort": "cited_by_count:desc",
+        "per-page": "200"
+      },
+      "request_urls": [
+        "https://api.openalex.org/authors?filter=topics.id%3AT10020&sort=cited_by_count%3Adesc&per-page=20&cursor=%2A&api_key=%5BREDACTED%5D"
+      ],
+      "api_result_count": 104390,
+      "returned_count": 20,
+      "result_ids": [
+        "A5083228566",
+        "A5066245772",
+        "A5016282235",
+        "A5083898018",
+        "A5048800312",
+        "A5001105113",
+        "A5071495561",
+        "A5053166798",
+        "A5042449260",
+        "A5032785303",
+        "A5038060570",
+        "A5032954061",
+        "A5040143352",
+        "A5071256887",
+        "A5051113581",
+        "A5103046966",
+        "A5022041722",
+        "A5054462478",
+        "A5046083937",
+        "A5088589128"
+      ]
+    },
+    {
+      "entity_type": "author",
+      "label": "Quantum Mechanics and Applications",
+      "source_kind": "topic",
+      "source_value": "T10622",
+      "query": {
+        "endpoint": "/authors",
+        "search": null,
+        "filter": "topics.id:T10622",
+        "sort": "cited_by_count:desc",
+        "per_page": null,
+        "page": null,
+        "cursor": null,
+        "extra_params": {},
+        "original_input": null
+      },
+      "max_results_requested": 20,
+      "per_page_requested": 200,
+      "request_params": {
+        "filter": "topics.id:T10622",
+        "sort": "cited_by_count:desc",
+        "per-page": "200"
+      },
+      "request_urls": [
+        "https://api.openalex.org/authors?filter=topics.id%3AT10622&sort=cited_by_count%3Adesc&per-page=20&cursor=%2A&api_key=%5BREDACTED%5D"
+      ],
+      "api_result_count": 72144,
+      "returned_count": 20,
+      "result_ids": [
+        "A5083228566",
+        "A5016282235",
+        "A5037710835",
+        "A5001105113",
+        "A5053166798",
+        "A5042449260",
+        "A5032785303",
+        "A5038060570",
+        "A5006868097",
+        "A5051113581",
+        "A5032489073",
+        "A5103046966",
+        "A5022041722",
+        "A5109867375",
+        "A5014894861",
+        "A5088589128",
+        "A5078065002",
+        "A5068294840",
+        "A5032503181",
+        "A5005759724"
+      ]
+    },
+    {
+      "entity_type": "author",
+      "label": "Relativity and Gravitational Theory",
+      "source_kind": "topic",
+      "source_value": "T11960",
+      "query": {
+        "endpoint": "/authors",
+        "search": null,
+        "filter": "topics.id:T11960",
+        "sort": "cited_by_count:desc",
+        "per_page": null,
+        "page": null,
+        "cursor": null,
+        "extra_params": {},
+        "original_input": null
+      },
+      "max_results_requested": 20,
+      "per_page_requested": 200,
+      "request_params": {
+        "filter": "topics.id:T11960",
+        "sort": "cited_by_count:desc",
+        "per-page": "200"
+      },
+      "request_urls": [
+        "https://api.openalex.org/authors?filter=topics.id%3AT11960&sort=cited_by_count%3Adesc&per-page=20&cursor=%2A&api_key=%5BREDACTED%5D"
+      ],
+      "api_result_count": 44217,
+      "returned_count": 20,
+      "result_ids": [
+        "A5043632498",
+        "A5021973169",
+        "A5066175077",
+        "A5045624486",
+        "A5068574814",
+        "A5037710835",
+        "A5064280165",
+        "A5006868097",
+        "A5110168523",
+        "A5032489073",
+        "A5014587042",
+        "A5070134354",
+        "A5014894861",
+        "A5109871396",
+        "A5059474142",
+        "A5078382819",
+        "A5109036612",
+        "A5088438810",
+        "A5053873303",
+        "A5112529523"
+      ]
+    },
+    {
+      "entity_type": "author",
+      "label": "Quantum chaos and dynamical systems",
+      "source_kind": "topic",
+      "source_value": "T11261",
+      "query": {
+        "endpoint": "/authors",
+        "search": null,
+        "filter": "topics.id:T11261",
+        "sort": "cited_by_count:desc",
+        "per_page": null,
+        "page": null,
+        "cursor": null,
+        "extra_params": {},
+        "original_input": null
+      },
+      "max_results_requested": 20,
+      "per_page_requested": 200,
+      "request_params": {
+        "filter": "topics.id:T11261",
+        "sort": "cited_by_count:desc",
+        "per-page": "200"
+      },
+      "request_urls": [
+        "https://api.openalex.org/authors?filter=topics.id%3AT11261&sort=cited_by_count%3Adesc&per-page=20&cursor=%2A&api_key=%5BREDACTED%5D"
+      ],
+      "api_result_count": 47922,
+      "returned_count": 20,
+      "result_ids": [
+        "A5024633466",
+        "A5022360238",
+        "A5110208781",
+        "A5072851506",
+        "A5082913931",
+        "A5053868357",
+        "A5032503181",
+        "A5038838154",
+        "A5072728378",
+        "A5077816063",
+        "A5027725400",
+        "A5050175985",
+        "A5101842420",
+        "A5018556476",
+        "A5019554559",
+        "A5076612078",
+        "A5044438667",
+        "A5018563718",
+        "A5032141728",
+        "A5008909182"
+      ]
+    },
+    {
+      "entity_type": "author",
+      "label": "Quantum and Classical Electrodynamics",
+      "source_kind": "topic",
+      "source_value": "T11683",
+      "query": {
+        "endpoint": "/authors",
+        "search": null,
+        "filter": "topics.id:T11683",
+        "sort": "cited_by_count:desc",
+        "per_page": null,
+        "page": null,
+        "cursor": null,
+        "extra_params": {},
+        "original_input": null
+      },
+      "max_results_requested": 20,
+      "per_page_requested": 200,
+      "request_params": {
+        "filter": "topics.id:T11683",
+        "sort": "cited_by_count:desc",
+        "per-page": "200"
+      },
+      "request_urls": [
+        "https://api.openalex.org/authors?filter=topics.id%3AT11683&sort=cited_by_count%3Adesc&per-page=20&cursor=%2A&api_key=%5BREDACTED%5D"
+      ],
+      "api_result_count": 21883,
+      "returned_count": 20,
+      "result_ids": [
+        "A5037710835",
+        "A5078382819",
+        "A5088438810",
+        "A5070727013",
+        "A5025131829",
+        "A5110106506",
+        "A5090241847",
+        "A5084379194",
+        "A5111653407",
+        "A5065683612",
+        "A5111906093",
+        "A5050440211",
+        "A5109058842",
+        "A5021977601",
+        "A5112817493",
+        "A5022947410",
+        "A5113587252",
+        "A5112066352",
+        "A5108475438",
+        "A5058306459"
+      ]
+    },
+    {
+      "entity_type": "author",
+      "label": "Quantum Information and Cryptography",
+      "source_kind": "topic_from_keyword",
+      "source_value": "T10020",
+      "query": {
+        "endpoint": "/authors",
+        "search": null,
+        "filter": "topics.id:T10020",
+        "sort": "cited_by_count:desc",
+        "per_page": null,
+        "page": null,
+        "cursor": null,
+        "extra_params": {},
+        "original_input": null
+      },
+      "max_results_requested": 20,
+      "per_page_requested": 200,
+      "request_params": {
+        "filter": "topics.id:T10020",
+        "sort": "cited_by_count:desc",
+        "per-page": "200"
+      },
+      "request_urls": [
+        "https://api.openalex.org/authors?filter=topics.id%3AT10020&sort=cited_by_count%3Adesc&per-page=20&cursor=%2A&api_key=%5BREDACTED%5D"
+      ],
+      "api_result_count": 104390,
+      "returned_count": 20,
+      "result_ids": [
+        "A5083228566",
+        "A5066245772",
+        "A5016282235",
+        "A5083898018",
+        "A5048800312",
+        "A5001105113",
+        "A5071495561",
+        "A5053166798",
+        "A5042449260",
+        "A5032785303",
+        "A5038060570",
+        "A5032954061",
+        "A5040143352",
+        "A5071256887",
+        "A5051113581",
+        "A5103046966",
+        "A5022041722",
+        "A5054462478",
+        "A5046083937",
+        "A5088589128"
+      ]
+    },
+    {
+      "entity_type": "author",
+      "label": "Analytic Number Theory Research",
+      "source_kind": "topic_from_keyword",
+      "source_value": "T11166",
+      "query": {
+        "endpoint": "/authors",
+        "search": null,
+        "filter": "topics.id:T11166",
+        "sort": "cited_by_count:desc",
+        "per_page": null,
+        "page": null,
+        "cursor": null,
+        "extra_params": {},
+        "original_input": null
+      },
+      "max_results_requested": 20,
+      "per_page_requested": 200,
+      "request_params": {
+        "filter": "topics.id:T11166",
+        "sort": "cited_by_count:desc",
+        "per-page": "200"
+      },
+      "request_urls": [
+        "https://api.openalex.org/authors?filter=topics.id%3AT11166&sort=cited_by_count%3Adesc&per-page=20&cursor=%2A&api_key=%5BREDACTED%5D"
+      ],
+      "api_result_count": 23834,
+      "returned_count": 20,
+      "result_ids": [
+        "A5066728260",
+        "A5029411281",
+        "A5088720034",
+        "A5035271865",
+        "A5086124758",
+        "A5058156788",
+        "A5086016562",
+        "A5069503872",
+        "A5055200378",
+        "A5049983178",
+        "A5043273569",
+        "A5110397833",
+        "A5070348661",
+        "A5005612207",
+        "A5077107126",
+        "A5102796260",
+        "A5005589416",
+        "A5035952740",
+        "A5089052735",
+        "A5006799990"
+      ]
+    },
+    {
+      "entity_type": "author",
+      "label": "Quantum and Classical Electrodynamics",
+      "source_kind": "topic_from_keyword",
+      "source_value": "T11683",
+      "query": {
+        "endpoint": "/authors",
+        "search": null,
+        "filter": "topics.id:T11683",
+        "sort": "cited_by_count:desc",
+        "per_page": null,
+        "page": null,
+        "cursor": null,
+        "extra_params": {},
+        "original_input": null
+      },
+      "max_results_requested": 20,
+      "per_page_requested": 200,
+      "request_params": {
+        "filter": "topics.id:T11683",
+        "sort": "cited_by_count:desc",
+        "per-page": "200"
+      },
+      "request_urls": [
+        "https://api.openalex.org/authors?filter=topics.id%3AT11683&sort=cited_by_count%3Adesc&per-page=20&cursor=%2A&api_key=%5BREDACTED%5D"
+      ],
+      "api_result_count": 21883,
+      "returned_count": 20,
+      "result_ids": [
+        "A5037710835",
+        "A5078382819",
+        "A5088438810",
+        "A5070727013",
+        "A5025131829",
+        "A5110106506",
+        "A5090241847",
+        "A5084379194",
+        "A5111653407",
+        "A5065683612",
+        "A5111906093",
+        "A5050440211",
+        "A5109058842",
+        "A5021977601",
+        "A5112817493",
+        "A5022947410",
+        "A5113587252",
+        "A5112066352",
+        "A5108475438",
+        "A5058306459"
+      ]
+    },
+    {
+      "entity_type": "author",
+      "label": "Relativity and Gravitational Theory",
+      "source_kind": "topic_from_keyword",
+      "source_value": "T11960",
+      "query": {
+        "endpoint": "/authors",
+        "search": null,
+        "filter": "topics.id:T11960",
+        "sort": "cited_by_count:desc",
+        "per_page": null,
+        "page": null,
+        "cursor": null,
+        "extra_params": {},
+        "original_input": null
+      },
+      "max_results_requested": 20,
+      "per_page_requested": 200,
+      "request_params": {
+        "filter": "topics.id:T11960",
+        "sort": "cited_by_count:desc",
+        "per-page": "200"
+      },
+      "request_urls": [
+        "https://api.openalex.org/authors?filter=topics.id%3AT11960&sort=cited_by_count%3Adesc&per-page=20&cursor=%2A&api_key=%5BREDACTED%5D"
+      ],
+      "api_result_count": 44217,
+      "returned_count": 20,
+      "result_ids": [
+        "A5043632498",
+        "A5021973169",
+        "A5066175077",
+        "A5045624486",
+        "A5068574814",
+        "A5037710835",
+        "A5064280165",
+        "A5006868097",
+        "A5110168523",
+        "A5032489073",
+        "A5014587042",
+        "A5070134354",
+        "A5014894861",
+        "A5109871396",
+        "A5059474142",
+        "A5078382819",
+        "A5109036612",
+        "A5088438810",
+        "A5053873303",
+        "A5112529523"
+      ]
+    },
+    {
+      "entity_type": "author",
+      "label": "Spectroscopy and Quantum Chemical Studies",
+      "source_kind": "topic_from_keyword",
+      "source_value": "T11177",
+      "query": {
+        "endpoint": "/authors",
+        "search": null,
+        "filter": "topics.id:T11177",
+        "sort": "cited_by_count:desc",
+        "per_page": null,
+        "page": null,
+        "cursor": null,
+        "extra_params": {},
+        "original_input": null
+      },
+      "max_results_requested": 20,
+      "per_page_requested": 200,
+      "request_params": {
+        "filter": "topics.id:T11177",
+        "sort": "cited_by_count:desc",
+        "per-page": "200"
+      },
+      "request_urls": [
+        "https://api.openalex.org/authors?filter=topics.id%3AT11177&sort=cited_by_count%3Adesc&per-page=20&cursor=%2A&api_key=%5BREDACTED%5D"
+      ],
+      "api_result_count": 111837,
+      "returned_count": 20,
+      "result_ids": [
+        "A5014987686",
+        "A5082307304",
+        "A5053648717",
+        "A5061717048",
+        "A5015077264",
+        "A5038387078",
+        "A5035627473",
+        "A5009013437",
+        "A5019365851",
+        "A5029996336",
+        "A5076499540",
+        "A5023487560",
+        "A5083564020",
+        "A5112793169",
+        "A5016283866",
+        "A5053850265",
+        "A5064735594",
+        "A5068247471",
+        "A5050108763",
+        "A5014694160"
+      ]
+    }
+  ],
+  "author_summary": {
+    "total_queries_executed": 10,
+    "total_results_retrieved": 200,
+    "total_unique_results": 121,
+    "overlap_results": 18,
+    "unique_only_results": 103,
+    "top_k_returned": 25,
+    "query_summaries": [
+      {
+        "label": "Quantum Information and Cryptography",
+        "source_kind": "topic",
+        "returned_count": 20,
+        "unique_count": 9,
+        "overlap_count": 11
+      },
+      {
+        "label": "Quantum Mechanics and Applications",
+        "source_kind": "topic",
+        "returned_count": 20,
+        "unique_count": 4,
+        "overlap_count": 16
+      },
+      {
+        "label": "Relativity and Gravitational Theory",
+        "source_kind": "topic",
+        "returned_count": 20,
+        "unique_count": 14,
+        "overlap_count": 6
+      },
+      {
+        "label": "Quantum chaos and dynamical systems",
+        "source_kind": "topic",
+        "returned_count": 20,
+        "unique_count": 19,
+        "overlap_count": 1
+      },
+      {
+        "label": "Quantum and Classical Electrodynamics",
+        "source_kind": "topic",
+        "returned_count": 20,
+        "unique_count": 17,
+        "overlap_count": 3
+      },
+      {
+        "label": "Quantum Information and Cryptography",
+        "source_kind": "topic_from_keyword",
+        "returned_count": 20,
+        "unique_count": 9,
+        "overlap_count": 11
+      },
+      {
+        "label": "Analytic Number Theory Research",
+        "source_kind": "topic_from_keyword",
+        "returned_count": 20,
+        "unique_count": 20,
+        "overlap_count": 0
+      },
+      {
+        "label": "Quantum and Classical Electrodynamics",
+        "source_kind": "topic_from_keyword",
+        "returned_count": 20,
+        "unique_count": 17,
+        "overlap_count": 3
+      },
+      {
+        "label": "Relativity and Gravitational Theory",
+        "source_kind": "topic_from_keyword",
+        "returned_count": 20,
+        "unique_count": 14,
+        "overlap_count": 6
+      },
+      {
+        "label": "Spectroscopy and Quantum Chemical Studies",
+        "source_kind": "topic_from_keyword",
+        "returned_count": 20,
+        "unique_count": 20,
+        "overlap_count": 0
+      }
+    ]
+  },
+  "papers": [
+    {
+      "openalex_id": "W1521266393",
+      "title": "Circuit quantum electrodynamics",
+      "cited_by_count": 1773,
+      "publication_year": 2021,
+      "publication_date": "2021-05-19",
+      "doi": "https://doi.org/10.1103/revmodphys.93.025005",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "Reviews of Modern Physics",
+        "source_openalex_id": "S73260565",
+        "landing_page_url": "https://doi.org/10.1103/revmodphys.93.025005",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [
+        {
+          "name": "Alexandre Blais",
+          "openalex_id": "A5066703927"
+        },
+        {
+          "name": "Arne L. Grimsmo",
+          "openalex_id": "A5037785703"
+        },
+        {
+          "name": "S. M. Girvin",
+          "openalex_id": "A5070262242"
+        },
+        {
+          "name": "Andreas Wallraff",
+          "openalex_id": "A5016075205"
+        }
+      ],
+      "topics": [
+        "Quantum Information and Cryptography",
+        "Quantum and electron transport phenomena",
+        "Quantum Mechanics and Applications"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum",
+          "source_kind": "keyword",
+          "source_value": "Quantum"
+        },
+        {
+          "label": "Quantum Information",
+          "source_kind": "keyword",
+          "source_value": "Quantum Information"
+        },
+        {
+          "label": "Quantum Information and Cryptography",
+          "source_kind": "topic",
+          "source_value": "T10020"
+        }
+      ],
+      "matched_query_count": 3,
+      "overlap_type": "overlap"
+    },
+    {
+      "openalex_id": "W2948602808",
+      "title": "Advances in quantum cryptography",
+      "cited_by_count": 1666,
+      "publication_year": 2020,
+      "publication_date": "2020-02-27",
+      "doi": "https://doi.org/10.1364/aop.361502",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "Advances in Optics and Photonics",
+        "source_openalex_id": "S191306374",
+        "landing_page_url": "https://doi.org/10.1364/aop.361502",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [
+        {
+          "name": "S. Pirandola",
+          "openalex_id": null
+        },
+        {
+          "name": "U. L. Andersen",
+          "openalex_id": null
+        },
+        {
+          "name": "L. Banchi",
+          "openalex_id": null
+        },
+        {
+          "name": "M. Berta",
+          "openalex_id": null
+        },
+        {
+          "name": "D. Bunandar",
+          "openalex_id": null
+        },
+        {
+          "name": "R. Colbeck",
+          "openalex_id": null
+        },
+        {
+          "name": "D. Englund",
+          "openalex_id": null
+        },
+        {
+          "name": "T. Gehring",
+          "openalex_id": null
+        },
+        {
+          "name": "C. Lupo",
+          "openalex_id": null
+        },
+        {
+          "name": "C. Ottaviani",
+          "openalex_id": null
+        },
+        {
+          "name": "J. L. Pereira",
+          "openalex_id": null
+        },
+        {
+          "name": "M. Razavi",
+          "openalex_id": null
+        }
+      ],
+      "topics": [
+        "Quantum Information and Cryptography",
+        "Quantum Computing Algorithms and Architecture",
+        "Quantum Mechanics and Applications"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum",
+          "source_kind": "keyword",
+          "source_value": "Quantum"
+        },
+        {
+          "label": "Quantum Information",
+          "source_kind": "keyword",
+          "source_value": "Quantum Information"
+        },
+        {
+          "label": "Quantum Information and Cryptography",
+          "source_kind": "topic",
+          "source_value": "T10020"
+        }
+      ],
+      "matched_query_count": 3,
+      "overlap_type": "overlap"
+    },
+    {
+      "openalex_id": "W3034071862",
+      "title": "Non-Hermitian physics",
+      "cited_by_count": 1531,
+      "publication_year": 2020,
+      "publication_date": "2020-07-02",
+      "doi": "https://doi.org/10.1080/00018732.2021.1876991",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "Advances In Physics",
+        "source_openalex_id": "S137691401",
+        "landing_page_url": "https://doi.org/10.1080/00018732.2021.1876991",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [
+        {
+          "name": "Yuto Ashida",
+          "openalex_id": null
+        },
+        {
+          "name": "Zongping Gong",
+          "openalex_id": null
+        },
+        {
+          "name": "Masahito Ueda",
+          "openalex_id": null
+        }
+      ],
+      "topics": [
+        "Quantum Mechanics and Non-Hermitian Physics",
+        "Quantum chaos and dynamical systems",
+        "Advanced Physical and Chemical Molecular Interactions"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum",
+          "source_kind": "keyword",
+          "source_value": "Quantum"
+        },
+        {
+          "label": "Quantum Field Theory",
+          "source_kind": "keyword",
+          "source_value": "Quantum Field Theory"
+        },
+        {
+          "label": "Quantum Information",
+          "source_kind": "keyword",
+          "source_value": "Quantum Information"
+        }
+      ],
+      "matched_query_count": 3,
+      "overlap_type": "overlap"
+    },
+    {
+      "openalex_id": "W3004357554",
+      "title": "Secure quantum key distribution with realistic devices",
+      "cited_by_count": 1421,
+      "publication_year": 2020,
+      "publication_date": "2020-05-26",
+      "doi": "https://doi.org/10.1103/revmodphys.92.025002",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "Reviews of Modern Physics",
+        "source_openalex_id": "S73260565",
+        "landing_page_url": "https://doi.org/10.1103/revmodphys.92.025002",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [
+        {
+          "name": "Feihu Xu",
+          "openalex_id": "A5032522624"
+        },
+        {
+          "name": "Xiongfeng Ma",
+          "openalex_id": "A5055298323"
+        },
+        {
+          "name": "Qiang Zhang",
+          "openalex_id": "A5100381996"
+        },
+        {
+          "name": "Hoi‐Kwong Lo",
+          "openalex_id": "A5011884682"
+        },
+        {
+          "name": "Jian-Wei Pan",
+          "openalex_id": "A5042449260"
+        }
+      ],
+      "topics": [
+        "Quantum Information and Cryptography",
+        "Quantum Computing Algorithms and Architecture",
+        "Quantum Mechanics and Applications"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum",
+          "source_kind": "keyword",
+          "source_value": "Quantum"
+        },
+        {
+          "label": "Quantum Information",
+          "source_kind": "keyword",
+          "source_value": "Quantum Information"
+        },
+        {
+          "label": "Quantum Information and Cryptography",
+          "source_kind": "topic",
+          "source_value": "T10020"
+        }
+      ],
+      "matched_query_count": 3,
+      "overlap_type": "overlap"
+    },
+    {
+      "openalex_id": "W1500256440",
+      "title": "Modern Quantum Mechanics",
+      "cited_by_count": 3616,
+      "publication_year": 2020,
+      "publication_date": "2020-09-17",
+      "doi": "https://doi.org/10.1017/9781108587280",
+      "work_type": "book",
+      "primary_location": {
+        "source_display_name": "Cambridge University Press eBooks",
+        "source_openalex_id": "S4306462995",
+        "landing_page_url": "https://doi.org/10.1017/9781108587280",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [
+        {
+          "name": "J. J. Sakurai",
+          "openalex_id": "A5111773958"
+        },
+        {
+          "name": "Jim Napolitano",
+          "openalex_id": "A5104363395"
+        }
+      ],
+      "topics": [
+        "Quantum Mechanics and Applications"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum",
+          "source_kind": "keyword",
+          "source_value": "Quantum"
+        },
+        {
+          "label": "Quantum Mechanics and Applications",
+          "source_kind": "topic",
+          "source_value": "T10622"
+        }
+      ],
+      "matched_query_count": 2,
+      "overlap_type": "overlap"
+    },
+    {
+      "openalex_id": "W3111162498",
+      "title": "Variational quantum algorithms",
+      "cited_by_count": 2736,
+      "publication_year": 2021,
+      "publication_date": "2021-08-12",
+      "doi": "https://doi.org/10.1038/s42254-021-00348-9",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "Nature Reviews Physics",
+        "source_openalex_id": "S4210234670",
+        "landing_page_url": "https://doi.org/10.1038/s42254-021-00348-9",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [
+        {
+          "name": "M. Cerezo",
+          "openalex_id": null
+        },
+        {
+          "name": "Andrew Arrasmith",
+          "openalex_id": null
+        },
+        {
+          "name": "Ryan Babbush",
+          "openalex_id": null
+        },
+        {
+          "name": "Simon C. Benjamin",
+          "openalex_id": null
+        },
+        {
+          "name": "Suguru Endo",
+          "openalex_id": null
+        },
+        {
+          "name": "Keisuke Fujii",
+          "openalex_id": null
+        },
+        {
+          "name": "Jarrod R. McClean",
+          "openalex_id": null
+        },
+        {
+          "name": "Kosuke Mitarai",
+          "openalex_id": null
+        },
+        {
+          "name": "Xiao Yuan",
+          "openalex_id": null
+        },
+        {
+          "name": "Lukasz Cincio",
+          "openalex_id": null
+        },
+        {
+          "name": "Patrick J. Coles",
+          "openalex_id": null
+        }
+      ],
+      "topics": [
+        "Quantum Computing Algorithms and Architecture",
+        "Quantum-Dot Cellular Automata",
+        "Quantum Information and Cryptography"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum",
+          "source_kind": "keyword",
+          "source_value": "Quantum"
+        },
+        {
+          "label": "Quantum Information",
+          "source_kind": "keyword",
+          "source_value": "Quantum Information"
+        }
+      ],
+      "matched_query_count": 2,
+      "overlap_type": "overlap"
+    },
+    {
+      "openalex_id": "W3107463944",
+      "title": "Quantum computational advantage using photons",
+      "cited_by_count": 2151,
+      "publication_year": 2020,
+      "publication_date": "2020-12-18",
+      "doi": "https://doi.org/10.1126/science.abe8770",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "Science",
+        "source_openalex_id": "S3880285",
+        "landing_page_url": "https://doi.org/10.1126/science.abe8770",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [
+        {
+          "name": "Han-Sen Zhong",
+          "openalex_id": null
+        },
+        {
+          "name": "Hui Wang",
+          "openalex_id": null
+        },
+        {
+          "name": "Yu-Hao Deng",
+          "openalex_id": null
+        },
+        {
+          "name": "Ming-Cheng Chen",
+          "openalex_id": null
+        },
+        {
+          "name": "Li-Chao Peng",
+          "openalex_id": null
+        },
+        {
+          "name": "Yi-Han Luo",
+          "openalex_id": null
+        },
+        {
+          "name": "Jian Qin",
+          "openalex_id": null
+        },
+        {
+          "name": "Dian Wu",
+          "openalex_id": null
+        },
+        {
+          "name": "Xing Ding",
+          "openalex_id": null
+        },
+        {
+          "name": "Yi Hu",
+          "openalex_id": null
+        },
+        {
+          "name": "Peng Hu",
+          "openalex_id": null
+        },
+        {
+          "name": "Xiao-Yan Yang",
+          "openalex_id": null
+        }
+      ],
+      "topics": [
+        "Quantum Information and Cryptography",
+        "Mechanical and Optical Resonators",
+        "Quantum Computing Algorithms and Architecture"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum",
+          "source_kind": "keyword",
+          "source_value": "Quantum"
+        },
+        {
+          "label": "Quantum Information and Cryptography",
+          "source_kind": "topic",
+          "source_value": "T10020"
+        }
+      ],
+      "matched_query_count": 2,
+      "overlap_type": "overlap"
+    },
+    {
+      "openalex_id": "W4382656182",
+      "title": "Quantum physics in one dimension",
+      "cited_by_count": 1682,
+      "publication_year": 2023,
+      "publication_date": "2023-06-30",
+      "doi": "https://doi.org/10.1016/b978-0-323-90800-9.00233-x",
+      "work_type": "book-chapter",
+      "primary_location": {
+        "source_display_name": "Elsevier eBooks",
+        "source_openalex_id": "S4306463230",
+        "landing_page_url": "https://doi.org/10.1016/b978-0-323-90800-9.00233-x",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [
+        {
+          "name": "Thierry Giamarchi",
+          "openalex_id": "A5000480954"
+        }
+      ],
+      "topics": [
+        "Cold Atom Physics and Bose-Einstein Condensates",
+        "Quantum many-body systems",
+        "Quantum, superfluid, helium dynamics"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum",
+          "source_kind": "keyword",
+          "source_value": "Quantum"
+        },
+        {
+          "label": "Quantum Field Theory",
+          "source_kind": "keyword",
+          "source_value": "Quantum Field Theory"
+        }
+      ],
+      "matched_query_count": 2,
+      "overlap_type": "overlap"
+    },
+    {
+      "openalex_id": "W149674972",
+      "title": "Relativistic Quantum Theory",
+      "cited_by_count": 1046,
+      "publication_year": 2020,
+      "publication_date": "2020-09-15",
+      "doi": "https://doi.org/10.1017/9781108616270.006",
+      "work_type": "book-chapter",
+      "primary_location": {
+        "source_display_name": "Cambridge University Press eBooks",
+        "source_openalex_id": "S4306462995",
+        "landing_page_url": "https://doi.org/10.1017/9781108616270.006",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [
+        {
+          "name": "James E. Dodd",
+          "openalex_id": "A5064194739"
+        },
+        {
+          "name": "Ben Gripaios",
+          "openalex_id": "A5008592065"
+        }
+      ],
+      "topics": [
+        "Relativity and Gravitational Theory",
+        "Quantum Mechanics and Applications"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum",
+          "source_kind": "keyword",
+          "source_value": "Quantum"
+        },
+        {
+          "label": "Relativity and Gravitational Theory",
+          "source_kind": "topic",
+          "source_value": "T11960"
+        }
+      ],
+      "matched_query_count": 2,
+      "overlap_type": "overlap"
+    },
+    {
+      "openalex_id": "W4389703832",
+      "title": "Introductory Quantum Optics",
+      "cited_by_count": 1000,
+      "publication_year": 2023,
+      "publication_date": "2023-11-30",
+      "doi": "https://doi.org/10.1017/9781139151207",
+      "work_type": "book",
+      "primary_location": {
+        "source_display_name": "Cambridge University Press eBooks",
+        "source_openalex_id": "S4306462995",
+        "landing_page_url": "https://doi.org/10.1017/9781139151207",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [
+        {
+          "name": "Christopher C. Gerry",
+          "openalex_id": "A5051832500"
+        },
+        {
+          "name": "P. L. Knight",
+          "openalex_id": "A5066603963"
+        }
+      ],
+      "topics": [
+        "Quantum Mechanics and Applications"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Information",
+          "source_kind": "keyword",
+          "source_value": "Quantum Information"
+        },
+        {
+          "label": "Quantum Mechanics and Applications",
+          "source_kind": "topic",
+          "source_value": "T10622"
+        }
+      ],
+      "matched_query_count": 2,
+      "overlap_type": "overlap"
+    },
+    {
+      "openalex_id": "W2994877072",
+      "title": "Programmable quantum simulations of spin systems with trapped ions",
+      "cited_by_count": 783,
+      "publication_year": 2021,
+      "publication_date": "2021-04-07",
+      "doi": "https://doi.org/10.1103/revmodphys.93.025001",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "Reviews of Modern Physics",
+        "source_openalex_id": "S73260565",
+        "landing_page_url": "https://doi.org/10.1103/revmodphys.93.025001",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [
+        {
+          "name": "C. Monroe",
+          "openalex_id": "A5005759724"
+        },
+        {
+          "name": "Wesley C. Campbell",
+          "openalex_id": "A5014512253"
+        },
+        {
+          "name": "L.-M. Duan",
+          "openalex_id": "A5017135006"
+        },
+        {
+          "name": "Zhexuan Gong",
+          "openalex_id": "A5087022291"
+        },
+        {
+          "name": "Alexey V. Gorshkov",
+          "openalex_id": "A5002067971"
+        },
+        {
+          "name": "Paul Hess",
+          "openalex_id": "A5080591745"
+        },
+        {
+          "name": "Rajibul Islam",
+          "openalex_id": "A5053336892"
+        },
+        {
+          "name": "Kihwan Kim",
+          "openalex_id": "A5100655396"
+        },
+        {
+          "name": "Norbert M. Linke",
+          "openalex_id": "A5021964499"
+        },
+        {
+          "name": "Guido Pagano",
+          "openalex_id": "A5060212216"
+        },
+        {
+          "name": "Philip Richerme",
+          "openalex_id": "A5042238511"
+        },
+        {
+          "name": "Crystal Senko",
+          "openalex_id": "A5054684488"
+        }
+      ],
+      "topics": [
+        "Quantum Information and Cryptography",
+        "Neural Networks and Reservoir Computing",
+        "Quantum Computing Algorithms and Architecture"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Information",
+          "source_kind": "keyword",
+          "source_value": "Quantum Information"
+        },
+        {
+          "label": "Quantum Information and Cryptography",
+          "source_kind": "topic",
+          "source_value": "T10020"
+        }
+      ],
+      "matched_query_count": 2,
+      "overlap_type": "overlap"
+    },
+    {
+      "openalex_id": "W3035099916",
+      "title": "Entanglement-based secure quantum cryptography over 1,120 kilometres",
+      "cited_by_count": 703,
+      "publication_year": 2020,
+      "publication_date": "2020-06-15",
+      "doi": "https://doi.org/10.1038/s41586-020-2401-y",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "Nature",
+        "source_openalex_id": "S137773608",
+        "landing_page_url": "https://doi.org/10.1038/s41586-020-2401-y",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [
+        {
+          "name": "Juan Yin",
+          "openalex_id": "A5006533952"
+        },
+        {
+          "name": "Yu-Huai Li",
+          "openalex_id": "A5063228438"
+        },
+        {
+          "name": "Sheng‐Kai Liao",
+          "openalex_id": "A5019503239"
+        },
+        {
+          "name": "Meng Yang",
+          "openalex_id": "A5101699546"
+        },
+        {
+          "name": "Yuan Cao",
+          "openalex_id": "A5080530571"
+        },
+        {
+          "name": "Liang Zhang",
+          "openalex_id": "A5100425133"
+        },
+        {
+          "name": "Ji‐Gang Ren",
+          "openalex_id": "A5068008639"
+        },
+        {
+          "name": "Wenqi Cai",
+          "openalex_id": "A5009821721"
+        },
+        {
+          "name": "Wei-Yue Liu",
+          "openalex_id": "A5110370931"
+        },
+        {
+          "name": "Shuang-Lin Li",
+          "openalex_id": "A5039862358"
+        },
+        {
+          "name": "Rong Shu",
+          "openalex_id": "A5066421366"
+        },
+        {
+          "name": "Yongmei Huang",
+          "openalex_id": "A5051345784"
+        }
+      ],
+      "topics": [
+        "Quantum Information and Cryptography",
+        "Quantum Mechanics and Applications",
+        "Quantum Computing Algorithms and Architecture"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Information",
+          "source_kind": "keyword",
+          "source_value": "Quantum Information"
+        },
+        {
+          "label": "Quantum Information and Cryptography",
+          "source_kind": "topic",
+          "source_value": "T10020"
+        }
+      ],
+      "matched_query_count": 2,
+      "overlap_type": "overlap"
+    },
+    {
+      "openalex_id": "W2990831233",
+      "title": "Advances in high-dimensional quantum entanglement",
+      "cited_by_count": 529,
+      "publication_year": 2020,
+      "publication_date": "2020-06-25",
+      "doi": "https://doi.org/10.1038/s42254-020-0193-5",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "Nature Reviews Physics",
+        "source_openalex_id": "S4210234670",
+        "landing_page_url": "https://doi.org/10.1038/s42254-020-0193-5",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [
+        {
+          "name": "Manuel Erhard",
+          "openalex_id": null
+        },
+        {
+          "name": "Mario Krenn",
+          "openalex_id": null
+        },
+        {
+          "name": "Anton Zeilinger",
+          "openalex_id": null
+        }
+      ],
+      "topics": [
+        "Quantum Information and Cryptography",
+        "Quantum Mechanics and Applications",
+        "Quantum Computing Algorithms and Architecture"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Information",
+          "source_kind": "keyword",
+          "source_value": "Quantum Information"
+        },
+        {
+          "label": "Quantum Information and Cryptography",
+          "source_kind": "topic",
+          "source_value": "T10020"
+        }
+      ],
+      "matched_query_count": 2,
+      "overlap_type": "overlap"
+    },
+    {
+      "openalex_id": "W3147660836",
+      "title": "Demonstration of the trapped-ion quantum CCD computer architecture",
+      "cited_by_count": 518,
+      "publication_year": 2021,
+      "publication_date": "2021-04-07",
+      "doi": "https://doi.org/10.1038/s41586-021-03318-4",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "Nature",
+        "source_openalex_id": "S137773608",
+        "landing_page_url": "https://doi.org/10.1038/s41586-021-03318-4",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [
+        {
+          "name": "J. M. Pino",
+          "openalex_id": null
+        },
+        {
+          "name": "J. M. Dreiling",
+          "openalex_id": null
+        },
+        {
+          "name": "C. Figgatt",
+          "openalex_id": null
+        },
+        {
+          "name": "J. P. Gaebler",
+          "openalex_id": null
+        },
+        {
+          "name": "S. A. Moses",
+          "openalex_id": null
+        },
+        {
+          "name": "M. S. Allman",
+          "openalex_id": null
+        },
+        {
+          "name": "C. H. Baldwin",
+          "openalex_id": null
+        },
+        {
+          "name": "M. Foss-Feig",
+          "openalex_id": null
+        },
+        {
+          "name": "D. Hayes",
+          "openalex_id": null
+        },
+        {
+          "name": "K. Mayer",
+          "openalex_id": null
+        },
+        {
+          "name": "C. Ryan-Anderson",
+          "openalex_id": null
+        },
+        {
+          "name": "B. Neyenhuis",
+          "openalex_id": null
+        }
+      ],
+      "topics": [
+        "Quantum Information and Cryptography",
+        "Quantum and electron transport phenomena",
+        "CCD and CMOS Imaging Sensors"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Information",
+          "source_kind": "keyword",
+          "source_value": "Quantum Information"
+        },
+        {
+          "label": "Quantum Information and Cryptography",
+          "source_kind": "topic",
+          "source_value": "T10020"
+        }
+      ],
+      "matched_query_count": 2,
+      "overlap_type": "overlap"
+    },
+    {
+      "openalex_id": "W3039083618",
+      "title": "Classical Electrodynamics",
+      "cited_by_count": 21961,
+      "publication_year": 2020,
+      "publication_date": "2020-07-21",
+      "doi": "https://doi.org/10.2307/j.ctv131bv37.5",
+      "work_type": "book-chapter",
+      "primary_location": {
+        "source_display_name": "Princeton University Press eBooks",
+        "source_openalex_id": "S4306463805",
+        "landing_page_url": "https://doi.org/10.2307/j.ctv131bv37.5",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [],
+      "topics": [
+        "Quantum Mechanics and Applications",
+        "Quantum and Classical Electrodynamics",
+        "Geophysics and Sensor Technology"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Mechanics and Applications",
+          "source_kind": "topic",
+          "source_value": "T10622"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "W3006234984",
+      "title": "Automated exploration of the low-energy chemical space with fast quantum chemical methods",
+      "cited_by_count": 2198,
+      "publication_year": 2020,
+      "publication_date": "2020-01-01",
+      "doi": "https://doi.org/10.1039/c9cp06869d",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "Physical Chemistry Chemical Physics",
+        "source_openalex_id": "S181332294",
+        "landing_page_url": "https://doi.org/10.1039/c9cp06869d",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [
+        {
+          "name": "Philipp Pracht",
+          "openalex_id": "A5070405326"
+        },
+        {
+          "name": "Fabian Bohle",
+          "openalex_id": "A5077626171"
+        },
+        {
+          "name": "Stefan Grimme",
+          "openalex_id": "A5042863303"
+        }
+      ],
+      "topics": [
+        "Mass Spectrometry Techniques and Applications",
+        "Machine Learning in Materials Science",
+        "Molecular spectroscopy and chirality"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum",
+          "source_kind": "keyword",
+          "source_value": "Quantum"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "W1520510487",
+      "title": "Conformal field theory",
+      "cited_by_count": 1936,
+      "publication_year": 2024,
+      "publication_date": "2024-07-18",
+      "doi": "https://doi.org/10.29172/b59fbf99-aaba-4b28-b58a-6104444592fb",
+      "work_type": "dataset",
+      "primary_location": {
+        "source_display_name": "Physics Subject Headings (PhySH)",
+        "source_openalex_id": "S4363604147",
+        "landing_page_url": "http://dx.doi.org/10.29172/b59fbf99-aaba-4b28-b58a-6104444592fb",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [],
+      "topics": [
+        "Stochastic processes and statistical mechanics"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Field Theory",
+          "source_kind": "keyword",
+          "source_value": "Quantum Field Theory"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "W4200283578",
+      "title": "IEEE Transactions on Information Theory",
+      "cited_by_count": 1867,
+      "publication_year": 2023,
+      "publication_date": "2023-10-10",
+      "doi": "https://doi.org/10.1109/tit.18",
+      "work_type": "paratext",
+      "primary_location": {
+        "source_display_name": "IEEE Transactions on Information Theory",
+        "source_openalex_id": "S4502562",
+        "landing_page_url": "https://doi.org/10.1109/tit.18",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [],
+      "topics": [
+        "Neural Networks and Applications"
+      ],
+      "matched_queries": [
+        {
+          "label": "Information Theory",
+          "source_kind": "keyword",
+          "source_value": "Information Theory"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "W2529326969",
+      "title": "The Foundation of the General Theory of Relativity (1916)",
+      "cited_by_count": 1685,
+      "publication_year": 2025,
+      "publication_date": "2025-09-23",
+      "doi": "https://doi.org/10.2307/jj.27710910.18",
+      "work_type": "book-chapter",
+      "primary_location": {
+        "source_display_name": "Princeton University Press eBooks",
+        "source_openalex_id": "S4306463805",
+        "landing_page_url": "https://doi.org/10.2307/jj.27710910.18",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [],
+      "topics": [
+        "Relativity and Gravitational Theory",
+        "History and Theory of Mathematics"
+      ],
+      "matched_queries": [
+        {
+          "label": "Relativity and Gravitational Theory",
+          "source_kind": "topic",
+          "source_value": "T11960"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "W4206042620",
+      "title": "Classical Electrodynamics",
+      "cited_by_count": 1630,
+      "publication_year": 2020,
+      "publication_date": "2020-09-25",
+      "doi": "https://doi.org/10.1007/978-3-030-58288-3_2",
+      "work_type": "book-chapter",
+      "primary_location": {
+        "source_display_name": "Engineering materials",
+        "source_openalex_id": "S4210182084",
+        "landing_page_url": "https://doi.org/10.1007/978-3-030-58288-3_2",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [
+        {
+          "name": "Arash Ahmadivand",
+          "openalex_id": "A5077428544"
+        },
+        {
+          "name": "Burak Gerislioglu",
+          "openalex_id": "A5022223019"
+        },
+        {
+          "name": "Zeinab Ramezani",
+          "openalex_id": "A5079262572"
+        }
+      ],
+      "topics": [
+        "Quantum and Classical Electrodynamics",
+        "Quantum Mechanics and Applications",
+        "Geophysics and Sensor Technology"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum and Classical Electrodynamics",
+          "source_kind": "topic",
+          "source_value": "T11683"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "W2994665279",
+      "title": "Exceptional topology of non-Hermitian systems",
+      "cited_by_count": 1606,
+      "publication_year": 2021,
+      "publication_date": "2021-02-24",
+      "doi": "https://doi.org/10.1103/revmodphys.93.015005",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "Reviews of Modern Physics",
+        "source_openalex_id": "S73260565",
+        "landing_page_url": "https://doi.org/10.1103/revmodphys.93.015005",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [
+        {
+          "name": "Emil J. Bergholtz",
+          "openalex_id": "A5056417959"
+        },
+        {
+          "name": "Jan Carl Budich",
+          "openalex_id": "A5007187040"
+        },
+        {
+          "name": "Flore K. Kunst",
+          "openalex_id": "A5087942707"
+        }
+      ],
+      "topics": [
+        "Quantum Mechanics and Non-Hermitian Physics",
+        "Topological Materials and Phenomena",
+        "Quantum, superfluid, helium dynamics"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum",
+          "source_kind": "keyword",
+          "source_value": "Quantum"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "W2889126882",
+      "title": "Quantum computational chemistry",
+      "cited_by_count": 1571,
+      "publication_year": 2020,
+      "publication_date": "2020-03-30",
+      "doi": "https://doi.org/10.1103/revmodphys.92.015003",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "Reviews of Modern Physics",
+        "source_openalex_id": "S73260565",
+        "landing_page_url": "https://doi.org/10.1103/revmodphys.92.015003",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [
+        {
+          "name": "Sam McArdle",
+          "openalex_id": "A5022780389"
+        },
+        {
+          "name": "Suguru Endo",
+          "openalex_id": "A5082360196"
+        },
+        {
+          "name": "Alán Aspuru‐Guzik",
+          "openalex_id": "A5071495561"
+        },
+        {
+          "name": "Simon C. Benjamin",
+          "openalex_id": "A5012132706"
+        },
+        {
+          "name": "Xiao Yuan",
+          "openalex_id": "A5090412627"
+        }
+      ],
+      "topics": [
+        "Quantum Computing Algorithms and Architecture",
+        "Quantum Information and Cryptography",
+        "Quantum and electron transport phenomena"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum",
+          "source_kind": "keyword",
+          "source_value": "Quantum"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "W3000852548",
+      "title": "Quantum anomalous Hall effect in intrinsic magnetic topological insulator MnBi <sub>2</sub> Te <sub>4</sub>",
+      "cited_by_count": 1570,
+      "publication_year": 2020,
+      "publication_date": "2020-01-24",
+      "doi": "https://doi.org/10.1126/science.aax8156",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "Science",
+        "source_openalex_id": "S3880285",
+        "landing_page_url": "https://doi.org/10.1126/science.aax8156",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [
+        {
+          "name": "Yujun Deng",
+          "openalex_id": "A5026557886"
+        },
+        {
+          "name": "Yijun Yu",
+          "openalex_id": "A5066455710"
+        },
+        {
+          "name": "Meng Zhu Shi",
+          "openalex_id": "A5109394443"
+        },
+        {
+          "name": "Zhongxun Guo",
+          "openalex_id": "A5102732709"
+        },
+        {
+          "name": "Zihan Xu",
+          "openalex_id": "A5021399686"
+        },
+        {
+          "name": "Jing Wang",
+          "openalex_id": "A5100378521"
+        },
+        {
+          "name": "Xian Hui Chen",
+          "openalex_id": "A5112271628"
+        },
+        {
+          "name": "Yuanbo Zhang",
+          "openalex_id": "A5101593866"
+        }
+      ],
+      "topics": [
+        "Topological Materials and Phenomena",
+        "Quantum many-body systems",
+        "Graphene research and applications"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum",
+          "source_kind": "keyword",
+          "source_value": "Quantum"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "W4213212652",
+      "title": "Noisy intermediate-scale quantum algorithms",
+      "cited_by_count": 1557,
+      "publication_year": 2022,
+      "publication_date": "2022-02-15",
+      "doi": "https://doi.org/10.1103/revmodphys.94.015004",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "Reviews of Modern Physics",
+        "source_openalex_id": "S73260565",
+        "landing_page_url": "https://doi.org/10.1103/revmodphys.94.015004",
+        "pdf_url": "http://link.aps.org/pdf/10.1103/RevModPhys.94.015004",
+        "is_oa": true
+      },
+      "authors": [
+        {
+          "name": "Kishor Bharti",
+          "openalex_id": "A5061413142"
+        },
+        {
+          "name": "Alba Cervera-Lierta",
+          "openalex_id": "A5031306679"
+        },
+        {
+          "name": "Thi Ha Kyaw",
+          "openalex_id": "A5088770397"
+        },
+        {
+          "name": "Tobias Haug",
+          "openalex_id": "A5030920804"
+        },
+        {
+          "name": "Sumner Alperin-Lea",
+          "openalex_id": "A5045363686"
+        },
+        {
+          "name": "Abhinav Anand",
+          "openalex_id": "A5061367654"
+        },
+        {
+          "name": "Matthias Degroote",
+          "openalex_id": "A5000821684"
+        },
+        {
+          "name": "Hermanni Heimonen",
+          "openalex_id": "A5013912304"
+        },
+        {
+          "name": "Jakob S. Kottmann",
+          "openalex_id": "A5091863640"
+        },
+        {
+          "name": "Tim Menke",
+          "openalex_id": "A5007778441"
+        },
+        {
+          "name": "Wai‐Keong Mok",
+          "openalex_id": "A5015947580"
+        },
+        {
+          "name": "Sukin Sim",
+          "openalex_id": "A5071358233"
+        }
+      ],
+      "topics": [
+        "Quantum Computing Algorithms and Architecture",
+        "Quantum Information and Cryptography",
+        "Quantum many-body systems"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum",
+          "source_kind": "keyword",
+          "source_value": "Quantum"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "W3161114015",
+      "title": "Modern quantum mechanics",
+      "cited_by_count": 1430,
+      "publication_year": 2021,
+      "publication_date": "2021-01-02",
+      "doi": "https://doi.org/10.1080/00107514.2021.1924275",
+      "work_type": "article",
+      "primary_location": {
+        "source_display_name": "Contemporary Physics",
+        "source_openalex_id": "S161902083",
+        "landing_page_url": "https://doi.org/10.1080/00107514.2021.1924275",
+        "pdf_url": null,
+        "is_oa": false
+      },
+      "authors": [
+        {
+          "name": "Peter J. Bussey",
+          "openalex_id": "A5104476188"
+        }
+      ],
+      "topics": [
+        "Quantum Mechanics and Applications"
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Mechanics and Applications",
+          "source_kind": "topic",
+          "source_value": "T10622"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    }
+  ],
+  "authors": [
+    {
+      "openalex_id": "A5037710835",
+      "display_name": "Richard P. Feynman",
+      "orcid": null,
+      "works_count": 440,
+      "cited_by_count": 73960,
+      "summary_stats": {
+        "two_year_mean_citedness": 0.0,
+        "h_index": 82,
+        "i10_index": 137
+      },
+      "last_known_institutions": [],
+      "topics": [
+        {
+          "openalex_id": "T13650",
+          "display_name": "Computational Physics and Python Applications",
+          "count": 53
+        },
+        {
+          "openalex_id": "T10622",
+          "display_name": "Quantum Mechanics and Applications",
+          "count": 51
+        },
+        {
+          "openalex_id": "T12250",
+          "display_name": "Experimental and Theoretical Physics Studies",
+          "count": 44
+        },
+        {
+          "openalex_id": "T11960",
+          "display_name": "Relativity and Gravitational Theory",
+          "count": 33
+        },
+        {
+          "openalex_id": "T11683",
+          "display_name": "Quantum and Classical Electrodynamics",
+          "count": 27
+        }
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum and Classical Electrodynamics",
+          "source_kind": "topic",
+          "source_value": "T11683"
+        },
+        {
+          "label": "Quantum Mechanics and Applications",
+          "source_kind": "topic",
+          "source_value": "T10622"
+        },
+        {
+          "label": "Relativity and Gravitational Theory",
+          "source_kind": "topic",
+          "source_value": "T11960"
+        }
+      ],
+      "matched_query_count": 3,
+      "overlap_type": "overlap"
+    },
+    {
+      "openalex_id": "A5083228566",
+      "display_name": "J. I. Cirac",
+      "orcid": "https://orcid.org/0000-0003-3359-1743",
+      "works_count": 901,
+      "cited_by_count": 102801,
+      "summary_stats": {
+        "two_year_mean_citedness": 4.763636363636364,
+        "h_index": 147,
+        "i10_index": 516
+      },
+      "last_known_institutions": [
+        {
+          "display_name": "Max Planck Institute of Quantum Optics",
+          "openalex_id": "I4210120293",
+          "country_code": "DE",
+          "institution_type": "facility"
+        },
+        {
+          "display_name": "Munich Center for Quantum Science and Technology",
+          "openalex_id": "I4210142743",
+          "country_code": "DE",
+          "institution_type": "education"
+        }
+      ],
+      "topics": [
+        {
+          "openalex_id": "T10020",
+          "display_name": "Quantum Information and Cryptography",
+          "count": 441
+        },
+        {
+          "openalex_id": "T10425",
+          "display_name": "Cold Atom Physics and Bose-Einstein Condensates",
+          "count": 283
+        },
+        {
+          "openalex_id": "T11804",
+          "display_name": "Quantum many-body systems",
+          "count": 269
+        },
+        {
+          "openalex_id": "T10682",
+          "display_name": "Quantum Computing Algorithms and Architecture",
+          "count": 265
+        },
+        {
+          "openalex_id": "T10622",
+          "display_name": "Quantum Mechanics and Applications",
+          "count": 262
+        }
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Information and Cryptography",
+          "source_kind": "topic",
+          "source_value": "T10020"
+        },
+        {
+          "label": "Quantum Mechanics and Applications",
+          "source_kind": "topic",
+          "source_value": "T10622"
+        }
+      ],
+      "matched_query_count": 2,
+      "overlap_type": "overlap"
+    },
+    {
+      "openalex_id": "A5016282235",
+      "display_name": "P. Zoller",
+      "orcid": "https://orcid.org/0000-0003-4014-1505",
+      "works_count": 812,
+      "cited_by_count": 94720,
+      "summary_stats": {
+        "two_year_mean_citedness": 7.583333333333333,
+        "h_index": 148,
+        "i10_index": 459
+      },
+      "last_known_institutions": [
+        {
+          "display_name": "Centre National de la Recherche Scientifique",
+          "openalex_id": "I1294671590",
+          "country_code": "FR",
+          "institution_type": "government"
+        },
+        {
+          "display_name": "Austrian Academy of Sciences",
+          "openalex_id": "I138211613",
+          "country_code": "AT",
+          "institution_type": "government"
+        },
+        {
+          "display_name": "Universität Innsbruck",
+          "openalex_id": "I190249584",
+          "country_code": "AT",
+          "institution_type": "education"
+        }
+      ],
+      "topics": [
+        {
+          "openalex_id": "T10425",
+          "display_name": "Cold Atom Physics and Bose-Einstein Condensates",
+          "count": 399
+        },
+        {
+          "openalex_id": "T10020",
+          "display_name": "Quantum Information and Cryptography",
+          "count": 360
+        },
+        {
+          "openalex_id": "T11414",
+          "display_name": "Quantum optics and atomic interactions",
+          "count": 174
+        },
+        {
+          "openalex_id": "T10622",
+          "display_name": "Quantum Mechanics and Applications",
+          "count": 165
+        },
+        {
+          "openalex_id": "T10682",
+          "display_name": "Quantum Computing Algorithms and Architecture",
+          "count": 136
+        }
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Information and Cryptography",
+          "source_kind": "topic",
+          "source_value": "T10020"
+        },
+        {
+          "label": "Quantum Mechanics and Applications",
+          "source_kind": "topic",
+          "source_value": "T10622"
+        }
+      ],
+      "matched_query_count": 2,
+      "overlap_type": "overlap"
+    },
+    {
+      "openalex_id": "A5001105113",
+      "display_name": "Anton Zeilinger",
+      "orcid": "https://orcid.org/0000-0002-6778-0887",
+      "works_count": 602,
+      "cited_by_count": 73222,
+      "summary_stats": {
+        "two_year_mean_citedness": 2.857142857142857,
+        "h_index": 116,
+        "i10_index": 301
+      },
+      "last_known_institutions": [
+        {
+          "display_name": "Austrian Academy of Sciences",
+          "openalex_id": "I138211613",
+          "country_code": "AT",
+          "institution_type": "government"
+        },
+        {
+          "display_name": "Vienna Center for Quantum Science and Technology",
+          "openalex_id": "I4210100980",
+          "country_code": "AT",
+          "institution_type": "education"
+        }
+      ],
+      "topics": [
+        {
+          "openalex_id": "T10020",
+          "display_name": "Quantum Information and Cryptography",
+          "count": 354
+        },
+        {
+          "openalex_id": "T10622",
+          "display_name": "Quantum Mechanics and Applications",
+          "count": 347
+        },
+        {
+          "openalex_id": "T10682",
+          "display_name": "Quantum Computing Algorithms and Architecture",
+          "count": 167
+        },
+        {
+          "openalex_id": "T10490",
+          "display_name": "Orbital Angular Momentum in Optics",
+          "count": 62
+        },
+        {
+          "openalex_id": "T10425",
+          "display_name": "Cold Atom Physics and Bose-Einstein Condensates",
+          "count": 58
+        }
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Information and Cryptography",
+          "source_kind": "topic",
+          "source_value": "T10020"
+        },
+        {
+          "label": "Quantum Mechanics and Applications",
+          "source_kind": "topic",
+          "source_value": "T10622"
+        }
+      ],
+      "matched_query_count": 2,
+      "overlap_type": "overlap"
+    },
+    {
+      "openalex_id": "A5053166798",
+      "display_name": "Charles H. Bennett",
+      "orcid": "https://orcid.org/0000-0002-0414-3733",
+      "works_count": 206,
+      "cited_by_count": 69051,
+      "summary_stats": {
+        "two_year_mean_citedness": 0.0,
+        "h_index": 58,
+        "i10_index": 91
+      },
+      "last_known_institutions": [],
+      "topics": [
+        {
+          "openalex_id": "T10682",
+          "display_name": "Quantum Computing Algorithms and Architecture",
+          "count": 72
+        },
+        {
+          "openalex_id": "T10622",
+          "display_name": "Quantum Mechanics and Applications",
+          "count": 55
+        },
+        {
+          "openalex_id": "T10020",
+          "display_name": "Quantum Information and Cryptography",
+          "count": 52
+        },
+        {
+          "openalex_id": "T12002",
+          "display_name": "Computability, Logic, AI Algorithms",
+          "count": 22
+        },
+        {
+          "openalex_id": "T10591",
+          "display_name": "Theoretical and Computational Physics",
+          "count": 9
+        }
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Information and Cryptography",
+          "source_kind": "topic",
+          "source_value": "T10020"
+        },
+        {
+          "label": "Quantum Mechanics and Applications",
+          "source_kind": "topic",
+          "source_value": "T10622"
+        }
+      ],
+      "matched_query_count": 2,
+      "overlap_type": "overlap"
+    },
+    {
+      "openalex_id": "A5042449260",
+      "display_name": "Jian-Wei Pan",
+      "orcid": "https://orcid.org/0000-0002-6100-5142",
+      "works_count": 871,
+      "cited_by_count": 66975,
+      "summary_stats": {
+        "two_year_mean_citedness": 9.375,
+        "h_index": 123,
+        "i10_index": 422
+      },
+      "last_known_institutions": [
+        {
+          "display_name": "University of Science and Technology of China",
+          "openalex_id": "I126520041",
+          "country_code": "CN",
+          "institution_type": "education"
+        }
+      ],
+      "topics": [
+        {
+          "openalex_id": "T10020",
+          "display_name": "Quantum Information and Cryptography",
+          "count": 552
+        },
+        {
+          "openalex_id": "T10622",
+          "display_name": "Quantum Mechanics and Applications",
+          "count": 305
+        },
+        {
+          "openalex_id": "T10682",
+          "display_name": "Quantum Computing Algorithms and Architecture",
+          "count": 287
+        },
+        {
+          "openalex_id": "T11414",
+          "display_name": "Quantum optics and atomic interactions",
+          "count": 155
+        },
+        {
+          "openalex_id": "T10425",
+          "display_name": "Cold Atom Physics and Bose-Einstein Condensates",
+          "count": 136
+        }
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Information and Cryptography",
+          "source_kind": "topic",
+          "source_value": "T10020"
+        },
+        {
+          "label": "Quantum Mechanics and Applications",
+          "source_kind": "topic",
+          "source_value": "T10622"
+        }
+      ],
+      "matched_query_count": 2,
+      "overlap_type": "overlap"
+    },
+    {
+      "openalex_id": "A5032785303",
+      "display_name": "Nicolas Gisin",
+      "orcid": "https://orcid.org/0000-0003-0788-3494",
+      "works_count": 798,
+      "cited_by_count": 65754,
+      "summary_stats": {
+        "two_year_mean_citedness": 2.0,
+        "h_index": 124,
+        "i10_index": 422
+      },
+      "last_known_institutions": [
+        {
+          "display_name": "University of Geneva",
+          "openalex_id": "I114457229",
+          "country_code": "CH",
+          "institution_type": "education"
+        },
+        {
+          "display_name": "Constructor University",
+          "openalex_id": "I193619901",
+          "country_code": "DE",
+          "institution_type": "education"
+        },
+        {
+          "display_name": "Constructing Excellence",
+          "openalex_id": "I2801221094",
+          "country_code": "GB",
+          "institution_type": "other"
+        }
+      ],
+      "topics": [
+        {
+          "openalex_id": "T10020",
+          "display_name": "Quantum Information and Cryptography",
+          "count": 461
+        },
+        {
+          "openalex_id": "T10622",
+          "display_name": "Quantum Mechanics and Applications",
+          "count": 436
+        },
+        {
+          "openalex_id": "T10682",
+          "display_name": "Quantum Computing Algorithms and Architecture",
+          "count": 227
+        },
+        {
+          "openalex_id": "T11414",
+          "display_name": "Quantum optics and atomic interactions",
+          "count": 134
+        },
+        {
+          "openalex_id": "T10299",
+          "display_name": "Photonic and Optical Devices",
+          "count": 91
+        }
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Information and Cryptography",
+          "source_kind": "topic",
+          "source_value": "T10020"
+        },
+        {
+          "label": "Quantum Mechanics and Applications",
+          "source_kind": "topic",
+          "source_value": "T10622"
+        }
+      ],
+      "matched_query_count": 2,
+      "overlap_type": "overlap"
+    },
+    {
+      "openalex_id": "A5038060570",
+      "display_name": "Seth Lloyd",
+      "orcid": "https://orcid.org/0000-0003-0353-4529",
+      "works_count": 551,
+      "cited_by_count": 65253,
+      "summary_stats": {
+        "two_year_mean_citedness": 8.478260869565217,
+        "h_index": 95,
+        "i10_index": 256
+      },
+      "last_known_institutions": [
+        {
+          "display_name": "Massachusetts Institute of Technology",
+          "openalex_id": "I63966007",
+          "country_code": "US",
+          "institution_type": "education"
+        }
+      ],
+      "topics": [
+        {
+          "openalex_id": "T10020",
+          "display_name": "Quantum Information and Cryptography",
+          "count": 318
+        },
+        {
+          "openalex_id": "T10682",
+          "display_name": "Quantum Computing Algorithms and Architecture",
+          "count": 299
+        },
+        {
+          "openalex_id": "T10622",
+          "display_name": "Quantum Mechanics and Applications",
+          "count": 193
+        },
+        {
+          "openalex_id": "T10382",
+          "display_name": "Quantum and electron transport phenomena",
+          "count": 65
+        },
+        {
+          "openalex_id": "T11520",
+          "display_name": "Advanced Thermodynamics and Statistical Mechanics",
+          "count": 38
+        }
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Information and Cryptography",
+          "source_kind": "topic",
+          "source_value": "T10020"
+        },
+        {
+          "label": "Quantum Mechanics and Applications",
+          "source_kind": "topic",
+          "source_value": "T10622"
+        }
+      ],
+      "matched_query_count": 2,
+      "overlap_type": "overlap"
+    },
+    {
+      "openalex_id": "A5006868097",
+      "display_name": "E. P. Wigner",
+      "orcid": null,
+      "works_count": 604,
+      "cited_by_count": 62599,
+      "summary_stats": {
+        "two_year_mean_citedness": 0.0,
+        "h_index": 78,
+        "i10_index": 202
+      },
+      "last_known_institutions": [
+        {
+          "display_name": "Oak Ridge National Laboratory",
+          "openalex_id": "I1289243028",
+          "country_code": "US",
+          "institution_type": "facility"
+        }
+      ],
+      "topics": [
+        {
+          "openalex_id": "T10622",
+          "display_name": "Quantum Mechanics and Applications",
+          "count": 109
+        },
+        {
+          "openalex_id": "T11960",
+          "display_name": "Relativity and Gravitational Theory",
+          "count": 57
+        },
+        {
+          "openalex_id": "T13120",
+          "display_name": "Nuclear Issues and Defense",
+          "count": 36
+        },
+        {
+          "openalex_id": "T11949",
+          "display_name": "Nuclear Physics and Applications",
+          "count": 33
+        },
+        {
+          "openalex_id": "T12445",
+          "display_name": "Twentieth Century Scientific Developments",
+          "count": 32
+        }
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Mechanics and Applications",
+          "source_kind": "topic",
+          "source_value": "T10622"
+        },
+        {
+          "label": "Relativity and Gravitational Theory",
+          "source_kind": "topic",
+          "source_value": "T11960"
+        }
+      ],
+      "matched_query_count": 2,
+      "overlap_type": "overlap"
+    },
+    {
+      "openalex_id": "A5051113581",
+      "display_name": "Maciej Lewenstein",
+      "orcid": "https://orcid.org/0000-0002-0210-7800",
+      "works_count": 1128,
+      "cited_by_count": 58190,
+      "summary_stats": {
+        "two_year_mean_citedness": 4.564814814814815,
+        "h_index": 116,
+        "i10_index": 545
+      },
+      "last_known_institutions": [
+        {
+          "display_name": "Institució Catalana de Recerca i Estudis Avançats",
+          "openalex_id": "I11932220",
+          "country_code": "ES",
+          "institution_type": "nonprofit"
+        },
+        {
+          "display_name": "Institute of Photonic Sciences",
+          "openalex_id": "I179630473",
+          "country_code": "ES",
+          "institution_type": "facility"
+        }
+      ],
+      "topics": [
+        {
+          "openalex_id": "T10425",
+          "display_name": "Cold Atom Physics and Bose-Einstein Condensates",
+          "count": 410
+        },
+        {
+          "openalex_id": "T10020",
+          "display_name": "Quantum Information and Cryptography",
+          "count": 312
+        },
+        {
+          "openalex_id": "T10566",
+          "display_name": "Laser-Matter Interactions and Applications",
+          "count": 202
+        },
+        {
+          "openalex_id": "T11804",
+          "display_name": "Quantum many-body systems",
+          "count": 193
+        },
+        {
+          "openalex_id": "T10622",
+          "display_name": "Quantum Mechanics and Applications",
+          "count": 183
+        }
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Information and Cryptography",
+          "source_kind": "topic",
+          "source_value": "T10020"
+        },
+        {
+          "label": "Quantum Mechanics and Applications",
+          "source_kind": "topic",
+          "source_value": "T10622"
+        }
+      ],
+      "matched_query_count": 2,
+      "overlap_type": "overlap"
+    },
+    {
+      "openalex_id": "A5032489073",
+      "display_name": "John Wheeler",
+      "orcid": "https://orcid.org/0000-0002-7576-4465",
+      "works_count": 574,
+      "cited_by_count": 57260,
+      "summary_stats": {
+        "two_year_mean_citedness": 0.375,
+        "h_index": 79,
+        "i10_index": 235
+      },
+      "last_known_institutions": [
+        {
+          "display_name": "University of Liverpool",
+          "openalex_id": "I146655781",
+          "country_code": "GB",
+          "institution_type": "education"
+        }
+      ],
+      "topics": [
+        {
+          "openalex_id": "T10001",
+          "display_name": "Geological and Geochemical Analysis",
+          "count": 86
+        },
+        {
+          "openalex_id": "T11960",
+          "display_name": "Relativity and Gravitational Theory",
+          "count": 79
+        },
+        {
+          "openalex_id": "T10413",
+          "display_name": "High-pressure geophysics and materials",
+          "count": 66
+        },
+        {
+          "openalex_id": "T10622",
+          "display_name": "Quantum Mechanics and Applications",
+          "count": 63
+        },
+        {
+          "openalex_id": "T10110",
+          "display_name": "earthquake and tectonic studies",
+          "count": 56
+        }
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Mechanics and Applications",
+          "source_kind": "topic",
+          "source_value": "T10622"
+        },
+        {
+          "label": "Relativity and Gravitational Theory",
+          "source_kind": "topic",
+          "source_value": "T11960"
+        }
+      ],
+      "matched_query_count": 2,
+      "overlap_type": "overlap"
+    },
+    {
+      "openalex_id": "A5103046966",
+      "display_name": "Isaac L. Chuang",
+      "orcid": null,
+      "works_count": 439,
+      "cited_by_count": 56077,
+      "summary_stats": {
+        "two_year_mean_citedness": 2.619047619047619,
+        "h_index": 67,
+        "i10_index": 181
+      },
+      "last_known_institutions": [
+        {
+          "display_name": "Massachusetts Institute of Technology",
+          "openalex_id": "I63966007",
+          "country_code": "US",
+          "institution_type": "education"
+        }
+      ],
+      "topics": [
+        {
+          "openalex_id": "T10682",
+          "display_name": "Quantum Computing Algorithms and Architecture",
+          "count": 232
+        },
+        {
+          "openalex_id": "T10020",
+          "display_name": "Quantum Information and Cryptography",
+          "count": 228
+        },
+        {
+          "openalex_id": "T10622",
+          "display_name": "Quantum Mechanics and Applications",
+          "count": 73
+        },
+        {
+          "openalex_id": "T10382",
+          "display_name": "Quantum and electron transport phenomena",
+          "count": 58
+        },
+        {
+          "openalex_id": "T10425",
+          "display_name": "Cold Atom Physics and Bose-Einstein Condensates",
+          "count": 57
+        }
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Information and Cryptography",
+          "source_kind": "topic",
+          "source_value": "T10020"
+        },
+        {
+          "label": "Quantum Mechanics and Applications",
+          "source_kind": "topic",
+          "source_value": "T10622"
+        }
+      ],
+      "matched_query_count": 2,
+      "overlap_type": "overlap"
+    },
+    {
+      "openalex_id": "A5022041722",
+      "display_name": "Marlan O. Scully",
+      "orcid": "https://orcid.org/0000-0001-6397-4927",
+      "works_count": 1328,
+      "cited_by_count": 55026,
+      "summary_stats": {
+        "two_year_mean_citedness": 2.1875,
+        "h_index": 102,
+        "i10_index": 570
+      },
+      "last_known_institutions": [
+        {
+          "display_name": "Mitchell Institute",
+          "openalex_id": "I2801613365",
+          "country_code": "US",
+          "institution_type": "nonprofit"
+        },
+        {
+          "display_name": "Texas A&M University",
+          "openalex_id": "I91045830",
+          "country_code": "US",
+          "institution_type": "education"
+        }
+      ],
+      "topics": [
+        {
+          "openalex_id": "T11414",
+          "display_name": "Quantum optics and atomic interactions",
+          "count": 424
+        },
+        {
+          "openalex_id": "T10425",
+          "display_name": "Cold Atom Physics and Bose-Einstein Condensates",
+          "count": 275
+        },
+        {
+          "openalex_id": "T10020",
+          "display_name": "Quantum Information and Cryptography",
+          "count": 274
+        },
+        {
+          "openalex_id": "T10566",
+          "display_name": "Laser-Matter Interactions and Applications",
+          "count": 210
+        },
+        {
+          "openalex_id": "T10622",
+          "display_name": "Quantum Mechanics and Applications",
+          "count": 182
+        }
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Information and Cryptography",
+          "source_kind": "topic",
+          "source_value": "T10020"
+        },
+        {
+          "label": "Quantum Mechanics and Applications",
+          "source_kind": "topic",
+          "source_value": "T10622"
+        }
+      ],
+      "matched_query_count": 2,
+      "overlap_type": "overlap"
+    },
+    {
+      "openalex_id": "A5014894861",
+      "display_name": "Roger Penrose",
+      "orcid": null,
+      "works_count": 429,
+      "cited_by_count": 52192,
+      "summary_stats": {
+        "two_year_mean_citedness": 1.0,
+        "h_index": 87,
+        "i10_index": 197
+      },
+      "last_known_institutions": [],
+      "topics": [
+        {
+          "openalex_id": "T11960",
+          "display_name": "Relativity and Gravitational Theory",
+          "count": 117
+        },
+        {
+          "openalex_id": "T10622",
+          "display_name": "Quantum Mechanics and Applications",
+          "count": 98
+        },
+        {
+          "openalex_id": "T10095",
+          "display_name": "Cosmology and Gravitation Theories",
+          "count": 89
+        },
+        {
+          "openalex_id": "T10025",
+          "display_name": "Black Holes and Theoretical Physics",
+          "count": 48
+        },
+        {
+          "openalex_id": "T11415",
+          "display_name": "Noncommutative and Quantum Gravity Theories",
+          "count": 38
+        }
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Mechanics and Applications",
+          "source_kind": "topic",
+          "source_value": "T10622"
+        },
+        {
+          "label": "Relativity and Gravitational Theory",
+          "source_kind": "topic",
+          "source_value": "T11960"
+        }
+      ],
+      "matched_query_count": 2,
+      "overlap_type": "overlap"
+    },
+    {
+      "openalex_id": "A5088589128",
+      "display_name": "H. J. Kimble",
+      "orcid": "https://orcid.org/0000-0002-5513-9638",
+      "works_count": 409,
+      "cited_by_count": 52108,
+      "summary_stats": {
+        "two_year_mean_citedness": 0.0,
+        "h_index": 99,
+        "i10_index": 199
+      },
+      "last_known_institutions": [
+        {
+          "display_name": "California Institute of Technology",
+          "openalex_id": "I122411786",
+          "country_code": "US",
+          "institution_type": "education"
+        }
+      ],
+      "topics": [
+        {
+          "openalex_id": "T10020",
+          "display_name": "Quantum Information and Cryptography",
+          "count": 243
+        },
+        {
+          "openalex_id": "T11414",
+          "display_name": "Quantum optics and atomic interactions",
+          "count": 194
+        },
+        {
+          "openalex_id": "T10425",
+          "display_name": "Cold Atom Physics and Bose-Einstein Condensates",
+          "count": 118
+        },
+        {
+          "openalex_id": "T10622",
+          "display_name": "Quantum Mechanics and Applications",
+          "count": 115
+        },
+        {
+          "openalex_id": "T11449",
+          "display_name": "Mechanical and Optical Resonators",
+          "count": 88
+        }
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum Information and Cryptography",
+          "source_kind": "topic",
+          "source_value": "T10020"
+        },
+        {
+          "label": "Quantum Mechanics and Applications",
+          "source_kind": "topic",
+          "source_value": "T10622"
+        }
+      ],
+      "matched_query_count": 2,
+      "overlap_type": "overlap"
+    },
+    {
+      "openalex_id": "A5032503181",
+      "display_name": "Michael Berry",
+      "orcid": "https://orcid.org/0000-0001-7921-2468",
+      "works_count": 553,
+      "cited_by_count": 47991,
+      "summary_stats": {
+        "two_year_mean_citedness": 0.7857142857142857,
+        "h_index": 92,
+        "i10_index": 250
+      },
+      "last_known_institutions": [
+        {
+          "display_name": "Oregon Health & Science University",
+          "openalex_id": "I165690674",
+          "country_code": "US",
+          "institution_type": "education"
+        }
+      ],
+      "topics": [
+        {
+          "openalex_id": "T11261",
+          "display_name": "Quantum chaos and dynamical systems",
+          "count": 112
+        },
+        {
+          "openalex_id": "T10490",
+          "display_name": "Orbital Angular Momentum in Optics",
+          "count": 69
+        },
+        {
+          "openalex_id": "T10622",
+          "display_name": "Quantum Mechanics and Applications",
+          "count": 42
+        },
+        {
+          "openalex_id": "T13126",
+          "display_name": "Scientific Research and Discoveries",
+          "count": 28
+        },
+        {
+          "openalex_id": "T10425",
+          "display_name": "Cold Atom Physics and Bose-Einstein Condensates",
+          "count": 25
+        }
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum chaos and dynamical systems",
+          "source_kind": "topic",
+          "source_value": "T11261"
+        },
+        {
+          "label": "Quantum Mechanics and Applications",
+          "source_kind": "topic",
+          "source_value": "T10622"
+        }
+      ],
+      "matched_query_count": 2,
+      "overlap_type": "overlap"
+    },
+    {
+      "openalex_id": "A5078382819",
+      "display_name": "P. A. M. Dirac",
+      "orcid": null,
+      "works_count": 234,
+      "cited_by_count": 44787,
+      "summary_stats": {
+        "two_year_mean_citedness": 0.0,
+        "h_index": 60,
+        "i10_index": 105
+      },
+      "last_known_institutions": [],
+      "topics": [
+        {
+          "openalex_id": "T10622",
+          "display_name": "Quantum Mechanics and Applications",
+          "count": 54
+        },
+        {
+          "openalex_id": "T11960",
+          "display_name": "Relativity and Gravitational Theory",
+          "count": 47
+        },
+        {
+          "openalex_id": "T11683",
+          "display_name": "Quantum and Classical Electrodynamics",
+          "count": 36
+        },
+        {
+          "openalex_id": "T12250",
+          "display_name": "Experimental and Theoretical Physics Studies",
+          "count": 25
+        },
+        {
+          "openalex_id": "T10095",
+          "display_name": "Cosmology and Gravitation Theories",
+          "count": 16
+        }
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum and Classical Electrodynamics",
+          "source_kind": "topic",
+          "source_value": "T11683"
+        },
+        {
+          "label": "Relativity and Gravitational Theory",
+          "source_kind": "topic",
+          "source_value": "T11960"
+        }
+      ],
+      "matched_query_count": 2,
+      "overlap_type": "overlap"
+    },
+    {
+      "openalex_id": "A5088438810",
+      "display_name": "Julian Schwinger",
+      "orcid": null,
+      "works_count": 495,
+      "cited_by_count": 43007,
+      "summary_stats": {
+        "two_year_mean_citedness": 6.321428571428571,
+        "h_index": 89,
+        "i10_index": 184
+      },
+      "last_known_institutions": [
+        {
+          "display_name": "Argonne National Laboratory",
+          "openalex_id": "I1282105669",
+          "country_code": "US",
+          "institution_type": "facility"
+        }
+      ],
+      "topics": [
+        {
+          "openalex_id": "T10622",
+          "display_name": "Quantum Mechanics and Applications",
+          "count": 77
+        },
+        {
+          "openalex_id": "T11683",
+          "display_name": "Quantum and Classical Electrodynamics",
+          "count": 62
+        },
+        {
+          "openalex_id": "T11960",
+          "display_name": "Relativity and Gravitational Theory",
+          "count": 43
+        },
+        {
+          "openalex_id": "T10048",
+          "display_name": "Particle physics theoretical and experimental studies",
+          "count": 32
+        },
+        {
+          "openalex_id": "T11520",
+          "display_name": "Advanced Thermodynamics and Statistical Mechanics",
+          "count": 31
+        }
+      ],
+      "matched_queries": [
+        {
+          "label": "Quantum and Classical Electrodynamics",
+          "source_kind": "topic",
+          "source_value": "T11683"
+        },
+        {
+          "label": "Relativity and Gravitational Theory",
+          "source_kind": "topic",
+          "source_value": "T11960"
+        }
+      ],
+      "matched_query_count": 2,
+      "overlap_type": "overlap"
+    },
+    {
+      "openalex_id": "A5014987686",
+      "display_name": "John P. Perdew",
+      "orcid": "https://orcid.org/0000-0003-4237-824X",
+      "works_count": 552,
+      "cited_by_count": 418871,
+      "summary_stats": {
+        "two_year_mean_citedness": 4.115384615384615,
+        "h_index": 113,
+        "i10_index": 330
+      },
+      "last_known_institutions": [
+        {
+          "display_name": "Tulane University",
+          "openalex_id": "I114832834",
+          "country_code": "US",
+          "institution_type": "education"
+        }
+      ],
+      "topics": [
+        {
+          "openalex_id": "T10002",
+          "display_name": "Advanced Chemical Physics Studies",
+          "count": 349
+        },
+        {
+          "openalex_id": "T11177",
+          "display_name": "Spectroscopy and Quantum Chemical Studies",
+          "count": 98
+        },
+        {
+          "openalex_id": "T11948",
+          "display_name": "Machine Learning in Materials Science",
+          "count": 88
+        },
+        {
+          "openalex_id": "T12202",
+          "display_name": "nanoparticles nucleation surface interactions",
+          "count": 51
+        },
+        {
+          "openalex_id": "T10913",
+          "display_name": "Molecular Junctions and Nanostructures",
+          "count": 49
+        }
+      ],
+      "matched_queries": [
+        {
+          "label": "Spectroscopy and Quantum Chemical Studies",
+          "source_kind": "topic_from_keyword",
+          "source_value": "T11177"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "A5082307304",
+      "display_name": "Kieron Burke",
+      "orcid": "https://orcid.org/0000-0002-6159-0054",
+      "works_count": 400,
+      "cited_by_count": 262402,
+      "summary_stats": {
+        "two_year_mean_citedness": 2.0588235294117645,
+        "h_index": 71,
+        "i10_index": 165
+      },
+      "last_known_institutions": [
+        {
+          "display_name": "Centre National de la Recherche Scientifique",
+          "openalex_id": "I1294671590",
+          "country_code": "FR",
+          "institution_type": "government"
+        },
+        {
+          "display_name": "University of California, Irvine",
+          "openalex_id": "I204250578",
+          "country_code": "US",
+          "institution_type": "education"
+        },
+        {
+          "display_name": "Université Paris Cité",
+          "openalex_id": "I204730241",
+          "country_code": "FR",
+          "institution_type": "education"
+        }
+      ],
+      "topics": [
+        {
+          "openalex_id": "T10002",
+          "display_name": "Advanced Chemical Physics Studies",
+          "count": 235
+        },
+        {
+          "openalex_id": "T11177",
+          "display_name": "Spectroscopy and Quantum Chemical Studies",
+          "count": 96
+        },
+        {
+          "openalex_id": "T11948",
+          "display_name": "Machine Learning in Materials Science",
+          "count": 72
+        },
+        {
+          "openalex_id": "T11965",
+          "display_name": "Quantum, superfluid, helium dynamics",
+          "count": 39
+        },
+        {
+          "openalex_id": "T12044",
+          "display_name": "Advanced Physical and Chemical Molecular Interactions",
+          "count": 39
+        }
+      ],
+      "matched_queries": [
+        {
+          "label": "Spectroscopy and Quantum Chemical Studies",
+          "source_kind": "topic_from_keyword",
+          "source_value": "T11177"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "A5053648717",
+      "display_name": "Matthias Ernzerhof",
+      "orcid": "https://orcid.org/0000-0001-5679-8902",
+      "works_count": 120,
+      "cited_by_count": 262076,
+      "summary_stats": {
+        "two_year_mean_citedness": 0.0,
+        "h_index": 36,
+        "i10_index": 78
+      },
+      "last_known_institutions": [
+        {
+          "display_name": "Université du Québec à Montréal",
+          "openalex_id": "I159129438",
+          "country_code": "CA",
+          "institution_type": "education"
+        },
+        {
+          "display_name": "Université de Montréal",
+          "openalex_id": "I70931966",
+          "country_code": "CA",
+          "institution_type": "education"
+        }
+      ],
+      "topics": [
+        {
+          "openalex_id": "T10002",
+          "display_name": "Advanced Chemical Physics Studies",
+          "count": 64
+        },
+        {
+          "openalex_id": "T10913",
+          "display_name": "Molecular Junctions and Nanostructures",
+          "count": 54
+        },
+        {
+          "openalex_id": "T11177",
+          "display_name": "Spectroscopy and Quantum Chemical Studies",
+          "count": 39
+        },
+        {
+          "openalex_id": "T10382",
+          "display_name": "Quantum and electron transport phenomena",
+          "count": 24
+        },
+        {
+          "openalex_id": "T10045",
+          "display_name": "Organic Electronics and Photovoltaics",
+          "count": 9
+        }
+      ],
+      "matched_queries": [
+        {
+          "label": "Spectroscopy and Quantum Chemical Studies",
+          "source_kind": "topic_from_keyword",
+          "source_value": "T11177"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "A5061717048",
+      "display_name": "Donald G. Truhlar",
+      "orcid": "https://orcid.org/0000-0002-7742-7294",
+      "works_count": 1854,
+      "cited_by_count": 222622,
+      "summary_stats": {
+        "two_year_mean_citedness": 3.896551724137931,
+        "h_index": 187,
+        "i10_index": 1367
+      },
+      "last_known_institutions": [
+        {
+          "display_name": "University of Minnesota System",
+          "openalex_id": "I2800403580",
+          "country_code": "US",
+          "institution_type": "education"
+        }
+      ],
+      "topics": [
+        {
+          "openalex_id": "T10002",
+          "display_name": "Advanced Chemical Physics Studies",
+          "count": 1099
+        },
+        {
+          "openalex_id": "T11177",
+          "display_name": "Spectroscopy and Quantum Chemical Studies",
+          "count": 600
+        },
+        {
+          "openalex_id": "T11965",
+          "display_name": "Quantum, superfluid, helium dynamics",
+          "count": 235
+        },
+        {
+          "openalex_id": "T11129",
+          "display_name": "Photochemistry and Electron Transfer Studies",
+          "count": 159
+        },
+        {
+          "openalex_id": "T10523",
+          "display_name": "Atomic and Molecular Physics",
+          "count": 148
+        }
+      ],
+      "matched_queries": [
+        {
+          "label": "Spectroscopy and Quantum Chemical Studies",
+          "source_kind": "topic_from_keyword",
+          "source_value": "T11177"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "A5015077264",
+      "display_name": "Axel D. Becke",
+      "orcid": "https://orcid.org/0000-0002-6668-7728",
+      "works_count": 112,
+      "cited_by_count": 216373,
+      "summary_stats": {
+        "two_year_mean_citedness": 8.0,
+        "h_index": 60,
+        "i10_index": 90
+      },
+      "last_known_institutions": [
+        {
+          "display_name": "Dalhousie University",
+          "openalex_id": "I129902397",
+          "country_code": "CA",
+          "institution_type": "education"
+        }
+      ],
+      "topics": [
+        {
+          "openalex_id": "T10002",
+          "display_name": "Advanced Chemical Physics Studies",
+          "count": 82
+        },
+        {
+          "openalex_id": "T11177",
+          "display_name": "Spectroscopy and Quantum Chemical Studies",
+          "count": 43
+        },
+        {
+          "openalex_id": "T10798",
+          "display_name": "Crystallography and molecular interactions",
+          "count": 19
+        },
+        {
+          "openalex_id": "T12852",
+          "display_name": "Chemical Thermodynamics and Molecular Structure",
+          "count": 16
+        },
+        {
+          "openalex_id": "T10913",
+          "display_name": "Molecular Junctions and Nanostructures",
+          "count": 12
+        }
+      ],
+      "matched_queries": [
+        {
+          "label": "Spectroscopy and Quantum Chemical Studies",
+          "source_kind": "topic_from_keyword",
+          "source_value": "T11177"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "A5038387078",
+      "display_name": "John A. Pople",
+      "orcid": null,
+      "works_count": 636,
+      "cited_by_count": 199120,
+      "summary_stats": {
+        "two_year_mean_citedness": 0.0,
+        "h_index": 142,
+        "i10_index": 463
+      },
+      "last_known_institutions": [
+        {
+          "display_name": "SLAC National Accelerator Laboratory",
+          "openalex_id": "I2801935854",
+          "country_code": "US",
+          "institution_type": "facility"
+        },
+        {
+          "display_name": "Stanford Synchrotron Radiation Lightsource",
+          "openalex_id": "I4210120900",
+          "country_code": "US",
+          "institution_type": "facility"
+        }
+      ],
+      "topics": [
+        {
+          "openalex_id": "T10002",
+          "display_name": "Advanced Chemical Physics Studies",
+          "count": 259
+        },
+        {
+          "openalex_id": "T11177",
+          "display_name": "Spectroscopy and Quantum Chemical Studies",
+          "count": 86
+        },
+        {
+          "openalex_id": "T11746",
+          "display_name": "Inorganic and Organometallic Chemistry",
+          "count": 84
+        },
+        {
+          "openalex_id": "T12748",
+          "display_name": "Molecular spectroscopy and chirality",
+          "count": 61
+        },
+        {
+          "openalex_id": "T12852",
+          "display_name": "Chemical Thermodynamics and Molecular Structure",
+          "count": 57
+        }
+      ],
+      "matched_queries": [
+        {
+          "label": "Spectroscopy and Quantum Chemical Studies",
+          "source_kind": "topic_from_keyword",
+          "source_value": "T11177"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    },
+    {
+      "openalex_id": "A5035627473",
+      "display_name": "William A. Goddard",
+      "orcid": "https://orcid.org/0000-0003-0097-5716",
+      "works_count": 2353,
+      "cited_by_count": 176066,
+      "summary_stats": {
+        "two_year_mean_citedness": 10.960893854748603,
+        "h_index": 184,
+        "i10_index": 1407
+      },
+      "last_known_institutions": [
+        {
+          "display_name": "California Institute of Technology",
+          "openalex_id": "I122411786",
+          "country_code": "US",
+          "institution_type": "education"
+        },
+        {
+          "display_name": "System Simulation (United Kingdom)",
+          "openalex_id": "I4210151178",
+          "country_code": "GB",
+          "institution_type": "company"
+        }
+      ],
+      "topics": [
+        {
+          "openalex_id": "T10002",
+          "display_name": "Advanced Chemical Physics Studies",
+          "count": 293
+        },
+        {
+          "openalex_id": "T10030",
+          "display_name": "Electrocatalysts for Energy Conversion",
+          "count": 221
+        },
+        {
+          "openalex_id": "T10192",
+          "display_name": "Catalytic Processes in Materials Science",
+          "count": 141
+        },
+        {
+          "openalex_id": "T11177",
+          "display_name": "Spectroscopy and Quantum Chemical Studies",
+          "count": 136
+        },
+        {
+          "openalex_id": "T10913",
+          "display_name": "Molecular Junctions and Nanostructures",
+          "count": 133
+        }
+      ],
+      "matched_queries": [
+        {
+          "label": "Spectroscopy and Quantum Chemical Studies",
+          "source_kind": "topic_from_keyword",
+          "source_value": "T11177"
+        }
+      ],
+      "matched_query_count": 1,
+      "overlap_type": "unique"
+    }
+  ],
+  "output_path": null,
+  "generated_at": "2026-04-02T18:38:52.596518Z"
+}
