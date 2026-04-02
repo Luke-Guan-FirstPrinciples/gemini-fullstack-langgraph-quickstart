@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from .utils import tokenize
+from .text import tokenize
 
 
 @dataclass(slots=True)

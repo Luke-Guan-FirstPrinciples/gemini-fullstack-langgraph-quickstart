@@ -2,11 +2,14 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from typing import Any, Callable, Literal
+from typing import Any, Literal
 
 from .api import OpenAlexApiClient
 from .catalog import build_catalog_repository_factory
 from .config import settings
+from .execution import build_run_summary, execute_query_bundle, merge_entity_results
+from .normalizers import normalize_author, normalize_paper
+from .output import build_run_artifact_paths, create_output_dir, save_run_result
 from .ports import (
     CandidateSelector,
     CandidateVerifier,
@@ -14,52 +17,43 @@ from .ports import (
     OpenAlexDependencies,
     QueryValidator,
 )
+from .query_builder import (
+    build_query_for_author_topic,
+    build_query_for_keyword,
+    build_query_for_topic,
+    extract_query_intent,
+    extract_topic_ids,
+    parse_openalex_query_input,
+    strip_text_constraints,
+)
 from .schemas import (
     AppliedQueryModifier,
-    AuthorInstitution,
-    AuthorSummaryStats,
-    AuthorTopic,
     CandidateVerificationRecord,
     ExactOpenAlexQuery,
     KeywordCandidate,
     LlmCallRecord,
     LlmUsageSummary,
-    MatchedQuery,
     OpenAlexAuthor,
     OpenAlexPaper,
     OpenAlexPipelineOptions,
     OpenAlexRunResult,
-    PaperAuthor,
-    PaperLocation,
     PipelineMode,
     PipelineLogEntry,
-    QueryExecution,
-    QuerySummary,
+    QueryBundle,
     RetrievalTarget,
     RunSummary,
     SelectedKeyword,
     SelectedTopic,
     TopicCandidate,
 )
-from .selectors import select_candidates
-from .utils import (
+from .scoring import (
     build_keyword_candidates,
-    build_query_for_author_topic,
-    build_query_for_keyword,
-    build_query_for_topic,
     build_topic_candidates,
-    build_run_artifact_paths,
-    create_output_dir,
-    extract_query_intent,
     extract_query_modifiers,
     extract_query_topic_focus,
-    extract_topic_ids,
-    openalex_topic_id,
-    parse_openalex_query_input,
-    save_run_result,
-    short_openalex_id,
-    strip_text_constraints,
 )
+from .selectors import select_candidates
+from .text import openalex_topic_id
 from .validation import LenientQueryValidator
 from .verifier import GeminiCandidateVerifier
 
@@ -183,24 +177,24 @@ def _merge_selected_topics(
 
 
 def _merge_query_bundles(
-    *groups: list[tuple[str, str, str, ExactOpenAlexQuery]],
-) -> list[tuple[str, str, str, ExactOpenAlexQuery]]:
-    merged: list[tuple[str, str, str, ExactOpenAlexQuery]] = []
+    *groups: list[QueryBundle],
+) -> list[QueryBundle]:
+    merged: list[QueryBundle] = []
     seen: set[tuple[str, str, str, str | None, str | None, str | None]] = set()
     for group in groups:
-        for label, source_kind, source_value, query in group:
+        for bundle in group:
             key = (
-                query.endpoint,
-                label,
-                source_kind,
-                query.filter,
-                query.search,
-                query.sort,
+                bundle.query.endpoint,
+                bundle.label,
+                bundle.source_kind,
+                bundle.query.filter,
+                bundle.query.search,
+                bundle.query.sort,
             )
             if key in seen:
                 continue
             seen.add(key)
-            merged.append((label, source_kind, source_value, query))
+            merged.append(bundle)
     return merged
 
 
@@ -277,19 +271,19 @@ def _catalog_candidate_preview(
 
 
 def _query_bundle_preview(
-    bundles: list[tuple[str, str, str, ExactOpenAlexQuery]],
+    bundles: list[QueryBundle],
 ) -> list[dict[str, Any]]:
     return [
         {
-            "label": label,
-            "source_kind": source_kind,
-            "source_value": source_value,
-            "endpoint": query.endpoint,
-            "filter": query.filter,
-            "search": query.search,
-            "sort": query.sort,
+            "label": bundle.label,
+            "source_kind": bundle.source_kind,
+            "source_value": bundle.source_value,
+            "endpoint": bundle.query.endpoint,
+            "filter": bundle.query.filter,
+            "search": bundle.query.search,
+            "sort": bundle.query.sort,
         }
-        for label, source_kind, source_value, query in bundles
+        for bundle in bundles
     ]
 
 
@@ -514,282 +508,6 @@ async def _verify_candidates(
     return kept_candidates, records
 
 
-def _normalize_paper(
-    work: dict[str, Any],
-    matches: list[MatchedQuery],
-    *,
-    max_authors_per_paper: int,
-) -> OpenAlexPaper:
-    authorships = work.get("authorships", [])
-    authors: list[PaperAuthor] = []
-    if isinstance(authorships, list):
-        for authorship in authorships[:max_authors_per_paper]:
-            if not isinstance(authorship, dict):
-                continue
-            author = authorship.get("author")
-            if not isinstance(author, dict):
-                continue
-            authors.append(
-                PaperAuthor(
-                    name=str(author.get("display_name", "Unknown Author")),
-                    openalex_id=short_openalex_id(author.get("id")),
-                )
-            )
-
-    primary_location_data = work.get("primary_location")
-    primary_location: PaperLocation | None = None
-    if isinstance(primary_location_data, dict):
-        source = primary_location_data.get("source")
-        primary_location = PaperLocation(
-            source_display_name=source.get("display_name")
-            if isinstance(source, dict)
-            else None,
-            source_openalex_id=short_openalex_id(source.get("id"))
-            if isinstance(source, dict)
-            else None,
-            landing_page_url=primary_location_data.get("landing_page_url"),
-            pdf_url=primary_location_data.get("pdf_url"),
-            is_oa=primary_location_data.get("is_oa"),
-        )
-
-    topics_data = work.get("topics", [])
-    topics: list[str] = []
-    if isinstance(topics_data, list):
-        for topic in topics_data[:5]:
-            if isinstance(topic, dict):
-                display_name = topic.get("display_name")
-                if isinstance(display_name, str) and display_name:
-                    topics.append(display_name)
-
-    matched_queries = sorted(matches, key=lambda item: item.label.lower())
-    return OpenAlexPaper(
-        openalex_id=short_openalex_id(work.get("id")) or "unknown",
-        title=str(work.get("display_name", "Untitled")),
-        cited_by_count=int(work.get("cited_by_count", 0) or 0),
-        publication_year=(
-            int(work["publication_year"]) if work.get("publication_year") else None
-        ),
-        publication_date=(
-            str(work["publication_date"]) if work.get("publication_date") else None
-        ),
-        doi=work.get("doi"),
-        work_type=work.get("type"),
-        primary_location=primary_location,
-        authors=authors,
-        topics=topics,
-        matched_queries=matched_queries,
-        matched_query_count=len(matched_queries),
-        overlap_type="overlap" if len(matched_queries) > 1 else "unique",
-    )
-
-
-def _normalize_author(
-    author: dict[str, Any],
-    matches: list[MatchedQuery],
-) -> OpenAlexAuthor:
-    summary_stats_data = author.get("summary_stats")
-    summary_stats: AuthorSummaryStats | None = None
-    if isinstance(summary_stats_data, dict):
-        summary_stats = AuthorSummaryStats(
-            two_year_mean_citedness=(
-                float(summary_stats_data["2yr_mean_citedness"])
-                if summary_stats_data.get("2yr_mean_citedness") is not None
-                else None
-            ),
-            h_index=(
-                int(summary_stats_data["h_index"])
-                if summary_stats_data.get("h_index") is not None
-                else None
-            ),
-            i10_index=(
-                int(summary_stats_data["i10_index"])
-                if summary_stats_data.get("i10_index") is not None
-                else None
-            ),
-        )
-
-    institutions: list[AuthorInstitution] = []
-    last_known_institutions = author.get("last_known_institutions", [])
-    if isinstance(last_known_institutions, list):
-        for institution in last_known_institutions[:3]:
-            if not isinstance(institution, dict):
-                continue
-            institutions.append(
-                AuthorInstitution(
-                    display_name=str(
-                        institution.get("display_name", "Unknown Institution")
-                    ),
-                    openalex_id=short_openalex_id(institution.get("id")),
-                    country_code=(
-                        str(institution["country_code"])
-                        if institution.get("country_code") is not None
-                        else None
-                    ),
-                    institution_type=(
-                        str(institution["type"])
-                        if institution.get("type") is not None
-                        else None
-                    ),
-                )
-            )
-
-    topics: list[AuthorTopic] = []
-    topics_data = author.get("topics", [])
-    if isinstance(topics_data, list):
-        for topic in topics_data[:5]:
-            if not isinstance(topic, dict):
-                continue
-            display_name = topic.get("display_name")
-            topic_id = short_openalex_id(topic.get("id"))
-            if not isinstance(display_name, str) or not topic_id:
-                continue
-            topics.append(
-                AuthorTopic(
-                    openalex_id=topic_id,
-                    display_name=display_name,
-                    count=(
-                        int(topic["count"]) if topic.get("count") is not None else None
-                    ),
-                )
-            )
-
-    matched_queries = sorted(matches, key=lambda item: item.label.lower())
-    return OpenAlexAuthor(
-        openalex_id=short_openalex_id(author.get("id")) or "unknown",
-        display_name=str(author.get("display_name", "Unknown Author")),
-        orcid=(
-            str(author["orcid"]) if author.get("orcid") is not None else None
-        ),
-        works_count=int(author.get("works_count", 0) or 0),
-        cited_by_count=int(author.get("cited_by_count", 0) or 0),
-        summary_stats=summary_stats,
-        last_known_institutions=institutions,
-        topics=topics,
-        matched_queries=matched_queries,
-        matched_query_count=len(matched_queries),
-        overlap_type="overlap" if len(matched_queries) > 1 else "unique",
-    )
-
-
-def _merge_entity_results(
-    executions_and_results: list[tuple[QueryExecution, list[dict[str, Any]]]],
-    *,
-    normalize_record: Callable[[dict[str, Any], list[MatchedQuery]], Any],
-    sort_key: Callable[[Any], tuple[Any, ...]],
-) -> tuple[list[Any], list[QuerySummary]]:
-    record_index: dict[str, dict[str, Any]] = {}
-    match_index: dict[str, list[MatchedQuery]] = {}
-
-    for execution, records in executions_and_results:
-        for record in records:
-            record_id = short_openalex_id(record.get("id"))
-            if not record_id:
-                continue
-            record_index[record_id] = record
-            matches = match_index.setdefault(record_id, [])
-            if any(match.label == execution.label for match in matches):
-                continue
-            matches.append(
-                MatchedQuery(
-                    label=execution.label,
-                    source_kind=execution.source_kind,
-                    source_value=execution.source_value,
-                )
-            )
-
-    items = [
-        normalize_record(record, match_index[record_id])
-        for record_id, record in record_index.items()
-    ]
-    items.sort(key=sort_key, reverse=True)
-
-    query_summaries: list[QuerySummary] = []
-    for execution, _ in executions_and_results:
-        unique_count = 0
-        overlap_count = 0
-        for item in items:
-            labels = {match.label for match in item.matched_queries}
-            if execution.label not in labels:
-                continue
-            if item.matched_query_count > 1:
-                overlap_count += 1
-            else:
-                unique_count += 1
-        query_summaries.append(
-            QuerySummary(
-                label=execution.label,
-                source_kind=execution.source_kind,
-                returned_count=execution.returned_count,
-                unique_count=unique_count,
-                overlap_count=overlap_count,
-            )
-        )
-
-    return items, query_summaries
-
-
-def _build_run_summary(
-    executions_and_results: list[tuple[QueryExecution, list[dict[str, Any]]]],
-    items: list[Any],
-    query_summaries: list[QuerySummary],
-    *,
-    top_k_returned: int,
-) -> RunSummary:
-    overlap_results = sum(1 for item in items if item.matched_query_count > 1)
-    unique_only_results = sum(1 for item in items if item.matched_query_count == 1)
-    return RunSummary(
-        total_queries_executed=len(executions_and_results),
-        total_results_retrieved=sum(
-            execution.returned_count for execution, _ in executions_and_results
-        ),
-        total_unique_results=len(items),
-        overlap_results=overlap_results,
-        unique_only_results=unique_only_results,
-        top_k_returned=top_k_returned,
-        query_summaries=query_summaries,
-    )
-
-
-async def _execute_query_bundle(
-    *,
-    entity_type: str,
-    label: str,
-    source_kind: str,
-    source_value: str,
-    query: ExactOpenAlexQuery,
-    options: OpenAlexPipelineOptions,
-    api_client: OpenAlexApiClient,
-    semaphore: asyncio.Semaphore,
-) -> tuple[QueryExecution, list[dict[str, Any]]]:
-    async with semaphore:
-        response = await api_client.fetch_results(
-            query,
-            limit=options.max_results_per_query,
-            per_page=options.per_page,
-        )
-        result_ids = [
-            short_openalex_id(record.get("id")) or "unknown"
-            for record in response.results
-        ]
-        execution = QueryExecution(
-            entity_type=entity_type,
-            label=label,
-            source_kind=source_kind,
-            source_value=source_value,
-            query=query,
-            max_results_requested=options.max_results_per_query,
-            per_page_requested=min(options.per_page, 200),
-            request_params=query.to_query_params(
-                per_page_override=min(options.per_page, 200)
-            ),
-            request_urls=response.request_urls,
-            api_result_count=response.total_count,
-            returned_count=len(response.results),
-            result_ids=result_ids,
-        )
-        return execution, response.results
-
-
 async def _ensure_valid_natural_language_query(
     input_query: str,
     *,
@@ -843,8 +561,8 @@ async def _prepare_keyword_mode(
     list[SelectedKeyword],
     list[SelectedTopic],
     list[CandidateVerificationRecord],
-    list[tuple[str, str, str, ExactOpenAlexQuery]],
-    list[tuple[str, str, str, ExactOpenAlexQuery]],
+    list[QueryBundle],
+    list[QueryBundle],
     ExactOpenAlexQuery | None,
     str,
 ]:
@@ -925,11 +643,11 @@ async def _prepare_keyword_mode(
         ]
 
         work_query_bundles = [
-            (
-                selected.keyword,
-                "keyword",
-                selected.keyword,
-                build_query_for_keyword(
+            QueryBundle(
+                label=selected.keyword,
+                source_kind="keyword",
+                source_value=selected.keyword,
+                query=build_query_for_keyword(
                     selected,
                     base_query=base_query,
                     generated_sort=options.generated_query_sort,
@@ -940,7 +658,7 @@ async def _prepare_keyword_mode(
         ]
 
         author_topics: list[SelectedTopic] = []
-        author_query_bundles: list[tuple[str, str, str, ExactOpenAlexQuery]] = []
+        author_query_bundles: list[QueryBundle] = []
         author_topic_verifications: list[CandidateVerificationRecord] = []
         if _should_fetch_authors(options.target):
             topic_catalog = await repo.fetch_topic_catalog()
@@ -982,11 +700,11 @@ async def _prepare_keyword_mode(
                 if isinstance(candidate, SelectedTopic)
             ]
             author_query_bundles = [
-                (
-                    selected.topic_name,
-                    "topic_from_keyword",
-                    selected.openalex_id,
-                    build_query_for_author_topic(
+                QueryBundle(
+                    label=selected.topic_name,
+                    source_kind="topic_from_keyword",
+                    source_value=selected.openalex_id,
+                    query=build_query_for_author_topic(
                         selected,
                         generated_sort=options.generated_query_sort,
                         extra_filter_components=extra_filter_components,
@@ -1021,8 +739,8 @@ async def _prepare_topic_mode(
     list[SelectedTopic],
     list[SelectedTopic],
     list[CandidateVerificationRecord],
-    list[tuple[str, str, str, ExactOpenAlexQuery]],
-    list[tuple[str, str, str, ExactOpenAlexQuery]],
+    list[QueryBundle],
+    list[QueryBundle],
     str,
 ]:
     async with catalog_repository_factory() as repo:
@@ -1083,11 +801,11 @@ async def _prepare_topic_mode(
             candidate for candidate in verified_topics if isinstance(candidate, SelectedTopic)
         ]
         work_query_bundles = [
-            (
-                selected.topic_name,
-                "topic",
-                selected.openalex_id,
-                build_query_for_topic(
+            QueryBundle(
+                label=selected.topic_name,
+                source_kind="topic",
+                source_value=selected.openalex_id,
+                query=build_query_for_topic(
                     selected,
                     base_query=None,
                     generated_sort=options.generated_query_sort,
@@ -1098,11 +816,11 @@ async def _prepare_topic_mode(
         ]
         author_topics = [topic.model_copy(deep=True) for topic in selected_topics]
         author_query_bundles = [
-            (
-                selected.topic_name,
-                "topic",
-                selected.openalex_id,
-                build_query_for_author_topic(
+            QueryBundle(
+                label=selected.topic_name,
+                source_kind="topic",
+                source_value=selected.openalex_id,
+                query=build_query_for_author_topic(
                     selected,
                     generated_sort=options.generated_query_sort,
                     extra_filter_components=extra_filter_components,
@@ -1261,8 +979,8 @@ async def run_openalex_pipeline(
     selected_author_topics: list[SelectedTopic] = []
     exact_query: ExactOpenAlexQuery | None = None
     selector_strategy_used = "none"
-    work_query_bundles: list[tuple[str, str, str, ExactOpenAlexQuery]] = []
-    author_query_bundles: list[tuple[str, str, str, ExactOpenAlexQuery]] = []
+    work_query_bundles: list[QueryBundle] = []
+    author_query_bundles: list[QueryBundle] = []
 
     if effective_options.mode == PipelineMode.EXACT_OPENALEX_QUERY:
         if effective_options.target == RetrievalTarget.WORKS_AND_AUTHORS:
@@ -1292,11 +1010,21 @@ async def run_openalex_pipeline(
         )
         if effective_options.target == RetrievalTarget.AUTHORS:
             author_query_bundles = [
-                ("exact_query", "exact", input_query, exact_query),
+                QueryBundle(
+                    label="exact_query",
+                    source_kind="exact",
+                    source_value=input_query,
+                    query=exact_query,
+                ),
             ]
         else:
             work_query_bundles = [
-                ("exact_query", "exact", input_query, exact_query),
+                QueryBundle(
+                    label="exact_query",
+                    source_kind="exact",
+                    source_value=input_query,
+                    query=exact_query,
+                ),
             ]
     elif effective_options.mode == PipelineMode.NATURAL_LANGUAGE_KEYWORDS_AND_TOPICS:
         (
@@ -1424,17 +1152,17 @@ async def run_openalex_pipeline(
         work_executed = (
             await asyncio.gather(
                 *[
-                    _execute_query_bundle(
+                    execute_query_bundle(
                         entity_type="work",
-                        label=label,
-                        source_kind=source_kind,
-                        source_value=source_value,
-                        query=query,
+                        label=bundle.label,
+                        source_kind=bundle.source_kind,
+                        source_value=bundle.source_value,
+                        query=bundle.query,
                         options=effective_options,
                         api_client=api_client,
                         semaphore=semaphore,
                     )
-                    for label, source_kind, source_value, query in work_query_bundles
+                    for bundle in work_query_bundles
                 ]
             )
             if work_query_bundles
@@ -1443,17 +1171,17 @@ async def run_openalex_pipeline(
         author_executed = (
             await asyncio.gather(
                 *[
-                    _execute_query_bundle(
+                    execute_query_bundle(
                         entity_type="author",
-                        label=label,
-                        source_kind=source_kind,
-                        source_value=source_value,
-                        query=query,
+                        label=bundle.label,
+                        source_kind=bundle.source_kind,
+                        source_value=bundle.source_value,
+                        query=bundle.query,
                         options=effective_options,
                         api_client=api_client,
                         semaphore=semaphore,
                     )
-                    for label, source_kind, source_value, query in author_query_bundles
+                    for bundle in author_query_bundles
                 ]
             )
             if author_query_bundles
@@ -1463,9 +1191,9 @@ async def run_openalex_pipeline(
     papers: list[OpenAlexPaper] = []
     works_summary: RunSummary | None = None
     if work_executed:
-        merged_papers, work_query_summaries = _merge_entity_results(
+        merged_papers, work_query_summaries = merge_entity_results(
             work_executed,
-            normalize_record=lambda record, matches: _normalize_paper(
+            normalize_record=lambda record, matches: normalize_paper(
                 record,
                 matches,
                 max_authors_per_paper=effective_options.max_authors_per_paper,
@@ -1477,7 +1205,7 @@ async def run_openalex_pipeline(
             ),
         )
         papers = merged_papers[: effective_options.top_k]
-        works_summary = _build_run_summary(
+        works_summary = build_run_summary(
             work_executed,
             merged_papers,
             work_query_summaries,
@@ -1503,9 +1231,9 @@ async def run_openalex_pipeline(
     authors: list[OpenAlexAuthor] = []
     author_summary: RunSummary | None = None
     if author_executed:
-        merged_authors, author_query_summaries = _merge_entity_results(
+        merged_authors, author_query_summaries = merge_entity_results(
             author_executed,
-            normalize_record=_normalize_author,
+            normalize_record=normalize_author,
             sort_key=lambda author: (
                 author.matched_query_count,
                 author.cited_by_count,
@@ -1513,7 +1241,7 @@ async def run_openalex_pipeline(
             ),
         )
         authors = merged_authors[: effective_options.top_k]
-        author_summary = _build_run_summary(
+        author_summary = build_run_summary(
             author_executed,
             merged_authors,
             author_query_summaries,

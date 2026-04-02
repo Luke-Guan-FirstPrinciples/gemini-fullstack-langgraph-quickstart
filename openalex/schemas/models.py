@@ -154,6 +154,13 @@ class ExactOpenAlexQuery(BaseModel):
         return params
 
 
+class QueryBundle(BaseModel):
+    label: str
+    source_kind: str
+    source_value: str
+    query: ExactOpenAlexQuery
+
+
 class SelectedKeyword(BaseModel):
     keyword_id: int
     keyword: str

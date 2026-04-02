@@ -7,7 +7,7 @@ from .config import settings
 from .db import OpenAlexCatalogRepository
 from .ports import CatalogRepositoryFactory
 from .schemas import KeywordCandidate, TopicCandidate
-from .utils import normalize_alias
+from .text import normalize_alias
 
 
 class StaticOpenAlexCatalogRepository:
