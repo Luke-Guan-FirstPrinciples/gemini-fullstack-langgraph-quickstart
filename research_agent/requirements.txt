@@ -1,0 +1,17 @@
+# Core
+langgraph>=0.2.6
+langchain-core>=0.3.0
+langchain>=0.3.0
+pydantic>=2.0
+python-dotenv>=1.0
+
+# LLM providers (install the one you use)
+langchain-google-genai    # Gemini (default)
+# langchain-openai        # OpenAI
+# langchain-anthropic     # Anthropic
+
+# HTTP client for search providers
+httpx>=0.27
+
+# Optional: Tavily native client
+# tavily-python
