@@ -1,0 +1,105 @@
+{
+  "info": {
+    "_postman_id": "82f3a8c3-51a7-4d5d-a424-2a235ec4cbf0",
+    "name": "Semantic Scholar Test Backend",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "s2_api_key",
+      "value": ""
+    },
+    {
+      "key": "local_host",
+      "value": "127.0.0.1:8000"
+    }
+  ],
+  "item": [
+    {
+      "name": "Official Semantic Scholar Recommendations",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "x-api-key",
+            "value": "{{s2_api_key}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "https://api.semanticscholar.org/recommendations/v1/papers?fields=title,url,citationCount,authors&limit=10",
+          "protocol": "https",
+          "host": [
+            "api",
+            "semanticscholar",
+            "org"
+          ],
+          "path": [
+            "recommendations",
+            "v1",
+            "papers"
+          ],
+          "query": [
+            {
+              "key": "fields",
+              "value": "title,url,citationCount,authors"
+            },
+            {
+              "key": "limit",
+              "value": "10"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"positivePaperIds\": [\n    \"02138d6d094d1e7511c157f0b1a3dd4e5b20ebee\",\n    \"018f58247a20ec6b3256fd3119f57980a6f37748\"\n  ],\n  \"negativePaperIds\": [\n    \"0045ad0c1e14a4d1f4b011c92eb36b8df63d65bc\"\n  ]\n}"
+        }
+      }
+    },
+    {
+      "name": "Local File-Backed Recommendations",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "http://{{local_host}}/recommendations/v1/papers/from-file?fields=title,url,citationCount,authors&limit=10",
+          "protocol": "http",
+          "host": [
+            "{{local_host}}"
+          ],
+          "path": [
+            "recommendations",
+            "v1",
+            "papers",
+            "from-file"
+          ],
+          "query": [
+            {
+              "key": "fields",
+              "value": "title,url,citationCount,authors"
+            },
+            {
+              "key": "limit",
+              "value": "10"
+            }
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"jsonFilePath\": \"semantic_scholar/seed_papers.json\"\n}"
+        }
+      }
+    }
+  ]
+}
