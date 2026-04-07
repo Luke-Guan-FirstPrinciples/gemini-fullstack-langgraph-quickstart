@@ -28,7 +28,7 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("--llm-model", default=None, help="Model name override")
     p.add_argument(
         "--search-provider",
-        choices=["google_cse", "tavily", "jina"],
+        choices=["google_cse", "tavily", "jina", "openai"],
         default=None,
         help="Search provider (default: from SEARCH_PROVIDER or 'google_cse')",
     )

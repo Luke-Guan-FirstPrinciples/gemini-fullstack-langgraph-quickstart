@@ -24,6 +24,7 @@ class Settings:
 
     # Search ---------------------------------------------------------------
     search_provider: str = os.getenv("SEARCH_PROVIDER", "google_cse")
+    openai_search_model: str = os.getenv("OPENAI_SEARCH_MODEL", "gpt-5.4-mini")
     google_cse_api_key: str = os.getenv("GOOGLE_CSE_API_KEY", os.getenv("GOOGLE_API_KEY", ""))
     google_cse_id: str = os.getenv("GOOGLE_CSE_ID", "")
     tavily_api_key: str = os.getenv("TAVILY_API_KEY", "")

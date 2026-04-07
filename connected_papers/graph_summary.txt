@@ -1,0 +1,136 @@
+status: FRESH_GRAPH
+remaining_requests: None
+start_id: 9397e7acd062245d37350f5c05faf56e9cfae0d6
+
+nodes: 41
+edges: 777
+common_references (prior works): 10
+common_citations (derivative works): 10
+common_authors: 14
+path_lengths entries: 161
+
+=== SAMPLE NODES (first 3) ===
+
+  id: 9397e7acd062245d37350f5c05faf56e9cfae0d6
+  title: DeepFruits: A Fruit Detection System Using Deep Neural Networks
+  year: 2016
+  authors: ['Inkyu Sa', 'ZongYuan Ge', 'Feras Dayoub']...
+  path_length: 0
+  path: ['9397e7acd062245d37350f5c05faf56e9cfae0d6']
+  pos: [29.720650660580073, 95.3474323008489]
+  fieldsOfStudy: ['Agricultural and Food Sciences', 'Computer Science', 'Engineering', 'Medicine']
+  abstract: This paper presents a novel approach to fruit detection using deep convolutional neural networks. The aim is to build an accurate, fast and reliable f...
+  ALL KEYS: ['abstract', 'arxivId', 'authors', 'cit_with_start', 'citations_length', 'corpusid', 'doi', 'externalIds', 'fieldsOfStudy', 'id', 'isOpenAccess', 'journalName', 'journalPages', 'journalVolume', 'magId', 'number_of_authors', 'paperId', 'path', 'path_length', 'pdfUrls', 'pmid', 'pos', 'publicationDate', 'publicationTypes', 'ref_with_start', 'references_length', 'title', 'tldr', 'url', 'venue', 'year']
+
+  id: e35d05f5abd049389e3022f40d467cf472f4987e
+  title: Understanding Image Representations by Measuring Their Equivariance and Equivalence
+  year: 2014
+  authors: ['Karel Lenc', 'A. Vedaldi']
+  path_length: 4.953324226256483
+  path: ['9397e7acd062245d37350f5c05faf56e9cfae0d6', 'e35d05f5abd049389e3022f40d467cf472f4987e']
+  pos: [57.603110449099745, -21.21208221148459]
+  fieldsOfStudy: ['Computer Science', 'Mathematics', 'Medicine']
+  abstract: Despite the importance of image representations such as histograms of oriented gradients and deep Convolutional Neural Networks (CNN), our theoretical...
+  ALL KEYS: ['abstract', 'arxivId', 'authors', 'cit_with_start', 'citations_length', 'corpusid', 'doi', 'externalIds', 'fieldsOfStudy', 'id', 'isOpenAccess', 'journalName', 'journalPages', 'journalVolume', 'magId', 'number_of_authors', 'paperId', 'path', 'path_length', 'pdfUrls', 'pmid', 'pos', 'publicationDate', 'publicationTypes', 'ref_with_start', 'references_length', 'title', 'tldr', 'url', 'venue', 'year']
+
+  id: c4700a0be2f3621310c5d1142bd2d29431efcc10
+  title: On Visual Detection of Highly-occluded Objects for Harvesting Automation in Horticulture
+  year: 2015
+  authors: ['Inkyu Sa', 'C. McCool', 'Christopher F. Lehnert']...
+  path_length: 4.102103115701617
+  path: ['9397e7acd062245d37350f5c05faf56e9cfae0d6', 'eaa7b6893790279292e9f2fafe48662af8b6ae3d', 'c4700a0be2f3621310c5d1142bd2d29431efcc10']
+  pos: [-100.95893891465053, 154.3002515169771]
+  fieldsOfStudy: ['Agricultural and Food Sciences', 'Computer Science', 'Engineering']
+  abstract: S2 TL;DR: A conditional random field is used on multi-spectral image data to model two classes: crop and background to explore a range of visual-textu...
+  ALL KEYS: ['abstract', 'arxivId', 'authors', 'cit_with_start', 'citations_length', 'corpusid', 'doi', 'externalIds', 'fieldsOfStudy', 'id', 'isOpenAccess', 'journalName', 'journalPages', 'journalVolume', 'magId', 'number_of_authors', 'paperId', 'path', 'path_length', 'pdfUrls', 'pmid', 'pos', 'publicationDate', 'publicationTypes', 'ref_with_start', 'references_length', 'title', 'tldr', 'url', 'venue', 'year']
+
+=== EDGES (similarity connections) ===
+  Format: [paper_id_1, paper_id_2, similarity_weight]
+  Weight range: 0.000057 — 0.978743
+  Weight mean:  0.146320
+  ['b724c3f7ff395235b62537203ddeb710f0eb27bb', 'eaa7b6893790279292e9f2fafe48662af8b6ae3d', 5.729436109769757e-05]
+  ['4328ec9d98eff5d7eb70997f76d81b27849f3220', 'c2eaffc617c57ab5106ba3bc95b7b910be473389', 0.00039249557223099965]
+  ['b724c3f7ff395235b62537203ddeb710f0eb27bb', 'c2eaffc617c57ab5106ba3bc95b7b910be473389', 0.0009019979059279882]
+  ['d3eb6e57f618cf0830678594efd7e67eec76a898', 'f8e79ac0ea341056ef20f2616628b3e964764cfd', 0.002336681751869868]
+  ['6e4e5ef25f657de8fb383c8dfeb8e229eea28bb9', 'c2eaffc617c57ab5106ba3bc95b7b910be473389', 0.0025297342356202382]
+  ... (772 more)
+
+=== PATH LENGTHS (distance from seed) ===
+  0.0000  DeepFruits: A Fruit Detection System Using Deep Neural Networks
+  1.3001  Automated Bell Pepper Harvesting using Robotic Vision System
+  1.3789  Automatic Fruits Classification System Based on Deep Neural Network
+  1.4399  Convolutional Neural Networks (CNN) for Detecting Fruit Information Using Machin
+  1.4954  Deep fruit detection in orchards
+  ... (156 more)
+
+=== COMMON REFERENCES (prior works) — first 3 ===
+  2015: Faster R-CNN: Towards Real-Time Object Detection with Region Proposal Networks
+    edges_count=561
+    local_citations=['0d44970499a233c3be99995f615a91980becf3d4', '1c8c77afa31d57c45cfbf404231217dc4db17a14', '1c96a4595fcc2ca71ae937acda22de4ba790a4af', '1d0e7715a4c3f6c81fe35f766d96eb74178e6b2f', '28171e50a5077130dab63d06e9272bcf10db5d68']
+    ALL KEYS: ['abstract', 'arxivId', 'authors', 'citations_length', 'corpusid', 'doi', 'edges_count', 'externalIds', 'fieldsOfStudy', 'id', 'isOpenAccess', 'journalName', 'journalPages', 'journalVolume', 'local_citations', 'magId', 'number_of_authors', 'paperId', 'paper_id', 'pdfUrls', 'pi_name', 'pmid', 'publicationDate', 'publicationTypes', 'references_length', 'title', 'tldr', 'total_citations', 'url', 'venue', 'year']
+  2013: Selective Search for Object Recognition
+    edges_count=378
+    local_citations=['0d44970499a233c3be99995f615a91980becf3d4', '1c96a4595fcc2ca71ae937acda22de4ba790a4af', '28171e50a5077130dab63d06e9272bcf10db5d68', '2b16d04ae11a903c079946c83ea2b5d517cce970', '365b31515028f2c7444d5b5afd865d242b229bd2']
+    ALL KEYS: ['abstract', 'arxivId', 'authors', 'citations_length', 'corpusid', 'doi', 'edges_count', 'externalIds', 'fieldsOfStudy', 'id', 'isOpenAccess', 'journalName', 'journalPages', 'journalVolume', 'local_citations', 'magId', 'number_of_authors', 'paperId', 'paper_id', 'pdfUrls', 'pi_name', 'pmid', 'publicationDate', 'publicationTypes', 'references_length', 'title', 'tldr', 'total_citations', 'url', 'venue', 'year']
+  2012: ImageNet classification with deep convolutional neural networks
+    edges_count=351
+    local_citations=['0d44970499a233c3be99995f615a91980becf3d4', '28171e50a5077130dab63d06e9272bcf10db5d68', '2b16d04ae11a903c079946c83ea2b5d517cce970', '365b31515028f2c7444d5b5afd865d242b229bd2', '371400e61632592146f40b621fb3dbb6971721be']
+    ALL KEYS: ['abstract', 'arxivId', 'authors', 'citations_length', 'corpusid', 'doi', 'edges_count', 'externalIds', 'fieldsOfStudy', 'id', 'isOpenAccess', 'journalName', 'journalPages', 'journalVolume', 'local_citations', 'magId', 'number_of_authors', 'paperId', 'paper_id', 'pdfUrls', 'pi_name', 'pmid', 'publicationDate', 'publicationTypes', 'references_length', 'title', 'tldr', 'total_citations', 'url', 'venue', 'year']
+
+=== COMMON CITATIONS (derivative works) — first 3 ===
+  2021: A mango picking vision algorithm on instance segmentation and key point detection from RGB images in an open orchard
+    edges_count=45
+    local_references=['45d45687ebca6281d44e477cd012a1ef48ebf286', '51579a8a40aea8dc6b9cdea9499dc27c2797499d', '9397e7acd062245d37350f5c05faf56e9cfae0d6', 'a598e30cce3902fafa5c2692e2ad68437339b383', 'ac03e40cc705cbd9270d221eb23cf06460be579e']
+    ALL KEYS: ['abstract', 'arxivId', 'authors', 'citations_length', 'corpusid', 'doi', 'edges_count', 'externalIds', 'fieldsOfStudy', 'id', 'isOpenAccess', 'journalName', 'journalPages', 'journalVolume', 'local_references', 'magId', 'number_of_authors', 'paperId', 'paper_id', 'pdfUrls', 'pi_name', 'pmid', 'publicationDate', 'publicationTypes', 'references_length', 'title', 'tldr', 'total_citations', 'url', 'venue', 'year']
+  2020: A deep learning system for single and overall weight estimation of melons using unmanned aerial vehicle images
+    edges_count=45
+    local_references=['45d45687ebca6281d44e477cd012a1ef48ebf286', '51579a8a40aea8dc6b9cdea9499dc27c2797499d', '9397e7acd062245d37350f5c05faf56e9cfae0d6', 'a598e30cce3902fafa5c2692e2ad68437339b383', 'ac03e40cc705cbd9270d221eb23cf06460be579e']
+    ALL KEYS: ['abstract', 'arxivId', 'authors', 'citations_length', 'corpusid', 'doi', 'edges_count', 'externalIds', 'fieldsOfStudy', 'id', 'isOpenAccess', 'journalName', 'journalPages', 'journalVolume', 'local_references', 'magId', 'number_of_authors', 'paperId', 'paper_id', 'pdfUrls', 'pi_name', 'pmid', 'publicationDate', 'publicationTypes', 'references_length', 'title', 'tldr', 'total_citations', 'url', 'venue', 'year']
+  2025: Deep learning in produce perception of harvesting robots: A comprehensive review
+    edges_count=36
+    local_references=['45d45687ebca6281d44e477cd012a1ef48ebf286', '9397e7acd062245d37350f5c05faf56e9cfae0d6', 'a598e30cce3902fafa5c2692e2ad68437339b383', 'ac03e40cc705cbd9270d221eb23cf06460be579e', 'b70bc54f360857ba0dbee3d6c85792ac03fae946']
+    ALL KEYS: ['abstract', 'arxivId', 'authors', 'citations_length', 'corpusid', 'doi', 'edges_count', 'externalIds', 'fieldsOfStudy', 'id', 'isOpenAccess', 'journalName', 'journalPages', 'journalVolume', 'local_references', 'magId', 'number_of_authors', 'paperId', 'paper_id', 'pdfUrls', 'pi_name', 'pmid', 'publicationDate', 'publicationTypes', 'references_length', 'title', 'tldr', 'total_citations', 'url', 'venue', 'year']
+
+=== COMMON AUTHORS — first 3 ===
+  Feras Dayoub (id=1757942)
+    mentions: ['9397e7acd062245d37350f5c05faf56e9cfae0d6', 'eaa7b6893790279292e9f2fafe48662af8b6ae3d']...
+    ALL KEYS: ['id', 'mention_indexes', 'mentions', 'name', 'url']
+  B. Upcroft (id=1803115)
+    mentions: ['9397e7acd062245d37350f5c05faf56e9cfae0d6', 'eaa7b6893790279292e9f2fafe48662af8b6ae3d']...
+    ALL KEYS: ['id', 'mention_indexes', 'mentions', 'name', 'url']
+  Inkyu Sa (id=1867220)
+    mentions: ['9397e7acd062245d37350f5c05faf56e9cfae0d6', 'c4700a0be2f3621310c5d1142bd2d29431efcc10', 'eaa7b6893790279292e9f2fafe48662af8b6ae3d']...
+    ALL KEYS: ['id', 'mention_indexes', 'mentions', 'name', 'url']
+
+=== FULL SCHEMA: one Paper node ===
+  abstract: str = 'This paper presents a novel approach to fruit detection using deep convolutional neural networks. The aim is to build a
+  arxivId: NoneType = None
+  authors: list = [{'ids': ['1867220'], 'name': 'Inkyu Sa'}, {'ids': ['1808390'], 'name': 'ZongYuan Ge'}, {'ids': ['1757942'], 'name': 'Fe
+  cit_with_start: float = 6.883462586413092
+  citations_length: int = 974
+  corpusid: int = 17376502
+  doi: str = '10.3390/s16081222'
+  externalIds: dict = {'PubMedCentral': '5017387', 'DBLP': 'journals/sensors/SaGDUPM16', 'MAG': '2501369945', 'DOI': '10.3390/s16081222', 'Cor
+  fieldsOfStudy: list = ['Agricultural and Food Sciences', 'Computer Science', 'Engineering', 'Medicine']
+  id: str = '9397e7acd062245d37350f5c05faf56e9cfae0d6'
+  isOpenAccess: bool = True
+  journalName: str = 'Sensors (Basel, Switzerland)'
+  journalPages: NoneType = None
+  journalVolume: str = '16'
+  magId: str = '2501369945'
+  number_of_authors: int = 6
+  paperId: str = '9397e7acd062245d37350f5c05faf56e9cfae0d6'
+  path: list = ['9397e7acd062245d37350f5c05faf56e9cfae0d6']
+  path_length: int = 0
+  pdfUrls: list = ['https://www.mdpi.com/1424-8220/16/8/1222/pdf?version=1470314790']
+  pmid: str = '27527168'
+  pos: list = [29.720650660580073, 95.3474323008489]
+  publicationDate: str = '2016-08-01'
+  publicationTypes: list = ['JournalArticle']
+  ref_with_start: float = 3.58351893845611
+  references_length: int = 38
+  title: str = 'DeepFruits: A Fruit Detection System Using Deep Neural Networks'
+  tldr: str = 'A novel multi-modal Faster R-CNN model, which achieves state-of-the-art results compared to prior work with the F1 scor
+  url: str = 'https://www.semanticscholar.org/paper/9397e7acd062245d37350f5c05faf56e9cfae0d6'
+  venue: str = 'Italian National Conference on Sensors'
+  year: int = 2016
