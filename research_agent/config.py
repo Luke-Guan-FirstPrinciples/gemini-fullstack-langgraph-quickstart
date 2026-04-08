@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass, field
-from pathlib import Path
 
 from dotenv import load_dotenv
 
@@ -29,10 +28,26 @@ class Settings:
     google_cse_id: str = os.getenv("GOOGLE_CSE_ID", "")
     tavily_api_key: str = os.getenv("TAVILY_API_KEY", "")
     jina_api_key: str = os.getenv("JINA_API_KEY", "")
+    openalex_base_url: str = os.getenv("OPENALEX_BASE_URL", "https://api.openalex.org")
+    openalex_api_key: str = os.getenv("OPENALEX_API_KEY", "")
+    openalex_email: str = os.getenv("OPENALEX_EMAIL", "")
 
     # Pipeline -------------------------------------------------------------
     max_iterations: int = int(os.getenv("RESEARCH_MAX_ITERATIONS", "2"))
     results_per_query: int = int(os.getenv("RESEARCH_RESULTS_PER_QUERY", "10"))
+    openalex_title_search_limit: int = int(os.getenv("RESEARCH_OPENALEX_TITLE_SEARCH_LIMIT", "5"))
+    openalex_parallelism: int = int(os.getenv("RESEARCH_OPENALEX_PARALLELISM", "4"))
+    openalex_timeout_seconds: float = float(os.getenv("RESEARCH_OPENALEX_TIMEOUT_SECONDS", "30"))
+    openalex_min_title_similarity: float = float(os.getenv("RESEARCH_OPENALEX_MIN_TITLE_SIMILARITY", "0.82"))
+    rerank_batch_size: int = int(os.getenv("RESEARCH_RERANK_BATCH_SIZE", "12"))
+    rerank_model: str = os.getenv("RESEARCH_RERANK_MODEL", "")
+    semantic_relevance_weight: float = float(
+        os.getenv("RESEARCH_WEIGHT_SEMANTIC_RELEVANCE", "0.6")
+    )
+    citation_count_weight: float = float(
+        os.getenv("RESEARCH_WEIGHT_CITATION_COUNT", "0.25")
+    )
+    fwci_weight: float = float(os.getenv("RESEARCH_WEIGHT_FWCI", "0.15"))
 
     # Preferred academic sources (used in query generation prompts)
     preferred_sources: list[str] = field(default_factory=lambda: [
@@ -51,6 +66,18 @@ class Settings:
     # LANGCHAIN_TRACING_V2=true
     # LANGCHAIN_API_KEY=...
     # LANGCHAIN_PROJECT=research-agent
+
+    def ranking_weights(self) -> dict[str, float]:
+        """Return the currently configured ranking weights."""
+        return {
+            "semantic_relevance": self.semantic_relevance_weight,
+            "citation_count": self.citation_count_weight,
+            "fwci": self.fwci_weight,
+        }
+
+    def rerank_model_name(self) -> str:
+        """Use a dedicated rerank model when configured, else the main LLM model."""
+        return self.rerank_model or self.llm_model
 
 
 settings = Settings()

@@ -22,6 +22,7 @@
   --amber: #f6b655;
   --cyan: #53d0cf;
   --rose: #ff7a6b;
+  --lime: #97f07c;
 }
 
 * {
@@ -45,7 +46,8 @@ a {
 
 button,
 input,
-textarea {
+textarea,
+select {
   font: inherit;
 }
 
@@ -232,7 +234,7 @@ h3 {
 
 .overview-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 18px;
 }
 
@@ -267,6 +269,12 @@ h3 {
 .feature-frame.accent-rose {
   box-shadow:
     inset 0 1px 0 rgba(255, 122, 107, 0.24),
+    var(--shadow);
+}
+
+.feature-frame.accent-lime {
+  box-shadow:
+    inset 0 1px 0 rgba(151, 240, 124, 0.24),
     var(--shadow);
 }
 
@@ -323,8 +331,23 @@ h3 {
   grid-template-columns: minmax(0, 1fr) 120px;
 }
 
+.weight-grid,
+.summary-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.weight-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.summary-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .field input,
-.field textarea {
+.field textarea,
+.field select {
   width: 100%;
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 16px;
@@ -339,9 +362,14 @@ h3 {
 }
 
 .field input:focus,
-.field textarea:focus {
+.field textarea:focus,
+.field select:focus {
   border-color: rgba(255, 255, 255, 0.36);
   background: rgba(255, 255, 255, 0.06);
+}
+
+.field select {
+  appearance: none;
 }
 
 .toggle-row {
@@ -489,6 +517,26 @@ h3 {
   padding: 20px;
 }
 
+.list-card {
+  display: grid;
+  gap: 14px;
+}
+
+.score-meter {
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  margin: 16px 0 14px;
+}
+
+.score-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #53d0cf 0%, #97f07c 100%);
+}
+
 .result-card h3 a:hover {
   text-decoration: underline;
 }
@@ -571,7 +619,9 @@ h3 {
   .workspace-grid,
   .runbook,
   .overview-grid,
-  .card-grid.three-up {
+  .card-grid.three-up,
+  .summary-grid,
+  .weight-grid {
     grid-template-columns: 1fr;
   }
 

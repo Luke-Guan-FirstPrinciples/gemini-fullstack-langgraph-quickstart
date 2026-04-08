@@ -1,9 +1,9 @@
 """LangGraph research pipeline — the core graph definition and node functions.
 
 Graph topology:
-    parse_query → execute_search → structure_results → assess_coverage
-                      ↑                                      │
-                      └──── (sub-queries, if gaps found) ────┘
+    parse_query → execute_search → structure_results → enrich_results → rerank_results → assess_coverage
+                      ↑                                                                  │
+                      └────────────────────── (sub-queries, if gaps found) ─────────────┘
 """
 
 import asyncio
@@ -16,11 +16,13 @@ from langchain_core.runnables import RunnableConfig
 from langgraph.graph import END, START, StateGraph
 
 from research_agent.config import Settings, settings
+from research_agent.enrichment import OpenAlexEnricher
 from research_agent.llm import create_llm
 from research_agent.logging_config import setup_logging
 from research_agent.models import (
     CoverageAssessment,
     ParsedQuery,
+    RankedResults,
     ResearchOutput,
     ResearchState,
 )
@@ -32,6 +34,7 @@ from research_agent.prompts import (
     STRUCTURE_RESULTS_HUMAN,
     STRUCTURE_RESULTS_SYSTEM,
 )
+from research_agent.ranking import rerank_papers
 from research_agent.search import create_search_provider
 
 logger = logging.getLogger("research_agent.graph")
@@ -125,6 +128,32 @@ async def structure_results(state: ResearchState, config: RunnableConfig) -> dic
     return {"structured_output": output.model_dump()}
 
 
+async def enrich_results(state: ResearchState, config: RunnableConfig) -> dict[str, Any]:
+    """Enrich structured papers with OpenAlex metadata."""
+    cfg = _get_settings(config)
+    structured = state.get("structured_output") or {}
+    output = ResearchOutput.model_validate(structured)
+
+    logger.info("Enriching %d papers with OpenAlex", len(output.papers))
+    enricher = OpenAlexEnricher(cfg)
+    enriched_papers = await enricher.enrich_papers(output.papers)
+    output.papers = enriched_papers
+
+    return {"structured_output": output.model_dump()}
+
+
+async def rerank_results(state: ResearchState, config: RunnableConfig) -> dict[str, Any]:
+    """Rerank structured papers using semantic and bibliometric signals."""
+    cfg = _get_settings(config)
+    structured = state.get("structured_output") or {}
+    output = ResearchOutput.model_validate(structured)
+
+    logger.info("Reranking %d papers", len(output.papers))
+    ranked: RankedResults = await rerank_papers(state["query"], output.papers, cfg)
+
+    return {"ranked_output": ranked.model_dump()}
+
+
 async def assess_coverage(state: ResearchState, config: RunnableConfig) -> dict[str, Any]:
     """Evaluate whether the results cover the query; generate sub-queries if not."""
     cfg = _get_settings(config)
@@ -191,13 +220,17 @@ def build_graph() -> StateGraph:
     graph.add_node("parse_query", parse_query)
     graph.add_node("execute_search", execute_search)
     graph.add_node("structure_results", structure_results)
+    graph.add_node("enrich_results", enrich_results)
+    graph.add_node("rerank_results", rerank_results)
     graph.add_node("assess_coverage", assess_coverage)
 
     # Edges
     graph.add_edge(START, "parse_query")
     graph.add_edge("parse_query", "execute_search")
     graph.add_edge("execute_search", "structure_results")
-    graph.add_edge("structure_results", "assess_coverage")
+    graph.add_edge("structure_results", "enrich_results")
+    graph.add_edge("enrich_results", "rerank_results")
+    graph.add_edge("rerank_results", "assess_coverage")
 
     # Conditional: loop or finish
     graph.add_conditional_edges("assess_coverage", should_continue)
@@ -227,6 +260,7 @@ async def run_research(
         "search_queries": [],
         "all_search_results": [],
         "structured_output": None,
+        "ranked_output": None,
         "iteration": 0,
         "max_iterations": max_iterations or cfg.max_iterations,
     }

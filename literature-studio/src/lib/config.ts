@@ -16,6 +16,11 @@ export const semanticScholarBaseUrl = readEnv(
   "/api/semantic-scholar",
 );
 
+export const researchAgentBaseUrl = readEnv(
+  import.meta.env.VITE_RESEARCH_AGENT_BASE_URL,
+  "/api/research-agent",
+);
+
 export const deepFruitsPaperId =
   "9397e7acd062245d37350f5c05faf56e9cfae0d6";
 

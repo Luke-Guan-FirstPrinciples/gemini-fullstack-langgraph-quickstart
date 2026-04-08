@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Annotated
 from operator import add
+from typing import Annotated, Literal
 
 from pydantic import BaseModel, Field
 from typing_extensions import TypedDict
@@ -50,6 +50,37 @@ class Paper(BaseModel):
     abstract: str = ""
     doi: str | None = None
     key_finding: str = Field(default="", description="One-sentence summary of the main contribution")
+    openalex: "PaperOpenAlexEnrichment | None" = None
+    ranking: "PaperRanking | None" = None
+
+
+class PaperOpenAlexEnrichment(BaseModel):
+    """Normalized metadata pulled from OpenAlex for a paper."""
+
+    status: Literal["matched", "not_found", "error"] = "not_found"
+    openalex_id: str | None = None
+    matched_title: str | None = None
+    title_similarity: float | None = None
+    search_relevance_score: float | None = None
+    citation_count: int | None = None
+    fwci: float | None = None
+    citation_normalized_percentile: float | None = None
+    is_in_top_1_percent: bool | None = None
+    is_in_top_10_percent: bool | None = None
+    authors: list[str] = Field(default_factory=list)
+    doi: str | None = None
+    publication_year: int | None = None
+    source_display_name: str | None = None
+    landing_page_url: str | None = None
+    error: str | None = None
+
+
+class PaperRanking(BaseModel):
+    """Ranking metadata assigned after enrichment."""
+
+    rank: int | None = None
+    score: float = 0.0
+    normalized_signals: dict[str, float] = Field(default_factory=dict)
 
 
 class Author(BaseModel):
@@ -89,6 +120,31 @@ class CoverageAssessment(BaseModel):
     sub_queries: list[str] = Field(default_factory=list, description="Queries to fill the gaps")
 
 
+class PaperRelevanceScore(BaseModel):
+    """Semantic-relevance score for one paper in a reranking batch."""
+
+    paper_index: int
+    semantic_relevance: float = Field(
+        default=0.0,
+        description="Relevance from 0.0 to 1.0 based only on semantic fit to the query.",
+    )
+
+
+class PaperRelevanceBatch(BaseModel):
+    """Batch of semantic-relevance scores returned by the LLM."""
+
+    scores: list[PaperRelevanceScore] = Field(default_factory=list)
+
+
+class RankedResults(BaseModel):
+    """Final ranked paper list plus ranking metadata."""
+
+    query: str
+    weights: dict[str, float] = Field(default_factory=dict)
+    normalization: dict[str, str] = Field(default_factory=dict)
+    papers: list[Paper] = Field(default_factory=list)
+
+
 # ---------------------------------------------------------------------------
 # LangGraph state
 # ---------------------------------------------------------------------------
@@ -102,5 +158,6 @@ class ResearchState(TypedDict):
     # Annotated with `add` so results accumulate across loop iterations
     all_search_results: Annotated[list[dict], add]
     structured_output: dict | None
+    ranked_output: dict | None
     iteration: int
     max_iterations: int

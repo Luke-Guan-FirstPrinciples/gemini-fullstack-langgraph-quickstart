@@ -6,7 +6,12 @@ regardless of which LLM backend is configured.
 
 from __future__ import annotations
 
-from langchain_core.language_models import BaseChatModel
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from langchain_core.language_models import BaseChatModel
+else:
+    BaseChatModel = Any
 
 from research_agent.config import settings
 

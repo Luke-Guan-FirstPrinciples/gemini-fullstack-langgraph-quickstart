@@ -76,3 +76,22 @@ Original query: {query}
 
 Structured results so far:
 {structured_text}"""
+
+
+RERANK_RESULTS_SYSTEM = """\
+You score how semantically relevant candidate papers are to a user's research query.
+
+For each paper:
+1. Score semantic relevance from 0.0 to 1.0.
+2. Use only topical, methodological, and time-window fit to the query.
+3. Do not use citation count, FWCI, author prestige, or venue prestige in this score.
+4. Reserve scores near 1.0 for papers that directly answer the query.
+
+Return ONLY valid JSON matching the requested schema — no markdown fences."""
+
+
+RERANK_RESULTS_HUMAN = """\
+Original query: {query}
+
+Candidate papers:
+{papers_text}"""

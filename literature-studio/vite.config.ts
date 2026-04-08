@@ -30,6 +30,13 @@ export default defineConfig(({ mode }) => {
           rewrite: (path) => path.replace(/^\/api\/semantic-scholar/, ""),
           secure: false,
         },
+        "/api/research-agent": {
+          target:
+            env.VITE_RESEARCH_AGENT_PROXY_TARGET ?? "http://127.0.0.1:8001",
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api\/research-agent/, ""),
+          secure: false,
+        },
       },
     },
   };

@@ -72,3 +72,17 @@ export const formatDate = (value: string | null | undefined): string => {
     year: "numeric",
   }).format(parsed);
 };
+
+export const formatDecimal = (
+  value: number | null | undefined,
+  maximumFractionDigits = 2,
+): string => {
+  if (value === null || value === undefined || Number.isNaN(value)) {
+    return "n/a";
+  }
+
+  return new Intl.NumberFormat("en-US", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits,
+  }).format(value);
+};

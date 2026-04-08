@@ -1,6 +1,7 @@
 import { ConnectedPapersPanel } from "./components/ConnectedPapersPanel";
 import { FeatureFrame } from "./components/FeatureFrame";
 import { OpenAlexPanel } from "./components/OpenAlexPanel";
+import { ResearchAgentPanel } from "./components/ResearchAgentPanel";
 import { SemanticScholarPanel } from "./components/SemanticScholarPanel";
 
 const overviewCards = [
@@ -16,11 +17,16 @@ const overviewCards = [
     title: "Semantic Scholar",
     body: "Recommendations run through the local FastAPI proxy so you can test seed-paper combinations without coupling it to the other features.",
   },
+  {
+    title: "Research Agent",
+    body: "Natural-language literature discovery now runs as a local proxy-backed panel with query decomposition, OpenAlex enrichment, and weighted reranking.",
+  },
 ];
 
 const runbook = [
   "cd literature-studio && npm install && npm run dev",
   "backend/venv/bin/uvicorn semantic_scholar.app:app --reload --port 8000",
+  "backend/venv/bin/uvicorn research_agent.app:app --reload --port 8001",
   "Use TEST_TOKEN for the Connected Papers demo paper or swap in your own token",
 ];
 
@@ -37,18 +43,20 @@ export default function App() {
             <a href="#connected-papers">Connected Papers</a>
             <a href="#openalex">OpenAlex</a>
             <a href="#semantic-scholar">Semantic Scholar</a>
+            <a href="#research-agent">Research Agent</a>
           </div>
         </nav>
 
         <div className="hero-grid" id="top">
           <div className="hero-copy">
             <p className="eyebrow">Unified landing page</p>
-            <h1>One research front end, three independent literature engines.</h1>
+            <h1>One research front end, four independent literature engines.</h1>
             <p className="hero-text">
               This app sits outside the existing `frontend/` project and gives each
               repo surface its own workspace: graph exploration for Connected Papers,
-              exact retrieval for OpenAlex, and recommendation testing for Semantic
-              Scholar.
+              exact retrieval for OpenAlex, recommendation testing for Semantic
+              Scholar, and a full LLM-driven research pipeline with enrichment and
+              reranking.
             </p>
 
             <div className="cta-row">
@@ -115,6 +123,17 @@ export default function App() {
           accentClassName="accent-rose"
         >
           <SemanticScholarPanel />
+        </FeatureFrame>
+
+        <FeatureFrame
+          id="research-agent"
+          index="04"
+          eyebrow="LLM discovery pipeline"
+          title="Research Agent"
+          description="Run the repo's academic-search pipeline end to end from a natural-language query, inspect its generated search plan, and review OpenAlex-enriched ranked papers."
+          accentClassName="accent-lime"
+        >
+          <ResearchAgentPanel />
         </FeatureFrame>
 
         <section id="runbook" className="runbook">

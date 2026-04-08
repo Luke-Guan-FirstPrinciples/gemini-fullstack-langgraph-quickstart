@@ -9,7 +9,7 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-from research_agent.config import Settings, settings
+from research_agent.config import Settings
 from research_agent.graph import run_research
 
 
@@ -44,6 +44,29 @@ def _build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Output JSON file path (default: stdout + logs/research_agent/)",
     )
+    p.add_argument(
+        "--ranked-output",
+        default=None,
+        help="Optional output path for ranked-results JSON (default: derived sibling/log file)",
+    )
+    p.add_argument(
+        "--semantic-weight",
+        type=float,
+        default=None,
+        help="Weight for semantic relevance in paper reranking",
+    )
+    p.add_argument(
+        "--citation-weight",
+        type=float,
+        default=None,
+        help="Weight for citation count in paper reranking",
+    )
+    p.add_argument(
+        "--fwci-weight",
+        type=float,
+        default=None,
+        help="Weight for FWCI in paper reranking",
+    )
     return p
 
 
@@ -58,6 +81,12 @@ def main() -> None:
         cfg.llm_model = args.llm_model
     if args.search_provider:
         cfg.search_provider = args.search_provider
+    if args.semantic_weight is not None:
+        cfg.semantic_relevance_weight = args.semantic_weight
+    if args.citation_weight is not None:
+        cfg.citation_count_weight = args.citation_weight
+    if args.fwci_weight is not None:
+        cfg.fwci_weight = args.fwci_weight
 
     final_state = asyncio.run(
         run_research(
@@ -69,22 +98,43 @@ def main() -> None:
 
     # Extract the structured output
     output = final_state.get("structured_output") or {}
+    ranked_output = final_state.get("ranked_output") or {}
     output["_meta"] = {
         "query": args.query,
         "llm_provider": cfg.llm_provider,
         "llm_model": cfg.llm_model,
         "search_provider": cfg.search_provider,
+        "ranking_weights": cfg.ranking_weights(),
         "iterations": final_state.get("iteration", 0),
         "total_raw_results": len(final_state.get("all_search_results", [])),
         "timestamp": datetime.now().isoformat(),
     }
+    if ranked_output:
+        ranked_output["_meta"] = {
+            "query": args.query,
+            "llm_provider": cfg.llm_provider,
+            "llm_model": cfg.rerank_model_name(),
+            "search_provider": cfg.search_provider,
+            "ranking_weights": cfg.ranking_weights(),
+            "iterations": final_state.get("iteration", 0),
+            "total_raw_results": len(final_state.get("all_search_results", [])),
+            "timestamp": datetime.now().isoformat(),
+        }
 
     result_json = json.dumps(output, indent=2, default=str)
+    ranked_json = json.dumps(ranked_output, indent=2, default=str)
 
     if args.output:
-        Path(args.output).parent.mkdir(parents=True, exist_ok=True)
-        Path(args.output).write_text(result_json, encoding="utf-8")
+        output_path = Path(args.output)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.write_text(result_json, encoding="utf-8")
+        ranked_path = Path(args.ranked_output) if args.ranked_output else output_path.with_name(
+            f"{output_path.stem}_ranked{output_path.suffix or '.json'}"
+        )
+        ranked_path.parent.mkdir(parents=True, exist_ok=True)
+        ranked_path.write_text(ranked_json, encoding="utf-8")
         print(f"Results written to {args.output}", file=sys.stderr)
+        print(f"Ranked results written to {ranked_path}", file=sys.stderr)
     else:
         print(result_json)
 
@@ -93,8 +143,11 @@ def main() -> None:
     log_dir.mkdir(parents=True, exist_ok=True)
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
     result_path = log_dir / f"results_{ts}.json"
+    ranked_path = log_dir / f"ranked_results_{ts}.json"
     result_path.write_text(result_json, encoding="utf-8")
+    ranked_path.write_text(ranked_json, encoding="utf-8")
     print(f"Results also saved to {result_path}", file=sys.stderr)
+    print(f"Ranked results also saved to {ranked_path}", file=sys.stderr)
 
 
 if __name__ == "__main__":

@@ -163,3 +163,99 @@ export interface SemanticScholarPaper {
 export interface SemanticScholarRecommendationsResponse {
   recommendedPapers: SemanticScholarPaper[];
 }
+
+export interface ResearchAgentMeta {
+  query: string;
+  llm_provider: string;
+  llm_model: string;
+  search_provider: string;
+  ranking_weights: Record<string, number>;
+  iterations: number;
+  total_raw_results: number;
+  timestamp: string;
+}
+
+export interface ResearchAgentParsedQuery {
+  intent?: string;
+  fields?: string[];
+  key_terms?: string[];
+  date_constraint?: string | null;
+  search_queries?: string[];
+}
+
+export interface ResearchAgentPaperOpenAlex {
+  status: "matched" | "not_found" | "error";
+  openalex_id?: string | null;
+  matched_title?: string | null;
+  title_similarity?: number | null;
+  search_relevance_score?: number | null;
+  citation_count?: number | null;
+  fwci?: number | null;
+  citation_normalized_percentile?: number | null;
+  is_in_top_1_percent?: boolean | null;
+  is_in_top_10_percent?: boolean | null;
+  authors?: string[];
+  doi?: string | null;
+  publication_year?: number | null;
+  source_display_name?: string | null;
+  landing_page_url?: string | null;
+  error?: string | null;
+}
+
+export interface ResearchAgentPaperRanking {
+  rank?: number | null;
+  score?: number;
+  normalized_signals?: Record<string, number>;
+}
+
+export interface ResearchAgentPaper {
+  title: string;
+  authors: string[];
+  source?: string;
+  url?: string;
+  year?: number | null;
+  abstract?: string;
+  doi?: string | null;
+  key_finding?: string;
+  openalex?: ResearchAgentPaperOpenAlex | null;
+  ranking?: ResearchAgentPaperRanking | null;
+}
+
+export interface ResearchAgentAuthor {
+  name: string;
+  affiliations?: string[];
+  research_areas?: string[];
+}
+
+export interface ResearchAgentLab {
+  name: string;
+  institution?: string;
+  url?: string | null;
+  key_researchers?: string[];
+  focus_areas?: string[];
+}
+
+export interface ResearchAgentStructuredOutput {
+  papers: ResearchAgentPaper[];
+  authors: ResearchAgentAuthor[];
+  labs: ResearchAgentLab[];
+  fields: string[];
+  keywords: string[];
+  sub_queries: string[];
+  _meta?: ResearchAgentMeta;
+}
+
+export interface ResearchAgentRankedResults {
+  query: string;
+  weights: Record<string, number>;
+  normalization: Record<string, string>;
+  papers: ResearchAgentPaper[];
+  _meta?: ResearchAgentMeta;
+}
+
+export interface ResearchAgentRunResponse {
+  parsed_query?: ResearchAgentParsedQuery | null;
+  structured_output: ResearchAgentStructuredOutput;
+  ranked_output: ResearchAgentRankedResults;
+  meta: ResearchAgentMeta;
+}
