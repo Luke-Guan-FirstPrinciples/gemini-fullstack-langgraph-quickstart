@@ -17,7 +17,7 @@ from langgraph.graph import END, START, StateGraph
 
 from research_agent.config import Settings, settings
 from research_agent.enrichment import OpenAlexEnricher
-from research_agent.llm import create_llm
+from research_agent.llm import create_llm, with_structured_output
 from research_agent.logging_config import setup_logging
 from research_agent.models import (
     CoverageAssessment,
@@ -25,6 +25,7 @@ from research_agent.models import (
     RankedResults,
     ResearchOutput,
     ResearchState,
+    StructuredResearchOutput,
 )
 from research_agent.prompts import (
     ASSESS_COVERAGE_HUMAN,
@@ -58,7 +59,7 @@ async def parse_query(state: ResearchState, config: RunnableConfig) -> dict[str,
     """Use the LLM to decompose the user query into structured search queries."""
     cfg = _get_settings(config)
     llm = create_llm(cfg.llm_provider, cfg.resolved_llm_model())
-    structured_llm = llm.with_structured_output(ParsedQuery)
+    structured_llm = with_structured_output(llm, ParsedQuery, provider=cfg.llm_provider)
 
     query = state["query"]
     logger.info("Parsing query: %s", query)
@@ -103,7 +104,11 @@ async def structure_results(state: ResearchState, config: RunnableConfig) -> dic
     """Have the LLM structure raw search results into papers, authors, labs, etc."""
     cfg = _get_settings(config)
     llm = create_llm(cfg.llm_provider, cfg.resolved_llm_model())
-    structured_llm = llm.with_structured_output(ResearchOutput)
+    structured_llm = with_structured_output(
+        llm,
+        StructuredResearchOutput,
+        provider=cfg.llm_provider,
+    )
 
     all_results = state["all_search_results"]
     query = state["query"]
@@ -116,10 +121,19 @@ async def structure_results(state: ResearchState, config: RunnableConfig) -> dic
 
     logger.info("Structuring %d search results", len(all_results))
 
-    output: ResearchOutput = await structured_llm.ainvoke([
+    llm_output: StructuredResearchOutput = await structured_llm.ainvoke([
         SystemMessage(content=STRUCTURE_RESULTS_SYSTEM),
         HumanMessage(content=STRUCTURE_RESULTS_HUMAN.format(query=query, results_text=results_text)),
     ])
+
+    output = ResearchOutput(
+        papers=[paper.model_dump() for paper in llm_output.papers],
+        authors=[author.model_dump() for author in llm_output.authors],
+        labs=[lab.model_dump() for lab in llm_output.labs],
+        fields=llm_output.fields,
+        keywords=llm_output.keywords,
+        sub_queries=llm_output.sub_queries,
+    )
 
     logger.info(
         "Structured: %d papers, %d authors, %d labs, %d keywords",
@@ -166,7 +180,11 @@ async def assess_coverage(state: ResearchState, config: RunnableConfig) -> dict[
         return {"iteration": iteration + 1, "search_queries": []}
 
     llm = create_llm(cfg.llm_provider, cfg.resolved_llm_model())
-    structured_llm = llm.with_structured_output(CoverageAssessment)
+    structured_llm = with_structured_output(
+        llm,
+        CoverageAssessment,
+        provider=cfg.llm_provider,
+    )
 
     structured_text = json.dumps(state.get("structured_output") or {}, indent=2, default=str)
 

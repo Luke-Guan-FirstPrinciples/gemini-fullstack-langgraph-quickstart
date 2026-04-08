@@ -56,3 +56,16 @@ def create_llm(
         f"Unknown LLM provider: {provider!r}. "
         "Supported: gemini, openai, anthropic"
     )
+
+
+def with_structured_output(
+    llm: BaseChatModel,
+    schema: Any,
+    *,
+    provider: str | None = None,
+) -> Any:
+    """Apply provider-aware structured output settings."""
+    resolved_provider = provider or settings.llm_provider
+    if resolved_provider == "openai":
+        return llm.with_structured_output(schema, method="function_calling")
+    return llm.with_structured_output(schema)

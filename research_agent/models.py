@@ -54,6 +54,19 @@ class Paper(BaseModel):
     ranking: "PaperRanking | None" = None
 
 
+class StructuredPaper(BaseModel):
+    """LLM-only paper schema before enrichment and reranking."""
+
+    title: str
+    authors: list[str] = Field(default_factory=list)
+    source: str = Field(default="", description="Publisher/platform: arxiv, nature, etc.")
+    url: str = ""
+    year: int | None = None
+    abstract: str = ""
+    doi: str | None = None
+    key_finding: str = Field(default="", description="One-sentence summary of the main contribution")
+
+
 class PaperOpenAlexEnrichment(BaseModel):
     """Normalized metadata pulled from OpenAlex for a paper."""
 
@@ -105,6 +118,17 @@ class ResearchOutput(BaseModel):
     """The full structured output of the research pipeline."""
 
     papers: list[Paper] = Field(default_factory=list)
+    authors: list[Author] = Field(default_factory=list)
+    labs: list[Lab] = Field(default_factory=list)
+    fields: list[str] = Field(default_factory=list)
+    keywords: list[str] = Field(default_factory=list)
+    sub_queries: list[str] = Field(default_factory=list, description="Suggested follow-up queries")
+
+
+class StructuredResearchOutput(BaseModel):
+    """LLM-only structured output before enrichment and reranking."""
+
+    papers: list[StructuredPaper] = Field(default_factory=list)
     authors: list[Author] = Field(default_factory=list)
     labs: list[Lab] = Field(default_factory=list)
     fields: list[str] = Field(default_factory=list)

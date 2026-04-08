@@ -87,6 +87,7 @@ const buildPaperSummary = (paper: ResearchAgentPaper): string => {
 };
 
 export function ResearchAgentPanel() {
+  const [resultView, setResultView] = useState<"ranked" | "raw">("ranked");
   const [query, setQuery] = useState(DEFAULT_QUERY);
   const [llmProvider, setLlmProvider] = useState("");
   const [llmModel, setLlmModel] = useState("");
@@ -144,6 +145,8 @@ export function ResearchAgentPanel() {
 
   const rankedPapers = response?.ranked_output.papers ?? [];
   const structured = response?.structured_output;
+  const rawPapers = structured?.papers ?? [];
+  const visiblePapers = resultView === "ranked" ? rankedPapers : rawPapers;
   const topPaper = rankedPapers[0];
   const weightTotal = semanticWeight + citationWeight + fwciWeight;
 
@@ -327,6 +330,27 @@ export function ResearchAgentPanel() {
       <div className="result-stack">
         {rankedPapers.length ? (
           <>
+            <div
+              className="segmented-control"
+              role="tablist"
+              aria-label="Research agent result view"
+            >
+              <button
+                className={resultView === "ranked" ? "active" : undefined}
+                type="button"
+                onClick={() => setResultView("ranked")}
+              >
+                Ranked result
+              </button>
+              <button
+                className={resultView === "raw" ? "active" : undefined}
+                type="button"
+                onClick={() => setResultView("raw")}
+              >
+                Raw result
+              </button>
+            </div>
+
             <div className="summary-grid">
               <article className="result-card list-card">
                 <p className="mini-label">Parsed query</p>
@@ -401,7 +425,7 @@ export function ResearchAgentPanel() {
               </article>
             </div>
 
-            {topPaper ? (
+            {resultView === "ranked" && topPaper ? (
               <article className="spotlight-card">
                 <div className="spotlight-copy">
                   <p className="mini-label">Top ranked paper</p>
@@ -421,16 +445,20 @@ export function ResearchAgentPanel() {
             ) : null}
 
             <div className="card-grid">
-              {rankedPapers.slice(0, 8).map((paper) => {
+              {visiblePapers.slice(0, 8).map((paper, index) => {
                 const destination = buildPaperDestination(paper);
                 const semanticRelevance =
                   paper.ranking?.normalized_signals?.semantic_relevance ?? 0;
 
                 return (
-                  <article key={`${paper.title}-${paper.ranking?.rank ?? 0}`} className="result-card">
+                  <article
+                    key={`${paper.title}-${paper.ranking?.rank ?? index}`}
+                    className="result-card"
+                  >
                     <p className="mini-label">
-                      #{paper.ranking?.rank ?? "n/a"} · score{" "}
-                      {formatDecimal(paper.ranking?.score, 3)}
+                      {resultView === "ranked"
+                        ? `#${paper.ranking?.rank ?? "n/a"} · score ${formatDecimal(paper.ranking?.score, 3)}`
+                        : `Raw paper ${index + 1}`}
                     </p>
                     <h3>
                       {destination ? (
@@ -443,14 +471,16 @@ export function ResearchAgentPanel() {
                     </h3>
                     <p>{buildPaperSummary(paper)}</p>
 
-                    <div className="score-meter">
-                      <div
-                        className="score-fill"
-                        style={{
-                          width: `${Math.max(0, Math.min(semanticRelevance * 100, 100))}%`,
-                        }}
-                      />
-                    </div>
+                    {resultView === "ranked" ? (
+                      <div className="score-meter">
+                        <div
+                          className="score-fill"
+                          style={{
+                            width: `${Math.max(0, Math.min(semanticRelevance * 100, 100))}%`,
+                          }}
+                        />
+                      </div>
+                    ) : null}
 
                     <div className="inline-tags">
                       <span className="tag">{paper.year ?? "Year n/a"}</span>
@@ -460,9 +490,11 @@ export function ResearchAgentPanel() {
                       <span className="tag">
                         FWCI {formatDecimal(paper.openalex?.fwci, 2)}
                       </span>
-                      <span className="tag">
-                        Relevance {formatDecimal(semanticRelevance, 2)}
-                      </span>
+                      {resultView === "ranked" ? (
+                        <span className="tag">
+                          Relevance {formatDecimal(semanticRelevance, 2)}
+                        </span>
+                      ) : null}
                       <span className="tag">
                         {paper.openalex?.status === "matched"
                           ? "OpenAlex matched"

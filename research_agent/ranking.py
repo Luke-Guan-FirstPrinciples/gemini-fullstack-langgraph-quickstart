@@ -7,7 +7,7 @@ import math
 import re
 
 from research_agent.config import Settings
-from research_agent.llm import create_llm
+from research_agent.llm import create_llm, with_structured_output
 from research_agent.models import Paper, PaperRanking, PaperRelevanceBatch, RankedResults
 from research_agent.prompts import RERANK_RESULTS_HUMAN, RERANK_RESULTS_SYSTEM
 
@@ -96,7 +96,11 @@ async def _score_semantic_relevance(
     from langchain_core.messages import HumanMessage, SystemMessage
 
     llm = create_llm(cfg.llm_provider, cfg.rerank_model_name(), temperature=0)
-    structured_llm = llm.with_structured_output(PaperRelevanceBatch)
+    structured_llm = with_structured_output(
+        llm,
+        PaperRelevanceBatch,
+        provider=cfg.llm_provider,
+    )
     scores: list[float] = []
     batch_size = max(1, cfg.rerank_batch_size)
 
