@@ -57,7 +57,7 @@ def _get_settings(config: Optional[RunnableConfig]) -> Settings:
 async def parse_query(state: ResearchState, config: RunnableConfig) -> dict[str, Any]:
     """Use the LLM to decompose the user query into structured search queries."""
     cfg = _get_settings(config)
-    llm = create_llm(cfg.llm_provider, cfg.llm_model)
+    llm = create_llm(cfg.llm_provider, cfg.resolved_llm_model())
     structured_llm = llm.with_structured_output(ParsedQuery)
 
     query = state["query"]
@@ -102,7 +102,7 @@ async def execute_search(state: ResearchState, config: RunnableConfig) -> dict[s
 async def structure_results(state: ResearchState, config: RunnableConfig) -> dict[str, Any]:
     """Have the LLM structure raw search results into papers, authors, labs, etc."""
     cfg = _get_settings(config)
-    llm = create_llm(cfg.llm_provider, cfg.llm_model)
+    llm = create_llm(cfg.llm_provider, cfg.resolved_llm_model())
     structured_llm = llm.with_structured_output(ResearchOutput)
 
     all_results = state["all_search_results"]
@@ -165,7 +165,7 @@ async def assess_coverage(state: ResearchState, config: RunnableConfig) -> dict[
         logger.info("Max iterations (%d) reached — skipping coverage assessment", max_iter)
         return {"iteration": iteration + 1, "search_queries": []}
 
-    llm = create_llm(cfg.llm_provider, cfg.llm_model)
+    llm = create_llm(cfg.llm_provider, cfg.resolved_llm_model())
     structured_llm = llm.with_structured_output(CoverageAssessment)
 
     structured_text = json.dumps(state.get("structured_output") or {}, indent=2, default=str)

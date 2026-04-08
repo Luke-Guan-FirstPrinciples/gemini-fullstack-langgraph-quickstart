@@ -23,7 +23,7 @@ def create_llm(
 ) -> BaseChatModel:
     """Instantiate a chat model for the configured (or specified) provider."""
     provider = provider or settings.llm_provider
-    model_name = model or settings.llm_model
+    model_name = model or settings.resolved_llm_model(provider)
 
     if provider == "gemini":
         from langchain_google_genai import ChatGoogleGenerativeAI

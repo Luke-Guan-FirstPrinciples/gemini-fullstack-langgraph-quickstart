@@ -79,6 +79,7 @@ def main() -> None:
         cfg.llm_provider = args.llm_provider
     if args.llm_model:
         cfg.llm_model = args.llm_model
+        cfg.configured_llm_model = ""
     if args.search_provider:
         cfg.search_provider = args.search_provider
     if args.semantic_weight is not None:
@@ -102,7 +103,7 @@ def main() -> None:
     output["_meta"] = {
         "query": args.query,
         "llm_provider": cfg.llm_provider,
-        "llm_model": cfg.llm_model,
+        "llm_model": cfg.resolved_llm_model(),
         "search_provider": cfg.search_provider,
         "ranking_weights": cfg.ranking_weights(),
         "iterations": final_state.get("iteration", 0),

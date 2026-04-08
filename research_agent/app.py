@@ -52,6 +52,7 @@ def _build_settings(payload: ResearchAgentRunRequest) -> Settings:
         cfg.llm_provider = payload.llm_provider
     if payload.llm_model:
         cfg.llm_model = payload.llm_model
+        cfg.configured_llm_model = ""
     if payload.search_provider:
         cfg.search_provider = payload.search_provider
     if payload.results_per_query is not None:
@@ -73,7 +74,7 @@ def _build_meta(
     return {
         "query": payload.query,
         "llm_provider": cfg.llm_provider,
-        "llm_model": cfg.llm_model,
+        "llm_model": cfg.resolved_llm_model(),
         "search_provider": cfg.search_provider,
         "ranking_weights": cfg.ranking_weights(),
         "iterations": final_state.get("iteration", 0),
