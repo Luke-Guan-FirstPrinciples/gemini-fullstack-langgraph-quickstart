@@ -225,6 +225,18 @@ const buildPaperSummary = (paper: ResearchAgentPaper): string => {
   return "No summary provided.";
 };
 
+const buildOpenAlexStatusLabel = (paper: ResearchAgentPaper): string => {
+  if (paper.openalex?.status === "matched") {
+    return "OpenAlex matched";
+  }
+
+  if (paper.openalex?.status === "error") {
+    return "OpenAlex error";
+  }
+
+  return "OpenAlex missing";
+};
+
 export function ResearchAgentPanel() {
   const [dataMode, setDataMode] = useState<DataMode>(getInitialDataMode);
   const [controlMode, setControlMode] = useState<"simple" | "advanced">(
@@ -853,7 +865,16 @@ export function ResearchAgentPanel() {
               </article>
             ) : null}
 
-            <div className="card-grid">
+            {resultView === "ranked" ? (
+              <div className="paper-table-header" aria-hidden="true">
+                <span>Rank</span>
+                <span>Paper</span>
+                <span>Signals</span>
+                <span>Feedback</span>
+              </div>
+            ) : null}
+
+            <div className="paper-row-list">
               {paginatedPapers.map((paper, index) => {
                 const destination = buildPaperDestination(paper);
                 const semanticRelevance =
@@ -867,159 +888,203 @@ export function ResearchAgentPanel() {
                   expandedFeedbackByPaper[feedbackKey] ?? false;
                 const explanationChips = paper.ranking?.explanation_chips ?? [];
                 const paperNumber = pageStartIndex + index + 1;
+                const paperSource =
+                  paper.openalex?.source_display_name ??
+                  paper.source ??
+                  "Source unknown";
+                const openAlexStatus = buildOpenAlexStatusLabel(paper);
+                const paperRowClassName = [
+                  "result-card",
+                  "paper-row-card",
+                  resultView === "ranked"
+                    ? "paper-row-card-ranked"
+                    : "paper-row-card-raw",
+                ]
+                  .filter(Boolean)
+                  .join(" ");
 
                 return (
                   <article
                     key={`${paper.title}-${paper.ranking?.rank ?? index}`}
-                    className="result-card"
+                    className={paperRowClassName}
                   >
-                    <p className="mini-label">
-                      {resultView === "ranked"
-                        ? `#${paper.ranking?.rank ?? "n/a"} · score ${formatDecimal(paper.ranking?.score, 3)}`
-                        : `Raw paper ${paperNumber}`}
-                    </p>
-                    <h3>
-                      {destination ? (
-                        <a href={destination} target="_blank" rel="noreferrer">
-                          {paper.title}
-                        </a>
-                      ) : (
-                        paper.title
-                      )}
-                    </h3>
-                    <p>{buildPaperSummary(paper)}</p>
-
-                    {resultView === "ranked" && explanationChips.length ? (
-                      <div className="inline-tags explanation-row">
-                        {explanationChips.map((chip) => (
-                          <span key={chip} className="tag explanation-chip">
-                            {chip}
-                          </span>
-                        ))}
-                      </div>
-                    ) : null}
-
-                    {resultView === "ranked" ? (
-                      <div className="score-meter">
-                        <div
-                          className="score-fill"
-                          style={{
-                            width: `${Math.max(0, Math.min(semanticRelevance * 100, 100))}%`,
-                          }}
-                        />
-                      </div>
-                    ) : null}
-
-                    <div className="inline-tags">
-                      <span className="tag">{paper.year ?? "Year n/a"}</span>
-                      <span className="tag">
-                        {formatCompactNumber(paper.openalex?.citation_count)} citations
-                      </span>
-                      <span className="tag">
-                        FWCI {formatDecimal(paper.openalex?.fwci, 2)}
-                      </span>
-                      {resultView === "ranked" ? (
-                        <span className="tag">
-                          Relevance {formatDecimal(semanticRelevance, 2)}
-                        </span>
-                      ) : null}
-                      <span className="tag">
-                        {paper.openalex?.status === "matched"
-                          ? "OpenAlex matched"
-                          : paper.openalex?.status === "error"
-                            ? "OpenAlex error"
-                            : "OpenAlex missing"}
+                    <div className="paper-row-rank">
+                      <p className="mini-label">
+                        {resultView === "ranked" ? "Rank" : "Paper"}
+                      </p>
+                      <strong>
+                        {resultView === "ranked"
+                          ? `#${paper.ranking?.rank ?? "n/a"}`
+                          : paperNumber}
+                      </strong>
+                      <span>
+                        {resultView === "ranked"
+                          ? `Score ${formatDecimal(paper.ranking?.score, 3)}`
+                          : `Raw result ${paperNumber}`}
                       </span>
                     </div>
 
-                    <p className="muted-copy">
-                      {truncateText(paper.authors.join(", "), 140)}
-                    </p>
-
-                    <div className="feedback-panel">
-                      <div
-                        className="feedback-actions"
-                        role="group"
-                        aria-label={`Feedback for ${paper.title}`}
-                      >
-                        <button
-                          className={[
-                            "feedback-button",
-                            feedback.vote === "helpful"
-                              ? "active helpful"
-                              : "",
-                          ]
-                            .filter(Boolean)
-                            .join(" ")}
-                          type="button"
-                          aria-label="Mark result as helpful"
-                          aria-pressed={feedback.vote === "helpful"}
-                          onClick={() => togglePaperVote(paper, "helpful")}
-                          title="Helpful"
-                        >
-                          <FeedbackThumbUpIcon />
-                        </button>
-                        <button
-                          className={[
-                            "feedback-button",
-                            feedback.vote === "unhelpful"
-                              ? "active unhelpful"
-                              : "",
-                          ]
-                            .filter(Boolean)
-                            .join(" ")}
-                          type="button"
-                          aria-label="Mark result as unhelpful"
-                          aria-pressed={feedback.vote === "unhelpful"}
-                          onClick={() => togglePaperVote(paper, "unhelpful")}
-                          title="Unhelpful"
-                        >
-                          <FeedbackThumbDownIcon />
-                        </button>
-                        <button
-                          className={[
-                            "feedback-button",
-                            isFeedbackExpanded || feedback.note.trim()
-                              ? "active note"
-                              : "",
-                          ]
-                            .filter(Boolean)
-                            .join(" ")}
-                          type="button"
-                          aria-label="Add text feedback"
-                          aria-expanded={isFeedbackExpanded}
-                          onClick={() => toggleFeedbackNote(paper)}
-                          title={feedback.note.trim() ? "Edit note" : "Add note"}
-                        >
-                          <FeedbackNoteIcon />
-                        </button>
+                    <div className="paper-row-main">
+                      <div className="paper-row-title-block">
+                        <h3>
+                          {destination ? (
+                            <a href={destination} target="_blank" rel="noreferrer">
+                              {paper.title}
+                            </a>
+                          ) : (
+                            paper.title
+                          )}
+                        </h3>
+                        <p className="paper-row-summary">{buildPaperSummary(paper)}</p>
                       </div>
 
-                      {isFeedbackExpanded ? (
-                        <label
-                          className="field feedback-field"
-                          title={feedbackTimestamp ? `Saved ${feedbackTimestamp}` : "Local only"}
-                        >
-                          <div className="feedback-input-shell">
-                            <span
-                              className={`feedback-input-icon${feedback.note.trim() ? " active" : ""}`}
-                            >
-                              <FeedbackNoteIcon />
+                      <div className="paper-row-supporting">
+                        <div className="inline-tags paper-row-tags">
+                          <span className="tag">{paper.year ?? "Year n/a"}</span>
+                          <span className="tag">{paperSource}</span>
+                          <span className="tag">{openAlexStatus}</span>
+                        </div>
+
+                        <p className="muted-copy paper-row-authors">
+                          {truncateText(paper.authors.join(", "), 180)}
+                        </p>
+                      </div>
+
+                      {resultView === "ranked" && explanationChips.length ? (
+                        <div className="inline-tags explanation-row">
+                          {explanationChips.map((chip) => (
+                            <span key={chip} className="tag explanation-chip">
+                              {chip}
                             </span>
-                            <textarea
-                              aria-label={`Text feedback for ${paper.title}`}
-                              className="feedback-note-input"
-                              rows={3}
-                              value={feedback.note}
-                              onChange={(event) =>
-                                updatePaperFeedback(paper, {
-                                  note: event.target.value,
-                                })
-                              }
-                            />
-                          </div>
-                        </label>
+                          ))}
+                        </div>
                       ) : null}
+
+                      {resultView === "ranked" ? (
+                        <div className="score-meter paper-row-score-meter">
+                          <div
+                            className="score-fill"
+                            style={{
+                              width: `${Math.max(0, Math.min(semanticRelevance * 100, 100))}%`,
+                            }}
+                          />
+                        </div>
+                      ) : null}
+                    </div>
+
+                    <div className="paper-row-metrics">
+                      <div className="paper-metric">
+                        <span>Citations</span>
+                        <strong>
+                          {formatCompactNumber(paper.openalex?.citation_count)}
+                        </strong>
+                      </div>
+                      <div className="paper-metric">
+                        <span>FWCI</span>
+                        <strong>{formatDecimal(paper.openalex?.fwci, 2)}</strong>
+                      </div>
+                      {resultView === "ranked" ? (
+                        <div className="paper-metric">
+                          <span>Relevance</span>
+                          <strong>{formatDecimal(semanticRelevance, 2)}</strong>
+                        </div>
+                      ) : null}
+                      <div className="paper-metric">
+                        <span>Status</span>
+                        <strong>{openAlexStatus.replace("OpenAlex ", "")}</strong>
+                      </div>
+                    </div>
+
+                    <div className="paper-row-feedback">
+                      <div className="feedback-panel">
+                        <div
+                          className="feedback-actions"
+                          role="group"
+                          aria-label={`Feedback for ${paper.title}`}
+                        >
+                          <button
+                            className={[
+                              "feedback-button",
+                              feedback.vote === "helpful"
+                                ? "active helpful"
+                                : "",
+                            ]
+                              .filter(Boolean)
+                              .join(" ")}
+                            type="button"
+                            aria-label="Mark result as helpful"
+                            aria-pressed={feedback.vote === "helpful"}
+                            onClick={() => togglePaperVote(paper, "helpful")}
+                            title="Helpful"
+                          >
+                            <FeedbackThumbUpIcon />
+                          </button>
+                          <button
+                            className={[
+                              "feedback-button",
+                              feedback.vote === "unhelpful"
+                                ? "active unhelpful"
+                                : "",
+                            ]
+                              .filter(Boolean)
+                              .join(" ")}
+                            type="button"
+                            aria-label="Mark result as unhelpful"
+                            aria-pressed={feedback.vote === "unhelpful"}
+                            onClick={() => togglePaperVote(paper, "unhelpful")}
+                            title="Unhelpful"
+                          >
+                            <FeedbackThumbDownIcon />
+                          </button>
+                          <button
+                            className={[
+                              "feedback-button",
+                              isFeedbackExpanded || feedback.note.trim()
+                                ? "active note"
+                                : "",
+                            ]
+                              .filter(Boolean)
+                              .join(" ")}
+                            type="button"
+                            aria-label="Add text feedback"
+                            aria-expanded={isFeedbackExpanded}
+                            onClick={() => toggleFeedbackNote(paper)}
+                            title={feedback.note.trim() ? "Edit note" : "Add note"}
+                          >
+                            <FeedbackNoteIcon />
+                          </button>
+                        </div>
+
+                        {feedbackTimestamp ? (
+                          <p className="paper-feedback-timestamp">{feedbackTimestamp}</p>
+                        ) : null}
+
+                        {isFeedbackExpanded ? (
+                          <label
+                            className="field feedback-field"
+                            title={feedbackTimestamp ? `Saved ${feedbackTimestamp}` : "Local only"}
+                          >
+                            <div className="feedback-input-shell">
+                              <span
+                                className={`feedback-input-icon${feedback.note.trim() ? " active" : ""}`}
+                              >
+                                <FeedbackNoteIcon />
+                              </span>
+                              <textarea
+                                aria-label={`Text feedback for ${paper.title}`}
+                                className="feedback-note-input"
+                                rows={3}
+                                value={feedback.note}
+                                onChange={(event) =>
+                                  updatePaperFeedback(paper, {
+                                    note: event.target.value,
+                                  })
+                                }
+                              />
+                            </div>
+                          </label>
+                        ) : null}
+                      </div>
                     </div>
                   </article>
                 );

@@ -98,12 +98,47 @@ class PaperRanking(BaseModel):
     explanation_chips: list[str] = Field(default_factory=list)
 
 
+class AuthorOpenAlexEnrichment(BaseModel):
+    """Normalized metadata pulled from OpenAlex for an author."""
+
+    status: Literal["matched", "not_found", "error"] = "not_found"
+    openalex_id: str | None = None
+    matched_name: str | None = None
+    name_similarity: float | None = None
+    search_relevance_score: float | None = None
+    citation_count: int | None = None
+    works_count: int | None = None
+    orcid: str | None = None
+    affiliations: list[str] = Field(default_factory=list)
+    topics: list[str] = Field(default_factory=list)
+    personal_website_url: str | None = None
+    personal_blog_url: str | None = None
+    google_scholar_url: str | None = None
+    social_media_url: str | None = None
+    semantic_scholar_id: str | None = None
+    error: str | None = None
+
+
+class AuthorRanking(BaseModel):
+    """Ranking metadata assigned after author enrichment."""
+
+    rank: int | None = None
+    score: float = 0.0
+    normalized_signals: dict[str, float] = Field(default_factory=dict)
+    explanation: str = ""
+    explanation_chips: list[str] = Field(default_factory=list)
+
+
 class Author(BaseModel):
     """A researcher identified from the search results."""
 
     name: str
     affiliations: list[str] = Field(default_factory=list)
     research_areas: list[str] = Field(default_factory=list)
+    matched_paper_count: int = 0
+    matched_paper_titles: list[str] = Field(default_factory=list)
+    openalex: AuthorOpenAlexEnrichment | None = None
+    ranking: AuthorRanking | None = None
 
 
 class Lab(BaseModel):
@@ -169,6 +204,9 @@ class RankedResults(BaseModel):
     weights: dict[str, float] = Field(default_factory=dict)
     normalization: dict[str, str] = Field(default_factory=dict)
     papers: list[Paper] = Field(default_factory=list)
+    author_weights: dict[str, float] = Field(default_factory=dict)
+    author_normalization: dict[str, str] = Field(default_factory=dict)
+    authors: list[Author] = Field(default_factory=list)
 
 
 # ---------------------------------------------------------------------------

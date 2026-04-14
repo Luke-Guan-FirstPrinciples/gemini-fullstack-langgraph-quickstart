@@ -60,6 +60,9 @@ class Settings:
     max_iterations: int = int(os.getenv("RESEARCH_MAX_ITERATIONS", "2"))
     results_per_query: int = int(os.getenv("RESEARCH_RESULTS_PER_QUERY", "10"))
     openalex_title_search_limit: int = int(os.getenv("RESEARCH_OPENALEX_TITLE_SEARCH_LIMIT", "5"))
+    openalex_author_search_limit: int = int(
+        os.getenv("RESEARCH_OPENALEX_AUTHOR_SEARCH_LIMIT", "5")
+    )
     openalex_parallelism: int = int(os.getenv("RESEARCH_OPENALEX_PARALLELISM", "4"))
     openalex_timeout_seconds: float = float(os.getenv("RESEARCH_OPENALEX_TIMEOUT_SECONDS", "30"))
     openalex_min_title_similarity: float = float(os.getenv("RESEARCH_OPENALEX_MIN_TITLE_SIMILARITY", "0.82"))
