@@ -237,12 +237,41 @@ const buildOpenAlexStatusLabel = (paper: ResearchAgentPaper): string => {
   return "OpenAlex missing";
 };
 
+const buildAuthorResearchFocus = (author: ResearchAgentRunResponse["structured_output"]["authors"][number]): string => {
+  const values = Array.from(
+    new Set([...(author.research_areas ?? []), ...(author.openalex?.topics ?? [])]),
+  ).filter(Boolean);
+
+  if (!values.length) {
+    return "n/a";
+  }
+
+  return truncateText(values.join(", "), 160);
+};
+
+const buildAuthorAffiliation = (author: ResearchAgentRunResponse["structured_output"]["authors"][number]): string => {
+  const values = Array.from(
+    new Set([...(author.openalex?.affiliations ?? []), ...(author.affiliations ?? [])]),
+  ).filter(Boolean);
+
+  if (!values.length) {
+    return "n/a";
+  }
+
+  return truncateText(values.join(" / "), 140);
+};
+
+const buildAuthorRankLabel = (author: ResearchAgentRunResponse["structured_output"]["authors"][number]): string =>
+  author.ranking?.rank ? `#${author.ranking.rank}` : "n/a";
+
 export function ResearchAgentPanel() {
   const [dataMode, setDataMode] = useState<DataMode>(getInitialDataMode);
   const [controlMode, setControlMode] = useState<"simple" | "advanced">(
     "simple",
   );
-  const [resultView, setResultView] = useState<"ranked" | "raw">("ranked");
+  const [resultView, setResultView] = useState<"ranked" | "raw" | "authors">(
+    "ranked",
+  );
   const [query, setQuery] = useState(DEFAULT_QUERY);
   const [llmProvider, setLlmProvider] = useState("");
   const [llmModel, setLlmModel] = useState("");
@@ -430,9 +459,10 @@ export function ResearchAgentPanel() {
   };
 
   const rankedPapers = response?.ranked_output.papers ?? [];
+  const rankedAuthors = response?.ranked_output.authors ?? [];
   const structured = response?.structured_output;
   const rawPapers = structured?.papers ?? [];
-  const visiblePapers = resultView === "ranked" ? rankedPapers : rawPapers;
+  const visiblePapers = resultView === "raw" ? rawPapers : rankedPapers;
   const totalPages = Math.max(1, Math.ceil(visiblePapers.length / RESULTS_PAGE_SIZE));
   const currentPage = Math.min(resultsPage, totalPages - 1);
   const pageStartIndex = currentPage * RESULTS_PAGE_SIZE;
@@ -761,6 +791,13 @@ export function ResearchAgentPanel() {
               >
                 Raw result
               </button>
+              <button
+                className={resultView === "authors" ? "active" : undefined}
+                type="button"
+                onClick={() => setResultView("authors")}
+              >
+                Top authors
+              </button>
             </div>
 
             <div className="summary-grid">
@@ -865,6 +902,134 @@ export function ResearchAgentPanel() {
               </article>
             ) : null}
 
+            {resultView === "authors" ? (
+              <article className="result-card author-table-card">
+                <div className="author-table-header">
+                  <div>
+                    <p className="mini-label">Author pipeline</p>
+                    <h3>Top researchers from the ranked paper set</h3>
+                  </div>
+                  <p className="muted-copy">
+                    OpenAlex-enriched authors ranked from query-topic fit, paper
+                    support, and citation footprint.
+                  </p>
+                </div>
+
+                <div className="author-table-shell">
+                  <table className="author-table">
+                    <thead>
+                      <tr>
+                        <th>Researcher</th>
+                        <th>Specialty / focus</th>
+                        <th>Website</th>
+                        <th>Blog</th>
+                        <th>Google Scholar</th>
+                        <th>Social</th>
+                        <th>Citations</th>
+                        <th>OpenAlex ID</th>
+                        <th>Semantic Scholar ID</th>
+                        <th>Affiliation</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {rankedAuthors.length ? (
+                        rankedAuthors.map((author) => (
+                          <tr
+                            key={
+                              author.openalex?.openalex_id ??
+                              `${author.name}:${author.affiliations?.join("|") ?? ""}`
+                            }
+                          >
+                            <td>
+                              <div className="author-name-cell">
+                                <strong>{author.name}</strong>
+                                <span>{buildAuthorRankLabel(author)}</span>
+                              </div>
+                            </td>
+                            <td>{buildAuthorResearchFocus(author)}</td>
+                            <td>
+                              {author.openalex?.personal_website_url ? (
+                                <a
+                                  href={author.openalex.personal_website_url}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                >
+                                  Website
+                                </a>
+                              ) : (
+                                "n/a"
+                              )}
+                            </td>
+                            <td>
+                              {author.openalex?.personal_blog_url ? (
+                                <a
+                                  href={author.openalex.personal_blog_url}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                >
+                                  Blog
+                                </a>
+                              ) : (
+                                "n/a"
+                              )}
+                            </td>
+                            <td>
+                              {author.openalex?.google_scholar_url ? (
+                                <a
+                                  href={author.openalex.google_scholar_url}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                >
+                                  Scholar
+                                </a>
+                              ) : (
+                                "n/a"
+                              )}
+                            </td>
+                            <td>
+                              {author.openalex?.social_media_url ? (
+                                <a
+                                  href={author.openalex.social_media_url}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                >
+                                  Social
+                                </a>
+                              ) : (
+                                "n/a"
+                              )}
+                            </td>
+                            <td>
+                              {formatCompactNumber(author.openalex?.citation_count)}
+                            </td>
+                            <td>
+                              {author.openalex?.openalex_id ? (
+                                <a
+                                  href={author.openalex.openalex_id}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                >
+                                  {author.openalex.openalex_id.split("/").at(-1)}
+                                </a>
+                              ) : (
+                                "n/a"
+                              )}
+                            </td>
+                            <td>{author.openalex?.semantic_scholar_id ?? "n/a"}</td>
+                            <td>{buildAuthorAffiliation(author)}</td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={10}>No authors were ranked for this run.</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </article>
+            ) : (
+              <>
             {resultView === "ranked" ? (
               <div className="paper-table-header" aria-hidden="true">
                 <span>Rank</span>
@@ -1090,8 +1255,10 @@ export function ResearchAgentPanel() {
                 );
               })}
             </div>
+              </>
+            )}
 
-            {visiblePapers.length > RESULTS_PAGE_SIZE ? (
+            {resultView !== "authors" && visiblePapers.length > RESULTS_PAGE_SIZE ? (
               <div className="pagination-row">
                 <span className="pagination-status">
                   {pageStartIndex + 1}-{Math.min(pageStartIndex + RESULTS_PAGE_SIZE, visiblePapers.length)} of{" "}

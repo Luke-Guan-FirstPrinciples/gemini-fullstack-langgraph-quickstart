@@ -3,10 +3,18 @@ from __future__ import annotations
 import unittest
 from unittest.mock import AsyncMock, patch
 
+from research_agent.author_pipeline import _build_author_enrichment, build_ranked_authors
 from research_agent.config import Settings
 from research_agent.enrichment import OpenAlexEnricher, _build_enrichment
 from research_agent.graph import run_research
-from research_agent.models import Paper, PaperOpenAlexEnrichment
+from research_agent.models import (
+    Author,
+    AuthorOpenAlexEnrichment,
+    Paper,
+    PaperOpenAlexEnrichment,
+    PaperRanking,
+    ResearchOutput,
+)
 from research_agent.ranking import rerank_papers
 from research_agent.search.factory import create_search_provider
 
@@ -134,6 +142,54 @@ class EnrichmentTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn("filter", params_list[0])
         self.assertIn("search", params_list[-1])
 
+    def test_build_author_enrichment_parses_openalex_author(self) -> None:
+        author = {
+            "id": "https://openalex.org/A123",
+            "display_name": "Alice Quantum",
+            "relevance_score": 0.88,
+            "cited_by_count": 4321,
+            "works_count": 210,
+            "orcid": "https://orcid.org/0000-0002-1825-0097",
+            "ids": {
+                "google_scholar": "https://scholar.google.com/citations?user=alice123",
+                "twitter": "https://x.com/alice_quantum",
+                "semantic_scholar": "https://www.semanticscholar.org/author/12345",
+            },
+            "last_known_institutions": [
+                {"display_name": "Quantum Lab", "country_code": "US"},
+                {"display_name": "Caltech", "country_code": "US"},
+            ],
+            "topics": [
+                {"display_name": "Quantum Error Correction"},
+                {"display_name": "Fault Tolerance"},
+            ],
+        }
+
+        enrichment = _build_author_enrichment(
+            author,
+            candidate_name="Alice Quantum",
+            name_similarity=0.97,
+        )
+
+        self.assertEqual(enrichment.status, "matched")
+        self.assertEqual(enrichment.openalex_id, "https://openalex.org/A123")
+        self.assertEqual(enrichment.citation_count, 4321)
+        self.assertEqual(enrichment.orcid, "0000-0002-1825-0097")
+        self.assertEqual(
+            enrichment.google_scholar_url,
+            "https://scholar.google.com/citations?user=alice123",
+        )
+        self.assertEqual(enrichment.social_media_url, "https://x.com/alice_quantum")
+        self.assertEqual(enrichment.semantic_scholar_id, "12345")
+        self.assertEqual(
+            enrichment.affiliations,
+            ["Quantum Lab US", "Caltech US"],
+        )
+        self.assertEqual(
+            enrichment.topics,
+            ["Quantum Error Correction", "Fault Tolerance"],
+        )
+
 
 class RankingTests(unittest.IsolatedAsyncioTestCase):
     async def test_rerank_combines_semantic_and_bibliometric_signals(self) -> None:
@@ -178,6 +234,87 @@ class RankingTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn("Highly cited (top 1%)", ranked.papers[0].ranking.explanation_chips)
         self.assertTrue(ranked.papers[0].ranking.explanation)
         self.assertIn("High field-weighted impact", ranked.papers[1].ranking.explanation_chips)
+
+    async def test_build_ranked_authors_combines_query_match_support_and_citations(self) -> None:
+        cfg = Settings()
+        ranked_papers = [
+            Paper(
+                title="Paper A",
+                authors=["Alice Quantum"],
+                ranking=PaperRanking(rank=1, score=0.93),
+            ),
+            Paper(
+                title="Paper B",
+                authors=["Alice Quantum", "Bob Materials"],
+                ranking=PaperRanking(rank=2, score=0.71),
+            ),
+        ]
+        output = ResearchOutput(
+            papers=ranked_papers,
+            authors=[
+                Author(
+                    name="Alice Quantum",
+                    research_areas=["Quantum error correction"],
+                ),
+                Author(
+                    name="Bob Materials",
+                    research_areas=["Condensed matter"],
+                ),
+            ],
+        )
+        enriched_authors = [
+            Author(
+                name="Alice Quantum",
+                matched_paper_count=2,
+                matched_paper_titles=["Paper A", "Paper B"],
+                research_areas=["Quantum error correction"],
+                openalex=AuthorOpenAlexEnrichment(
+                    status="matched",
+                    openalex_id="https://openalex.org/A1",
+                    citation_count=800,
+                    topics=["Quantum error correction", "Fault tolerance"],
+                ),
+            ),
+            Author(
+                name="Bob Materials",
+                matched_paper_count=1,
+                matched_paper_titles=["Paper B"],
+                research_areas=["Condensed matter"],
+                openalex=AuthorOpenAlexEnrichment(
+                    status="matched",
+                    openalex_id="https://openalex.org/A2",
+                    citation_count=6000,
+                    topics=["Condensed matter physics"],
+                ),
+            ),
+        ]
+
+        with patch(
+            "research_agent.author_pipeline._enrich_authors",
+            new=AsyncMock(return_value=enriched_authors),
+        ):
+            authors, weights, normalization = await build_ranked_authors(
+                "recent quantum error correction papers adapted to biased noise",
+                output,
+                ranked_papers,
+                cfg,
+            )
+
+        self.assertEqual([author.name for author in authors], ["Alice Quantum", "Bob Materials"])
+        self.assertEqual([author.ranking.rank for author in authors], [1, 2])
+        self.assertEqual(weights["query_topic_overlap"], 0.4)
+        self.assertEqual(weights["paper_support"], 0.35)
+        self.assertEqual(weights["citation_count"], 0.25)
+        self.assertIn("paper_support", normalization)
+        self.assertGreater(authors[0].ranking.score, authors[1].ranking.score)
+        self.assertGreater(
+            authors[0].ranking.normalized_signals["query_topic_overlap"],
+            authors[1].ranking.normalized_signals["query_topic_overlap"],
+        )
+        self.assertIn(
+            "Supported by top-ranked papers",
+            authors[0].ranking.explanation_chips,
+        )
 
 
 class GraphTests(unittest.IsolatedAsyncioTestCase):

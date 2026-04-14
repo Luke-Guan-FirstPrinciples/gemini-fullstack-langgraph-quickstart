@@ -269,6 +269,37 @@ export interface ResearchAgentAuthor {
   name: string;
   affiliations?: string[];
   research_areas?: string[];
+  matched_paper_count?: number;
+  matched_paper_titles?: string[];
+  openalex?: ResearchAgentAuthorOpenAlex | null;
+  ranking?: ResearchAgentAuthorRanking | null;
+}
+
+export interface ResearchAgentAuthorOpenAlex {
+  status: "matched" | "not_found" | "error";
+  openalex_id?: string | null;
+  matched_name?: string | null;
+  name_similarity?: number | null;
+  search_relevance_score?: number | null;
+  citation_count?: number | null;
+  works_count?: number | null;
+  orcid?: string | null;
+  affiliations?: string[];
+  topics?: string[];
+  personal_website_url?: string | null;
+  personal_blog_url?: string | null;
+  google_scholar_url?: string | null;
+  social_media_url?: string | null;
+  semantic_scholar_id?: string | null;
+  error?: string | null;
+}
+
+export interface ResearchAgentAuthorRanking {
+  rank?: number | null;
+  score?: number;
+  normalized_signals?: Record<string, number>;
+  explanation?: string;
+  explanation_chips?: string[];
 }
 
 export interface ResearchAgentLab {
@@ -294,6 +325,9 @@ export interface ResearchAgentRankedResults {
   weights: Record<string, number>;
   normalization: Record<string, string>;
   papers: ResearchAgentPaper[];
+  author_weights?: Record<string, number>;
+  author_normalization?: Record<string, string>;
+  authors?: ResearchAgentAuthor[];
   _meta?: ResearchAgentMeta;
 }
 

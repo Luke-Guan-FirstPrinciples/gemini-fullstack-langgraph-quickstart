@@ -895,6 +895,71 @@ h3 {
   font-size: 0.98rem;
 }
 
+.author-table-card {
+  display: grid;
+  gap: 18px;
+}
+
+.author-table-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.author-table-header h3,
+.author-table-header p {
+  margin: 0;
+}
+
+.author-table-shell {
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface-faint);
+}
+
+.author-table {
+  width: max(100%, 1220px);
+  border-collapse: collapse;
+}
+
+.author-table th,
+.author-table td {
+  padding: 14px 16px;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--line);
+}
+
+.author-table th {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: var(--panel-strong);
+}
+
+.author-table tbody tr:hover {
+  background: var(--surface-soft);
+}
+
+.author-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.author-name-cell {
+  display: grid;
+  gap: 4px;
+}
+
+.author-name-cell span {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
 .card-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1343,6 +1408,10 @@ h3 {
   .paper-row-metrics,
   .paper-row-feedback {
     grid-column: 2;
+  }
+
+  .author-table-header {
+    display: grid;
   }
 }
 
