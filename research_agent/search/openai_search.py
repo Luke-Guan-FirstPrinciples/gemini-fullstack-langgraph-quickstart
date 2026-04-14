@@ -14,6 +14,46 @@ logger = logging.getLogger("research_agent.search.openai")
 _ENDPOINT = "https://api.openai.com/v1/responses"
 
 
+def _extract_snippet(
+    full_text: str,
+    annotation: dict,
+    all_annotations: list[dict],
+) -> str:
+    """Extract the text surrounding a url_citation annotation as a snippet.
+
+    Uses the annotation's start_index to find the beginning of the enclosing
+    sentence/paragraph, and the next annotation's start_index (or a reasonable
+    window) to find the end.  Falls back to the annotation title if indices
+    are missing or the text is empty.
+    """
+    title = annotation.get("title", "")
+    start = annotation.get("start_index")
+    end = annotation.get("end_index")
+
+    if not full_text or start is None:
+        return title
+
+    # Walk backwards from the citation start to find the beginning of the
+    # surrounding context (previous newline or start of text).
+    ctx_start = max(full_text.rfind("\n", 0, start), 0)
+
+    # Walk forwards to find the end of the context: use the start of the
+    # next annotation, or up to 300 chars after citation end, whichever is
+    # shorter. This avoids bleeding into the next citation's description.
+    next_starts = sorted(
+        a.get("start_index", len(full_text))
+        for a in all_annotations
+        if a is not annotation
+        and a.get("start_index") is not None
+        and a["start_index"] > start
+    )
+    boundary = next_starts[0] if next_starts else len(full_text)
+    ctx_end = min(boundary, (end or start) + 300, len(full_text))
+
+    snippet = full_text[ctx_start:ctx_end].strip()
+    return snippet if snippet else title
+
+
 class OpenAISearchProvider(SearchProvider):
     """Search via OpenAI Responses API with the built-in web_search_preview tool."""
 
@@ -50,17 +90,24 @@ class OpenAISearchProvider(SearchProvider):
             for content_block in item.get("content", []):
                 if content_block.get("type") != "output_text":
                     continue
-                # Collect URL citations from annotations
-                for annotation in content_block.get("annotations", []):
-                    if annotation.get("type") == "url_citation":
-                        results.append(
-                            SearchResult(
-                                title=annotation.get("title", ""),
-                                url=annotation.get("url", ""),
-                                snippet=annotation.get("title", ""),
-                                source=self._domain_from_url(annotation.get("url", "")),
-                            )
+                full_text = content_block.get("text", "")
+                annotations = content_block.get("annotations", [])
+
+                # Build a snippet for each citation from the surrounding text
+                for annotation in annotations:
+                    if annotation.get("type") != "url_citation":
+                        continue
+                    snippet = _extract_snippet(
+                        full_text, annotation, annotations,
+                    )
+                    results.append(
+                        SearchResult(
+                            title=annotation.get("title", ""),
+                            url=annotation.get("url", ""),
+                            snippet=snippet,
+                            source=self._domain_from_url(annotation.get("url", "")),
                         )
+                    )
 
         # Deduplicate by URL, preserving order
         seen: set[str] = set()
