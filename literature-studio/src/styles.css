@@ -33,6 +33,9 @@
   --json-bg: rgba(4, 10, 18, 0.82);
   --json-text: #d9f5f4;
   --scrim: rgba(3, 8, 14, 0.7);
+  --info-bg: rgba(83, 208, 207, 0.12);
+  --info-border: rgba(83, 208, 207, 0.24);
+  --info-text: #c8fbfb;
   --error-bg: rgba(255, 122, 107, 0.1);
   --error-border: rgba(255, 122, 107, 0.2);
   --error-text: #ffd4ce;
@@ -68,6 +71,9 @@
   --json-bg: rgba(241, 246, 252, 0.9);
   --json-text: #16324b;
   --scrim: rgba(228, 236, 246, 0.72);
+  --info-bg: rgba(83, 208, 207, 0.14);
+  --info-border: rgba(44, 133, 141, 0.22);
+  --info-text: #0f5d63;
   --error-bg: rgba(255, 122, 107, 0.12);
   --error-border: rgba(255, 122, 107, 0.22);
   --error-text: #8a2f23;
@@ -631,6 +637,12 @@ h3 {
   background: var(--error-bg);
   color: var(--error-text);
   border: 1px solid var(--error-border);
+}
+
+.status-message.info {
+  background: var(--info-bg);
+  color: var(--info-text);
+  border: 1px solid var(--info-border);
 }
 
 .result-stack {

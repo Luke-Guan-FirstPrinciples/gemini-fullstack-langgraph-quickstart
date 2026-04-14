@@ -1,4 +1,4 @@
-import { startTransition, useState } from "react";
+import { startTransition, useEffect, useRef, useState } from "react";
 import { requestJson } from "../lib/api";
 import { researchAgentBaseUrl } from "../lib/config";
 import {
@@ -8,13 +8,24 @@ import {
   formatNumber,
   truncateText,
 } from "../lib/format";
+import {
+  buildMockResearchAgentResponse,
+  DEFAULT_MOCK_RESEARCH_QUERY,
+} from "../lib/mockResearchAgent";
 import type {
   ResearchAgentPaper,
   ResearchAgentRunResponse,
 } from "../lib/types";
 
-const DEFAULT_QUERY =
-  "Recent quantum error correction papers adapted to biased noise";
+type DataMode = "live" | "mock";
+
+const RESEARCH_AGENT_MODE_STORAGE_KEY = "literature-studio-research-agent-mode";
+const DEFAULT_QUERY = DEFAULT_MOCK_RESEARCH_QUERY;
+const DEFAULT_MAX_ITERATIONS = 2;
+const DEFAULT_RESULTS_PER_QUERY = 10;
+const DEFAULT_SEMANTIC_WEIGHT = 0.6;
+const DEFAULT_CITATION_WEIGHT = 0.25;
+const DEFAULT_FWCI_WEIGHT = 0.15;
 
 const QUERY_PRESETS = [
   "Recent quantum error correction papers adapted to biased noise",
@@ -70,6 +81,11 @@ const buildRequestBody = (params: {
   return body;
 };
 
+const getInitialDataMode = (): DataMode => {
+  const stored = window.localStorage.getItem(RESEARCH_AGENT_MODE_STORAGE_KEY);
+  return stored === "mock" ? "mock" : "live";
+};
+
 const buildPaperDestination = (paper: ResearchAgentPaper): string | null =>
   paper.openalex?.landing_page_url ?? paper.url ?? paper.openalex?.openalex_id ?? null;
 
@@ -87,6 +103,7 @@ const buildPaperSummary = (paper: ResearchAgentPaper): string => {
 };
 
 export function ResearchAgentPanel() {
+  const [dataMode, setDataMode] = useState<DataMode>(getInitialDataMode);
   const [controlMode, setControlMode] = useState<"simple" | "advanced">(
     "simple",
   );
@@ -95,14 +112,26 @@ export function ResearchAgentPanel() {
   const [llmProvider, setLlmProvider] = useState("");
   const [llmModel, setLlmModel] = useState("");
   const [searchProvider, setSearchProvider] = useState("");
-  const [maxIterations, setMaxIterations] = useState(2);
-  const [resultsPerQuery, setResultsPerQuery] = useState(10);
-  const [semanticWeight, setSemanticWeight] = useState(0.6);
-  const [citationWeight, setCitationWeight] = useState(0.25);
-  const [fwciWeight, setFwciWeight] = useState(0.15);
+  const [maxIterations, setMaxIterations] = useState(DEFAULT_MAX_ITERATIONS);
+  const [resultsPerQuery, setResultsPerQuery] = useState(DEFAULT_RESULTS_PER_QUERY);
+  const [semanticWeight, setSemanticWeight] = useState(DEFAULT_SEMANTIC_WEIGHT);
+  const [citationWeight, setCitationWeight] = useState(DEFAULT_CITATION_WEIGHT);
+  const [fwciWeight, setFwciWeight] = useState(DEFAULT_FWCI_WEIGHT);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [response, setResponse] = useState<ResearchAgentRunResponse | null>(null);
+  const [response, setResponse] = useState<ResearchAgentRunResponse | null>(() =>
+    getInitialDataMode() === "mock"
+      ? buildMockResearchAgentResponse({
+          query: DEFAULT_QUERY,
+          maxIterations: DEFAULT_MAX_ITERATIONS,
+          resultsPerQuery: DEFAULT_RESULTS_PER_QUERY,
+          semanticWeight: DEFAULT_SEMANTIC_WEIGHT,
+          citationWeight: DEFAULT_CITATION_WEIGHT,
+          fwciWeight: DEFAULT_FWCI_WEIGHT,
+        })
+      : null,
+  );
+  const requestSequence = useRef(0);
 
   const requestBody = buildRequestBody({
     query,
@@ -116,7 +145,50 @@ export function ResearchAgentPanel() {
     fwciWeight,
   });
 
+  const loadMockResponse = () => {
+    const nextQuery = query.trim().length >= 3 ? query : DEFAULT_QUERY;
+
+    if (nextQuery !== query) {
+      setQuery(nextQuery);
+    }
+
+    requestSequence.current += 1;
+    setLoading(false);
+    setError(null);
+
+    startTransition(() => {
+      setResponse(
+        buildMockResearchAgentResponse({
+          query: nextQuery,
+          maxIterations,
+          resultsPerQuery,
+          semanticWeight,
+          citationWeight,
+          fwciWeight,
+        }),
+      );
+    });
+  };
+
+  useEffect(() => {
+    window.localStorage.setItem(RESEARCH_AGENT_MODE_STORAGE_KEY, dataMode);
+  }, [dataMode]);
+
+  const handleDataModeChange = (nextMode: DataMode) => {
+    setDataMode(nextMode);
+    if (nextMode === "mock") {
+      loadMockResponse();
+    }
+  };
+
   const handleSubmit = async () => {
+    if (dataMode === "mock") {
+      loadMockResponse();
+      return;
+    }
+
+    const requestId = requestSequence.current + 1;
+    requestSequence.current = requestId;
     setLoading(true);
     setError(null);
 
@@ -132,17 +204,27 @@ export function ResearchAgentPanel() {
         },
       );
 
+      if (requestSequence.current !== requestId) {
+        return;
+      }
+
       startTransition(() => {
         setResponse(payload);
       });
     } catch (caughtError) {
+      if (requestSequence.current !== requestId) {
+        return;
+      }
+
       setError(
         caughtError instanceof Error
           ? caughtError.message
           : "Unable to run the research agent.",
       );
     } finally {
-      setLoading(false);
+      if (requestSequence.current === requestId) {
+        setLoading(false);
+      }
     }
   };
 
@@ -179,6 +261,33 @@ export function ResearchAgentPanel() {
               type="button"
             >
               Advanced
+            </button>
+          </div>
+        </div>
+
+        <div className="panel-mode-row">
+          <div>
+            <p className="mini-label">Data source</p>
+            <h3>{dataMode === "mock" ? "Mock mode" : "Live proxy"}</h3>
+          </div>
+          <div
+            className="segmented-control"
+            role="tablist"
+            aria-label="Research agent data source"
+          >
+            <button
+              className={dataMode === "live" ? "active" : undefined}
+              onClick={() => handleDataModeChange("live")}
+              type="button"
+            >
+              Live API
+            </button>
+            <button
+              className={dataMode === "mock" ? "active" : undefined}
+              onClick={() => handleDataModeChange("mock")}
+              type="button"
+            >
+              Mock mode
             </button>
           </div>
         </div>
@@ -338,26 +447,56 @@ export function ResearchAgentPanel() {
             className="button primary"
             type="button"
             onClick={handleSubmit}
-            disabled={loading || query.trim().length < 3}
+            disabled={loading || (dataMode === "live" && query.trim().length < 3)}
           >
-            {loading ? "Running research..." : "Run research agent"}
+            {loading
+              ? "Running research..."
+              : dataMode === "mock"
+                ? "Refresh mock data"
+                : "Run research agent"}
           </button>
         </div>
 
         <p className="panel-note">
-          {controlMode === "simple"
-            ? "Default mode only asks for the query. Switch to advanced mode for provider, retrieval, and ranking controls."
-            : "This panel targets the local FastAPI proxy in `research_agent/app.py`. Start it on port `8001` and it will return both enriched structured output and weighted ranked results."}
+          {dataMode === "mock"
+            ? "Mock mode bypasses the network and instantly loads a realistic in-browser fixture so front-end work can continue without the research agent backend."
+            : controlMode === "simple"
+              ? "Default mode only asks for the query. Switch to advanced mode for provider, retrieval, and ranking controls."
+              : "This panel targets the local FastAPI proxy in `research_agent/app.py`. Start it on port `8001` and it will return both enriched structured output and weighted ranked results."}
         </p>
 
         {controlMode === "advanced" ? (
           <details className="disclosure-card">
-            <summary>Proxy request preview</summary>
+            <summary>
+              {dataMode === "mock" ? "Mock fixture preview" : "Proxy request preview"}
+            </summary>
             <div className="disclosure-body">
               <div className="mono-card">
-                <span>Proxy request</span>
-                <code>POST {researchAgentBaseUrl}/run</code>
-                <code>{JSON.stringify(requestBody, null, 2)}</code>
+                <span>{dataMode === "mock" ? "Mock source" : "Proxy request"}</span>
+                <code>
+                  {dataMode === "mock"
+                    ? "In-browser fixture response generated locally"
+                    : `POST ${researchAgentBaseUrl}/run`}
+                </code>
+                <code>
+                  {JSON.stringify(
+                    dataMode === "mock"
+                      ? {
+                          mode: "mock",
+                          query: requestBody.query,
+                          resultsPerQuery,
+                          maxIterations,
+                          weights: {
+                            semanticWeight,
+                            citationWeight,
+                            fwciWeight,
+                          },
+                        }
+                      : requestBody,
+                    null,
+                    2,
+                  )}
+                </code>
               </div>
             </div>
           </details>
@@ -382,7 +521,14 @@ export function ResearchAgentPanel() {
           </article>
         </div>
 
-        {error ? <p className="status-message error">{error}</p> : null}
+        {dataMode === "mock" ? (
+          <p className="status-message info">
+            Mock mode is active. Results are synthesized locally and load
+            immediately.
+          </p>
+        ) : error ? (
+          <p className="status-message error">{error}</p>
+        ) : null}
       </div>
 
       <div className="result-stack">
