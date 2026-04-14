@@ -27,6 +27,25 @@ interface MockPaperSeed {
 
 export const DEFAULT_MOCK_RESEARCH_QUERY =
   "Recent quantum error correction papers adapted to biased noise";
+const MAX_MOCK_PAPERS = 50;
+const MOCK_VARIANT_LABELS = [
+  "Hardware benchmark",
+  "Decoder ablation",
+  "Scaling analysis",
+  "Experimental calibration study",
+  "Cross-platform replication",
+  "Latency-aware evaluation",
+  "Control-stack integration",
+  "Noise-model stress test",
+];
+const MOCK_COLLABORATORS = [
+  "Ava Stein",
+  "Jonas Park",
+  "Nina Alvarez",
+  "Owen Brooks",
+  "Farah Siddiqui",
+  "Leo Matsumoto",
+];
 
 const STOP_WORDS = new Set([
   "about",
@@ -267,6 +286,48 @@ const computeSemanticRelevance = (
   return clamp(paper.baseSemantic * 0.72 + overlap * 0.28, 0.52, 0.99);
 };
 
+const buildMockPaperCatalog = (count: number): MockPaperSeed[] =>
+  Array.from({ length: count }, (_, index) => {
+    const seed = MOCK_PAPER_SEEDS[index % MOCK_PAPER_SEEDS.length];
+    const variantIndex = Math.floor(index / MOCK_PAPER_SEEDS.length);
+
+    if (variantIndex === 0) {
+      return seed;
+    }
+
+    const variantLabel = MOCK_VARIANT_LABELS[(variantIndex - 1) % MOCK_VARIANT_LABELS.length];
+    const collaborator = MOCK_COLLABORATORS[(index + variantIndex) % MOCK_COLLABORATORS.length];
+    const citationMultiplier = Math.max(0.28, 1 - variantIndex * 0.11);
+    const fwciMultiplier = Math.max(0.46, 1 - variantIndex * 0.08);
+
+    return {
+      ...seed,
+      title: `${seed.title}: ${variantLabel}`,
+      authors: [...seed.authors.slice(0, 2), collaborator],
+      year: Math.max(2021, seed.year - ((variantIndex - 1) % 4)),
+      abstract: `${seed.abstract} This mock variant focuses on ${variantLabel.toLowerCase()} for front-end testing and richer ranked lists.`,
+      keyFinding: `${seed.keyFinding} In this variant, the emphasis shifts toward ${variantLabel.toLowerCase()} to provide a distinct but related ranked item.`,
+      doi: `${seed.doi}.${variantIndex}`,
+      url: `${seed.url}?mock_variant=${variantIndex}`,
+      landingPageUrl: `${seed.landingPageUrl}-v${variantIndex}`,
+      openalexId: `${seed.openalexId}-v${variantIndex}`,
+      citationCount: Math.max(
+        14,
+        Math.round(seed.citationCount * citationMultiplier) + (index % 5) * 4,
+      ),
+      fwci: Number(
+        clamp(seed.fwci * fwciMultiplier + ((index % 4) - 1.5) * 0.06, 0.72, 4.2).toFixed(
+          2,
+        ),
+      ),
+      baseSemantic: Number(
+        clamp(seed.baseSemantic - variantIndex * 0.03 + ((index % 3) - 1) * 0.015, 0.56, 0.98).toFixed(
+          3,
+        ),
+      ),
+    };
+  });
+
 const buildStructuredPaper = (paper: MockPaperSeed): ResearchAgentPaper => ({
   title: paper.title,
   authors: paper.authors,
@@ -308,14 +369,21 @@ export function buildMockResearchAgentResponse(
     citation: options.citationWeight,
     fwci: options.fwciWeight,
   });
+  const iterations = clamp(options.maxIterations, 0, 6);
+  const targetPaperCount = clamp(
+    options.resultsPerQuery * Math.max(iterations + 1, 1),
+    1,
+    MAX_MOCK_PAPERS,
+  );
+  const mockPaperCatalog = buildMockPaperCatalog(targetPaperCount);
   const queryTokens = extractQueryTokens(query);
-  const structuredPapers = MOCK_PAPER_SEEDS.map(buildStructuredPaper);
-  const maxCitations = Math.max(...MOCK_PAPER_SEEDS.map((paper) => paper.citationCount));
-  const maxFwci = Math.max(...MOCK_PAPER_SEEDS.map((paper) => paper.fwci));
+  const structuredPapers = mockPaperCatalog.map(buildStructuredPaper);
+  const maxCitations = Math.max(...mockPaperCatalog.map((paper) => paper.citationCount));
+  const maxFwci = Math.max(...mockPaperCatalog.map((paper) => paper.fwci));
 
   const rankedPapers = structuredPapers
     .map((paper, index) => {
-      const seed = MOCK_PAPER_SEEDS[index];
+      const seed = mockPaperCatalog[index];
       const semanticRelevance = computeSemanticRelevance(queryTokens, seed);
       const citationSignal = seed.citationCount / maxCitations;
       const fwciSignal = seed.fwci / maxFwci;
@@ -349,13 +417,12 @@ export function buildMockResearchAgentResponse(
   const mockAuthorPool = Array.from(
     new Set(
       rankedPapers
-        .slice(0, 4)
+        .slice(0, 10)
         .flatMap((paper) => paper.authors),
     ),
-  ).slice(0, 6);
+  ).slice(0, 12);
 
-  const returnedPaperCount = clamp(options.resultsPerQuery, 1, MOCK_PAPER_SEEDS.length);
-  const iterations = clamp(options.maxIterations, 0, 6);
+  const returnedPaperCount = targetPaperCount;
   const timestamp = new Date().toISOString();
   const meta = {
     query,

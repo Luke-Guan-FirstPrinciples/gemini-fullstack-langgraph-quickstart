@@ -868,6 +868,133 @@ h3 {
   text-decoration: underline;
 }
 
+.feedback-panel {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 8px;
+}
+
+.feedback-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.feedback-button {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface-faint);
+  color: var(--heading);
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    transform 140ms ease,
+    border-color 140ms ease,
+    background 140ms ease,
+    color 140ms ease;
+}
+
+.feedback-button svg,
+.feedback-input-icon svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+  flex: 0 0 auto;
+}
+
+.feedback-button:hover,
+.feedback-button:focus-visible {
+  transform: translateY(-1px);
+  border-color: var(--line-strong);
+}
+
+.feedback-button.active {
+  color: var(--heading);
+}
+
+.feedback-button.active.helpful {
+  background: rgba(151, 240, 124, 0.14);
+  border-color: rgba(151, 240, 124, 0.35);
+}
+
+.feedback-button.active.unhelpful {
+  background: rgba(255, 122, 107, 0.14);
+  border-color: rgba(255, 122, 107, 0.34);
+}
+
+.feedback-button.active.note {
+  background: rgba(83, 208, 207, 0.14);
+  border-color: rgba(83, 208, 207, 0.32);
+}
+
+.feedback-field {
+  gap: 0;
+}
+
+.feedback-input-shell {
+  position: relative;
+  display: block;
+}
+
+.feedback-input-icon {
+  position: absolute;
+  top: 13px;
+  left: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  pointer-events: none;
+}
+
+.feedback-input-icon.active {
+  color: var(--heading);
+}
+
+.feedback-note-input {
+  min-height: 88px;
+  padding-left: 42px;
+  resize: vertical;
+  line-height: 1.45;
+}
+
+.pagination-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.pagination-status {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.pagination-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .result-list {
   list-style: none;
   padding: 0;

@@ -18,14 +18,99 @@ import type {
 } from "../lib/types";
 
 type DataMode = "live" | "mock";
+type FeedbackVote = "helpful" | "unhelpful" | null;
+
+interface PaperFeedbackEntry {
+  note: string;
+  updatedAt: string | null;
+  vote: FeedbackVote;
+}
+
+function FeedbackThumbUpIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      fill="none"
+      focusable="false"
+      height="18"
+      viewBox="0 0 24 24"
+      width="18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M9.5 10.25V19H6.75A1.75 1.75 0 0 1 5 17.25v-5.5C5 10.78 5.78 10 6.75 10h2.75Zm0 0 3.28-5.45A1.5 1.5 0 0 1 15.5 5.57v2.2c0 .43-.08.86-.24 1.26l-.4.97h2.63c1.26 0 2.16 1.22 1.79 2.42l-1.52 4.93A2.5 2.5 0 0 1 15.37 19H9.5"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.8"
+      />
+    </svg>
+  );
+}
+
+function FeedbackThumbDownIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      fill="none"
+      focusable="false"
+      height="18"
+      viewBox="0 0 24 24"
+      width="18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M14.5 13.75V5h2.75A1.75 1.75 0 0 1 19 6.75v5.5c0 .97-.78 1.75-1.75 1.75H14.5Zm0 0-3.28 5.45a1.5 1.5 0 0 1-2.72-.77v-2.2c0-.43.08-.86.24-1.26l.4-.97H6.51c-1.26 0-2.16-1.22-1.79-2.42l1.52-4.93A2.5 2.5 0 0 1 8.63 5H14.5"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="1.8"
+      />
+    </svg>
+  );
+}
+
+function FeedbackNoteIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      fill="none"
+      focusable="false"
+      height="18"
+      viewBox="0 0 24 24"
+      width="18"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M7.75 5h8.5A2.75 2.75 0 0 1 19 7.75v8.5A2.75 2.75 0 0 1 16.25 19h-8.5A2.75 2.75 0 0 1 5 16.25v-8.5A2.75 2.75 0 0 1 7.75 5Z"
+        stroke="currentColor"
+        strokeWidth="1.8"
+      />
+      <path
+        d="M9 10h6M9 14h4.25"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeWidth="1.8"
+      />
+    </svg>
+  );
+}
 
 const RESEARCH_AGENT_MODE_STORAGE_KEY = "literature-studio-research-agent-mode";
+const RESEARCH_AGENT_FEEDBACK_STORAGE_KEY =
+  "literature-studio-research-agent-feedback";
 const DEFAULT_QUERY = DEFAULT_MOCK_RESEARCH_QUERY;
 const DEFAULT_MAX_ITERATIONS = 2;
 const DEFAULT_RESULTS_PER_QUERY = 10;
 const DEFAULT_SEMANTIC_WEIGHT = 0.6;
 const DEFAULT_CITATION_WEIGHT = 0.25;
 const DEFAULT_FWCI_WEIGHT = 0.15;
+const RESULTS_PAGE_SIZE = 10;
+const EMPTY_FEEDBACK: PaperFeedbackEntry = {
+  vote: null,
+  note: "",
+  updatedAt: null,
+};
 
 const QUERY_PRESETS = [
   "Recent quantum error correction papers adapted to biased noise",
@@ -86,6 +171,44 @@ const getInitialDataMode = (): DataMode => {
   return stored === "mock" ? "mock" : "live";
 };
 
+const getStoredFeedback = (): Record<string, PaperFeedbackEntry> => {
+  const stored = window.localStorage.getItem(RESEARCH_AGENT_FEEDBACK_STORAGE_KEY);
+  if (!stored) {
+    return {};
+  }
+
+  try {
+    const parsed = JSON.parse(stored) as Record<string, Partial<PaperFeedbackEntry>>;
+
+    return Object.fromEntries(
+      Object.entries(parsed).map(([key, value]) => [
+        key,
+        {
+          vote:
+            value.vote === "helpful" || value.vote === "unhelpful"
+              ? value.vote
+              : null,
+          note: typeof value.note === "string" ? value.note : "",
+          updatedAt:
+            typeof value.updatedAt === "string" ? value.updatedAt : null,
+        },
+      ]),
+    );
+  } catch {
+    return {};
+  }
+};
+
+const buildPaperFeedbackKey = (paper: ResearchAgentPaper): string =>
+  (
+    paper.openalex?.openalex_id ??
+    paper.doi ??
+    paper.url ??
+    `${paper.title}:${paper.year ?? "unknown"}`
+  )
+    .trim()
+    .toLowerCase();
+
 const buildPaperDestination = (paper: ResearchAgentPaper): string | null =>
   paper.openalex?.landing_page_url ?? paper.url ?? paper.openalex?.openalex_id ?? null;
 
@@ -114,11 +237,18 @@ export function ResearchAgentPanel() {
   const [searchProvider, setSearchProvider] = useState("");
   const [maxIterations, setMaxIterations] = useState(DEFAULT_MAX_ITERATIONS);
   const [resultsPerQuery, setResultsPerQuery] = useState(DEFAULT_RESULTS_PER_QUERY);
+  const [resultsPage, setResultsPage] = useState(0);
+  const [expandedFeedbackByPaper, setExpandedFeedbackByPaper] = useState<
+    Record<string, boolean>
+  >({});
   const [semanticWeight, setSemanticWeight] = useState(DEFAULT_SEMANTIC_WEIGHT);
   const [citationWeight, setCitationWeight] = useState(DEFAULT_CITATION_WEIGHT);
   const [fwciWeight, setFwciWeight] = useState(DEFAULT_FWCI_WEIGHT);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [feedbackByPaper, setFeedbackByPaper] = useState<
+    Record<string, PaperFeedbackEntry>
+  >(getStoredFeedback);
   const [response, setResponse] = useState<ResearchAgentRunResponse | null>(() =>
     getInitialDataMode() === "mock"
       ? buildMockResearchAgentResponse({
@@ -174,6 +304,21 @@ export function ResearchAgentPanel() {
     window.localStorage.setItem(RESEARCH_AGENT_MODE_STORAGE_KEY, dataMode);
   }, [dataMode]);
 
+  useEffect(() => {
+    window.localStorage.setItem(
+      RESEARCH_AGENT_FEEDBACK_STORAGE_KEY,
+      JSON.stringify(feedbackByPaper),
+    );
+  }, [feedbackByPaper]);
+
+  useEffect(() => {
+    setResultsPage(0);
+  }, [response, resultView]);
+
+  useEffect(() => {
+    setExpandedFeedbackByPaper({});
+  }, [response, resultView]);
+
   const handleDataModeChange = (nextMode: DataMode) => {
     setDataMode(nextMode);
     if (nextMode === "mock") {
@@ -228,10 +373,61 @@ export function ResearchAgentPanel() {
     }
   };
 
+  const updatePaperFeedback = (
+    paper: ResearchAgentPaper,
+    update: Partial<PaperFeedbackEntry>,
+  ) => {
+    const feedbackKey = buildPaperFeedbackKey(paper);
+
+    setFeedbackByPaper((currentFeedback) => {
+      const previousEntry = currentFeedback[feedbackKey] ?? EMPTY_FEEDBACK;
+      const nextEntry: PaperFeedbackEntry = {
+        ...previousEntry,
+        ...update,
+        updatedAt: new Date().toISOString(),
+      };
+
+      if (!nextEntry.vote && !nextEntry.note.trim()) {
+        const { [feedbackKey]: _removed, ...remainingFeedback } = currentFeedback;
+        return remainingFeedback;
+      }
+
+      return {
+        ...currentFeedback,
+        [feedbackKey]: nextEntry,
+      };
+    });
+  };
+
+  const togglePaperVote = (paper: ResearchAgentPaper, vote: Exclude<FeedbackVote, null>) => {
+    const feedbackKey = buildPaperFeedbackKey(paper);
+    const currentVote = feedbackByPaper[feedbackKey]?.vote ?? null;
+
+    updatePaperFeedback(paper, {
+      vote: currentVote === vote ? null : vote,
+    });
+  };
+
+  const toggleFeedbackNote = (paper: ResearchAgentPaper) => {
+    const feedbackKey = buildPaperFeedbackKey(paper);
+
+    setExpandedFeedbackByPaper((currentState) => ({
+      ...currentState,
+      [feedbackKey]: !currentState[feedbackKey],
+    }));
+  };
+
   const rankedPapers = response?.ranked_output.papers ?? [];
   const structured = response?.structured_output;
   const rawPapers = structured?.papers ?? [];
   const visiblePapers = resultView === "ranked" ? rankedPapers : rawPapers;
+  const totalPages = Math.max(1, Math.ceil(visiblePapers.length / RESULTS_PAGE_SIZE));
+  const currentPage = Math.min(resultsPage, totalPages - 1);
+  const pageStartIndex = currentPage * RESULTS_PAGE_SIZE;
+  const paginatedPapers = visiblePapers.slice(
+    pageStartIndex,
+    pageStartIndex + RESULTS_PAGE_SIZE,
+  );
   const topPaper = rankedPapers[0];
   const weightTotal = semanticWeight + citationWeight + fwciWeight;
 
@@ -649,10 +845,18 @@ export function ResearchAgentPanel() {
             ) : null}
 
             <div className="card-grid">
-              {visiblePapers.slice(0, 8).map((paper, index) => {
+              {paginatedPapers.map((paper, index) => {
                 const destination = buildPaperDestination(paper);
                 const semanticRelevance =
                   paper.ranking?.normalized_signals?.semantic_relevance ?? 0;
+                const feedbackKey = buildPaperFeedbackKey(paper);
+                const feedback = feedbackByPaper[feedbackKey] ?? EMPTY_FEEDBACK;
+                const feedbackTimestamp = feedback.updatedAt
+                  ? formatDate(feedback.updatedAt)
+                  : null;
+                const isFeedbackExpanded =
+                  expandedFeedbackByPaper[feedbackKey] ?? false;
+                const paperNumber = pageStartIndex + index + 1;
 
                 return (
                   <article
@@ -662,7 +866,7 @@ export function ResearchAgentPanel() {
                     <p className="mini-label">
                       {resultView === "ranked"
                         ? `#${paper.ranking?.rank ?? "n/a"} · score ${formatDecimal(paper.ranking?.score, 3)}`
-                        : `Raw paper ${index + 1}`}
+                        : `Raw paper ${paperNumber}`}
                     </p>
                     <h3>
                       {destination ? (
@@ -711,10 +915,129 @@ export function ResearchAgentPanel() {
                     <p className="muted-copy">
                       {truncateText(paper.authors.join(", "), 140)}
                     </p>
+
+                    <div className="feedback-panel">
+                      <div
+                        className="feedback-actions"
+                        role="group"
+                        aria-label={`Feedback for ${paper.title}`}
+                      >
+                        <button
+                          className={[
+                            "feedback-button",
+                            feedback.vote === "helpful"
+                              ? "active helpful"
+                              : "",
+                          ]
+                            .filter(Boolean)
+                            .join(" ")}
+                          type="button"
+                          aria-label="Mark result as helpful"
+                          aria-pressed={feedback.vote === "helpful"}
+                          onClick={() => togglePaperVote(paper, "helpful")}
+                          title="Helpful"
+                        >
+                          <FeedbackThumbUpIcon />
+                        </button>
+                        <button
+                          className={[
+                            "feedback-button",
+                            feedback.vote === "unhelpful"
+                              ? "active unhelpful"
+                              : "",
+                          ]
+                            .filter(Boolean)
+                            .join(" ")}
+                          type="button"
+                          aria-label="Mark result as unhelpful"
+                          aria-pressed={feedback.vote === "unhelpful"}
+                          onClick={() => togglePaperVote(paper, "unhelpful")}
+                          title="Unhelpful"
+                        >
+                          <FeedbackThumbDownIcon />
+                        </button>
+                        <button
+                          className={[
+                            "feedback-button",
+                            isFeedbackExpanded || feedback.note.trim()
+                              ? "active note"
+                              : "",
+                          ]
+                            .filter(Boolean)
+                            .join(" ")}
+                          type="button"
+                          aria-label="Add text feedback"
+                          aria-expanded={isFeedbackExpanded}
+                          onClick={() => toggleFeedbackNote(paper)}
+                          title={feedback.note.trim() ? "Edit note" : "Add note"}
+                        >
+                          <FeedbackNoteIcon />
+                        </button>
+                      </div>
+
+                      {isFeedbackExpanded ? (
+                        <label
+                          className="field feedback-field"
+                          title={feedbackTimestamp ? `Saved ${feedbackTimestamp}` : "Local only"}
+                        >
+                          <div className="feedback-input-shell">
+                            <span
+                              className={`feedback-input-icon${feedback.note.trim() ? " active" : ""}`}
+                            >
+                              <FeedbackNoteIcon />
+                            </span>
+                            <textarea
+                              aria-label={`Text feedback for ${paper.title}`}
+                              className="feedback-note-input"
+                              rows={3}
+                              value={feedback.note}
+                              onChange={(event) =>
+                                updatePaperFeedback(paper, {
+                                  note: event.target.value,
+                                })
+                              }
+                            />
+                          </div>
+                        </label>
+                      ) : null}
+                    </div>
                   </article>
                 );
               })}
             </div>
+
+            {visiblePapers.length > RESULTS_PAGE_SIZE ? (
+              <div className="pagination-row">
+                <span className="pagination-status">
+                  {pageStartIndex + 1}-{Math.min(pageStartIndex + RESULTS_PAGE_SIZE, visiblePapers.length)} of{" "}
+                  {visiblePapers.length}
+                </span>
+                <div className="pagination-actions">
+                  <button
+                    className="button ghost"
+                    type="button"
+                    onClick={() =>
+                      setResultsPage((current) => Math.max(current - 1, 0))
+                    }
+                    disabled={currentPage === 0}
+                  >
+                    Previous
+                  </button>
+                  <button
+                    className="button secondary"
+                    type="button"
+                    onClick={() =>
+                      setResultsPage((current) =>
+                        Math.min(current + 1, totalPages - 1),
+                      )
+                    }
+                    disabled={currentPage >= totalPages - 1}
+                  >
+                    Next page
+                  </button>
+                </div>
+              </div>
+            ) : null}
           </>
         ) : (
           <section className="empty-state">
