@@ -831,6 +831,15 @@ export function ResearchAgentPanel() {
                   <p className="mini-label">Top ranked paper</p>
                   <h3>{topPaper.title}</h3>
                   <p>{buildPaperSummary(topPaper)}</p>
+                  {topPaper.ranking?.explanation_chips?.length ? (
+                    <div className="inline-tags explanation-row">
+                      {topPaper.ranking.explanation_chips.map((chip) => (
+                        <span key={chip} className="tag explanation-chip">
+                          {chip}
+                        </span>
+                      ))}
+                    </div>
+                  ) : null}
                 </div>
                 <div className="inline-details">
                   <span>Rank #{topPaper.ranking?.rank ?? "n/a"}</span>
@@ -856,6 +865,7 @@ export function ResearchAgentPanel() {
                   : null;
                 const isFeedbackExpanded =
                   expandedFeedbackByPaper[feedbackKey] ?? false;
+                const explanationChips = paper.ranking?.explanation_chips ?? [];
                 const paperNumber = pageStartIndex + index + 1;
 
                 return (
@@ -878,6 +888,16 @@ export function ResearchAgentPanel() {
                       )}
                     </h3>
                     <p>{buildPaperSummary(paper)}</p>
+
+                    {resultView === "ranked" && explanationChips.length ? (
+                      <div className="inline-tags explanation-row">
+                        {explanationChips.map((chip) => (
+                          <span key={chip} className="tag explanation-chip">
+                            {chip}
+                          </span>
+                        ))}
+                      </div>
+                    ) : null}
 
                     {resultView === "ranked" ? (
                       <div className="score-meter">

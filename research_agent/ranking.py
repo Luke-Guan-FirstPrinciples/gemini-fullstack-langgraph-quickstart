@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 import math
 import re
+from datetime import datetime
 
 from research_agent.config import Settings
 from research_agent.llm import create_llm, with_structured_output
@@ -58,11 +59,14 @@ async def rerank_papers(
             "citation_count": _normalize_log_signal(citation_count, citation_scale),
             "fwci": _normalize_log_signal(max(fwci, 0.0), fwci_scale),
         }
+        explanation_chips = _build_explanation_chips(paper_copy, normalized_signals)
         paper_copy.ranking = PaperRanking(
             score=round(_weighted_score(normalized_signals, weights), 6),
             normalized_signals={
                 name: round(value, 6) for name, value in normalized_signals.items()
             },
+            explanation=_build_explanation(explanation_chips),
+            explanation_chips=explanation_chips,
         )
         ranked_papers.append(paper_copy)
 
@@ -195,6 +199,65 @@ def _normalize_log_signal(value: float, scale: float) -> float:
 
 def _clamp_score(value: float) -> float:
     return max(0.0, min(float(value), 1.0))
+
+
+def _build_explanation_chips(
+    paper: Paper,
+    normalized_signals: dict[str, float],
+) -> list[str]:
+    chips: list[str] = []
+    openalex = paper.openalex
+
+    if openalex:
+        if openalex.is_in_top_1_percent:
+            chips.append("Highly cited (top 1%)")
+        elif openalex.is_in_top_10_percent:
+            chips.append("Highly cited (top 10%)")
+        elif normalized_signals.get("citation_count", 0.0) >= 0.72:
+            chips.append("Strong citation record")
+
+    semantic_relevance = normalized_signals.get("semantic_relevance", 0.0)
+    if semantic_relevance >= 0.84:
+        chips.append("Strong topical match")
+    elif semantic_relevance >= 0.68:
+        chips.append("Semantically close to your query")
+
+    if openalex and (
+        (openalex.fwci or 0.0) >= 3.0 or normalized_signals.get("fwci", 0.0) >= 0.78
+    ):
+        chips.append("High field-weighted impact")
+
+    current_year = datetime.now().year
+    if paper.year is not None and paper.year >= current_year - 2:
+        chips.append("Recent work")
+
+    if not chips:
+        if semantic_relevance >= 0.5:
+            chips.append("Semantically relevant")
+        elif normalized_signals.get("citation_count", 0.0) >= normalized_signals.get("fwci", 0.0):
+            chips.append("Cited in this result set")
+        else:
+            chips.append("Notable field impact")
+
+    deduped: list[str] = []
+    seen: set[str] = set()
+    for chip in chips:
+        if chip not in seen:
+            seen.add(chip)
+            deduped.append(chip)
+        if len(deduped) == 3:
+            break
+    return deduped
+
+
+def _build_explanation(chips: list[str]) -> str:
+    if not chips:
+        return ""
+    if len(chips) == 1:
+        return chips[0]
+
+    tail = [f"{chip[:1].lower()}{chip[1:]}" if chip else chip for chip in chips[1:]]
+    return ", ".join([chips[0], *tail])
 
 
 def _normalization_meta() -> dict[str, str]:

@@ -4,11 +4,22 @@ import unittest
 from unittest.mock import AsyncMock, patch
 
 from research_agent.config import Settings
-from research_agent.enrichment import _build_enrichment
+from research_agent.enrichment import OpenAlexEnricher, _build_enrichment
 from research_agent.graph import run_research
 from research_agent.models import Paper, PaperOpenAlexEnrichment
 from research_agent.ranking import rerank_papers
 from research_agent.search.factory import create_search_provider
+
+
+class _FakeResponse:
+    def __init__(self, payload: dict) -> None:
+        self._payload = payload
+
+    def raise_for_status(self) -> None:
+        return None
+
+    def json(self) -> dict:
+        return self._payload
 
 
 class SettingsTests(unittest.TestCase):
@@ -30,7 +41,7 @@ class SettingsTests(unittest.TestCase):
         self.assertEqual(type(provider).__name__, "GoogleCSEProvider")
 
 
-class EnrichmentTests(unittest.TestCase):
+class EnrichmentTests(unittest.IsolatedAsyncioTestCase):
     def test_build_enrichment_parses_openalex_work(self) -> None:
         work = {
             "id": "https://openalex.org/W123",
@@ -66,6 +77,63 @@ class EnrichmentTests(unittest.TestCase):
         self.assertEqual(enrichment.source_display_name, "Nature Physics")
         self.assertTrue(enrichment.is_in_top_1_percent)
 
+    async def test_fetch_enrichment_prefers_doi_lookup_before_title_search(self) -> None:
+        cfg = Settings()
+        enricher = OpenAlexEnricher(cfg)
+        client = AsyncMock()
+        client.get = AsyncMock(return_value=_FakeResponse({
+            "results": [
+                {
+                    "id": "https://openalex.org/W999",
+                    "display_name": "Canonical OpenAlex Title",
+                    "doi": "https://doi.org/10.1234/example",
+                    "cited_by_count": 10,
+                }
+            ]
+        }))
+
+        enrichment = await enricher._fetch_enrichment(
+            client,
+            title="Slightly Different Title",
+            doi="10.1234/example",
+        )
+
+        self.assertEqual(enrichment.status, "matched")
+        self.assertEqual(enrichment.openalex_id, "https://openalex.org/W999")
+        self.assertEqual(client.get.await_count, 1)
+        self.assertIn("filter", client.get.await_args.kwargs["params"])
+
+    async def test_fetch_enrichment_falls_back_to_title_when_doi_lookup_misses(self) -> None:
+        cfg = Settings()
+        enricher = OpenAlexEnricher(cfg)
+        client = AsyncMock()
+        client.get = AsyncMock(side_effect=[
+            _FakeResponse({"results": []}),
+            _FakeResponse({"results": []}),
+            _FakeResponse({
+                "results": [
+                    {
+                        "id": "https://openalex.org/W1000",
+                        "display_name": "Quantum Error Correction with Widgets",
+                        "doi": "https://doi.org/10.1234/example",
+                        "cited_by_count": 12,
+                    }
+                ]
+            }),
+        ])
+
+        enrichment = await enricher._fetch_enrichment(
+            client,
+            title="Quantum Error Correction with Widgets",
+            doi="10.1234/example",
+        )
+
+        self.assertEqual(enrichment.status, "matched")
+        self.assertEqual(enrichment.openalex_id, "https://openalex.org/W1000")
+        params_list = [call.kwargs["params"] for call in client.get.await_args_list]
+        self.assertIn("filter", params_list[0])
+        self.assertIn("search", params_list[-1])
+
 
 class RankingTests(unittest.IsolatedAsyncioTestCase):
     async def test_rerank_combines_semantic_and_bibliometric_signals(self) -> None:
@@ -81,10 +149,16 @@ class RankingTests(unittest.IsolatedAsyncioTestCase):
             ),
             Paper(
                 title="Paper B",
-                openalex=PaperOpenAlexEnrichment(status="matched", citation_count=1000, fwci=2.0),
+                openalex=PaperOpenAlexEnrichment(
+                    status="matched",
+                    citation_count=1000,
+                    fwci=2.0,
+                    is_in_top_1_percent=True,
+                ),
             ),
             Paper(
                 title="Paper C",
+                year=2025,
                 openalex=PaperOpenAlexEnrichment(status="matched", citation_count=50, fwci=10.0),
             ),
         ]
@@ -101,6 +175,9 @@ class RankingTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(ranked.weights["citation_count"], 0.6)
         self.assertEqual(ranked.weights["fwci"], 0.2)
         self.assertGreater(ranked.papers[0].ranking.score, ranked.papers[1].ranking.score)
+        self.assertIn("Highly cited (top 1%)", ranked.papers[0].ranking.explanation_chips)
+        self.assertTrue(ranked.papers[0].ranking.explanation)
+        self.assertIn("High field-weighted impact", ranked.papers[1].ranking.explanation_chips)
 
 
 class GraphTests(unittest.IsolatedAsyncioTestCase):

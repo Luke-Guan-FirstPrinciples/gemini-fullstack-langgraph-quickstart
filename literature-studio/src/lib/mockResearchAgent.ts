@@ -286,6 +286,65 @@ const computeSemanticRelevance = (
   return clamp(paper.baseSemantic * 0.72 + overlap * 0.28, 0.52, 0.99);
 };
 
+const buildExplanationChips = (
+  paper: ResearchAgentPaper,
+  normalizedSignals: Record<string, number>,
+): string[] => {
+  const chips: string[] = [];
+  const openalex = paper.openalex;
+
+  if (openalex?.is_in_top_1_percent) {
+    chips.push("Highly cited (top 1%)");
+  } else if (openalex?.is_in_top_10_percent) {
+    chips.push("Highly cited (top 10%)");
+  } else if ((normalizedSignals.citation_count ?? 0) >= 0.72) {
+    chips.push("Strong citation record");
+  }
+
+  if ((normalizedSignals.semantic_relevance ?? 0) >= 0.84) {
+    chips.push("Strong topical match");
+  } else if ((normalizedSignals.semantic_relevance ?? 0) >= 0.68) {
+    chips.push("Semantically close to your query");
+  }
+
+  if (openalex && ((openalex.fwci ?? 0) >= 3 || (normalizedSignals.fwci ?? 0) >= 0.78)) {
+    chips.push("High field-weighted impact");
+  }
+
+  const currentYear = new Date().getFullYear();
+  if (paper.year !== null && paper.year !== undefined && paper.year >= currentYear - 2) {
+    chips.push("Recent work");
+  }
+
+  if (!chips.length) {
+    if ((normalizedSignals.semantic_relevance ?? 0) >= 0.5) {
+      chips.push("Semantically relevant");
+    } else if (
+      (normalizedSignals.citation_count ?? 0) >= (normalizedSignals.fwci ?? 0)
+    ) {
+      chips.push("Cited in this result set");
+    } else {
+      chips.push("Notable field impact");
+    }
+  }
+
+  return Array.from(new Set(chips)).slice(0, 3);
+};
+
+const buildExplanation = (chips: string[]): string => {
+  if (!chips.length) {
+    return "";
+  }
+  if (chips.length === 1) {
+    return chips[0];
+  }
+
+  const [head, ...tail] = chips;
+  return [head, ...tail.map((chip) => `${chip.charAt(0).toLowerCase()}${chip.slice(1)}`)].join(
+    ", ",
+  );
+};
+
 const buildMockPaperCatalog = (count: number): MockPaperSeed[] =>
   Array.from({ length: count }, (_, index) => {
     const seed = MOCK_PAPER_SEEDS[index % MOCK_PAPER_SEEDS.length];
@@ -391,17 +450,21 @@ export function buildMockResearchAgentResponse(
         weights.semantic * semanticRelevance +
         weights.citation * citationSignal +
         weights.fwci * fwciSignal;
+      const normalizedSignals = {
+        semantic_relevance: Number(semanticRelevance.toFixed(4)),
+        citation_count: Number(citationSignal.toFixed(4)),
+        fwci: Number(fwciSignal.toFixed(4)),
+      };
+      const explanationChips = buildExplanationChips(paper, normalizedSignals);
 
       return {
         ...paper,
         ranking: {
           rank: null,
           score: Number(score.toFixed(4)),
-          normalized_signals: {
-            semantic_relevance: Number(semanticRelevance.toFixed(4)),
-            citation_count: Number(citationSignal.toFixed(4)),
-            fwci: Number(fwciSignal.toFixed(4)),
-          },
+          normalized_signals: normalizedSignals,
+          explanation: buildExplanation(explanationChips),
+          explanation_chips: explanationChips,
         },
       };
     })

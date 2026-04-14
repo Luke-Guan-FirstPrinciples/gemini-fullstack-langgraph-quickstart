@@ -776,6 +776,16 @@ h3 {
   font-size: 0.85rem;
 }
 
+.explanation-row {
+  margin-top: 4px;
+}
+
+.explanation-chip {
+  background: rgba(83, 208, 207, 0.1);
+  border-color: rgba(83, 208, 207, 0.24);
+  color: var(--heading);
+}
+
 .card-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

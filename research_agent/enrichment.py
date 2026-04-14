@@ -19,23 +19,24 @@ _TITLE_TOKEN_RE = re.compile(r"[^a-z0-9]+")
 
 
 class OpenAlexEnricher:
-    """Enrich papers with OpenAlex metadata looked up by title."""
+    """Enrich papers with OpenAlex metadata, preferring DOI over title search."""
 
     def __init__(self, cfg: Settings) -> None:
         self._cfg = cfg
 
     async def enrich_papers(self, papers: list[Paper]) -> list[Paper]:
-        """Resolve OpenAlex metadata for each unique paper title."""
+        """Resolve OpenAlex metadata for each unique DOI or title."""
         if not papers:
             return []
 
-        unique_titles: dict[str, str] = {}
+        unique_lookups: dict[str, tuple[str, str | None]] = {}
         for paper in papers:
-            normalized = _normalize_title(paper.title)
-            if normalized and normalized not in unique_titles:
-                unique_titles[normalized] = paper.title
+            lookup_key = _lookup_key_for_paper(paper)
+            if not lookup_key or lookup_key in unique_lookups:
+                continue
+            unique_lookups[lookup_key] = (paper.title, _normalize_doi(paper.doi))
 
-        title_to_enrichment: dict[str, PaperOpenAlexEnrichment] = {}
+        lookup_to_enrichment: dict[str, PaperOpenAlexEnrichment] = {}
         semaphore = asyncio.Semaphore(max(1, self._cfg.openalex_parallelism))
 
         async with httpx.AsyncClient(
@@ -44,24 +45,25 @@ class OpenAlexEnricher:
             headers={"User-Agent": "research-agent/0.1"},
         ) as client:
 
-            async def _fetch_one(normalized_title: str, title: str) -> None:
+            async def _fetch_one(lookup_key: str, title: str, doi: str | None) -> None:
                 async with semaphore:
-                    title_to_enrichment[normalized_title] = await self._fetch_enrichment(
+                    lookup_to_enrichment[lookup_key] = await self._fetch_enrichment(
                         client,
                         title,
+                        doi=doi,
                     )
 
             await asyncio.gather(
                 *[
-                    _fetch_one(normalized_title, title)
-                    for normalized_title, title in unique_titles.items()
+                    _fetch_one(lookup_key, title, doi)
+                    for lookup_key, (title, doi) in unique_lookups.items()
                 ]
             )
 
         enriched_papers: list[Paper] = []
         for paper in papers:
-            normalized = _normalize_title(paper.title)
-            enrichment = title_to_enrichment.get(normalized) or PaperOpenAlexEnrichment()
+            lookup_key = _lookup_key_for_paper(paper)
+            enrichment = lookup_to_enrichment.get(lookup_key or "") or PaperOpenAlexEnrichment()
             enriched_papers.append(_apply_enrichment(paper, enrichment))
 
         matched_count = sum(
@@ -78,18 +80,76 @@ class OpenAlexEnricher:
         self,
         client: httpx.AsyncClient,
         title: str,
+        doi: str | None = None,
+    ) -> PaperOpenAlexEnrichment:
+        normalized_doi = _normalize_doi(doi)
+        doi_error: str | None = None
+        if normalized_doi:
+            doi_enrichment = await self._fetch_by_doi(client, normalized_doi)
+            if doi_enrichment.status == "matched":
+                return doi_enrichment
+            if doi_enrichment.status == "error":
+                doi_error = doi_enrichment.error
+
+        if not title.strip():
+            if doi_error:
+                return PaperOpenAlexEnrichment(status="error", error=doi_error)
+            return PaperOpenAlexEnrichment(status="not_found")
+
+        title_enrichment = await self._fetch_by_title(client, title)
+        if title_enrichment.status == "matched":
+            return title_enrichment
+        if title_enrichment.status == "error":
+            return title_enrichment
+        if doi_error:
+            return PaperOpenAlexEnrichment(status="error", error=doi_error)
+        return title_enrichment
+
+    async def _fetch_by_doi(
+        self,
+        client: httpx.AsyncClient,
+        doi: str,
+    ) -> PaperOpenAlexEnrichment:
+        request_params = _openalex_request_params(self._cfg)
+        errors: list[str] = []
+        for doi_filter in _doi_filters(doi):
+            params = {
+                **request_params,
+                "filter": doi_filter,
+                "per-page": "1",
+            }
+            try:
+                response = await client.get("/works", params=params)
+                response.raise_for_status()
+                payload = response.json()
+            except Exception as exc:
+                logger.exception("OpenAlex DOI lookup failed for doi: %s", doi)
+                errors.append(str(exc))
+                continue
+
+            works = payload.get("results", [])
+            if isinstance(works, list) and works:
+                first_work = works[0]
+                if isinstance(first_work, dict):
+                    return _build_enrichment(first_work, title_similarity=1.0)
+
+        if errors:
+            return PaperOpenAlexEnrichment(status="error", error=errors[0])
+        return PaperOpenAlexEnrichment(status="not_found")
+
+    async def _fetch_by_title(
+        self,
+        client: httpx.AsyncClient,
+        title: str,
     ) -> PaperOpenAlexEnrichment:
         if not title.strip():
             return PaperOpenAlexEnrichment(status="not_found")
 
         params = {
+            **_openalex_request_params(self._cfg),
             "search": f'"{title}"',
             "per-page": str(max(1, self._cfg.openalex_title_search_limit)),
         }
-        if self._cfg.openalex_api_key:
-            params["api_key"] = self._cfg.openalex_api_key
-        if self._cfg.openalex_email:
-            params["mailto"] = self._cfg.openalex_email
 
         try:
             response = await client.get("/works", params=params)
@@ -124,6 +184,38 @@ class OpenAlexEnricher:
             return PaperOpenAlexEnrichment(status="not_found")
 
         return _build_enrichment(best_work, best_title_similarity)
+
+
+def _lookup_key_for_paper(paper: Paper) -> str | None:
+    normalized_doi = _normalize_doi(paper.doi)
+    if normalized_doi:
+        return f"doi:{normalized_doi}"
+
+    normalized_title = _normalize_title(paper.title)
+    if normalized_title:
+        return f"title:{normalized_title}"
+
+    return None
+
+
+def _openalex_request_params(cfg: Settings) -> dict[str, str]:
+    params: dict[str, str] = {}
+    if cfg.openalex_api_key:
+        params["api_key"] = cfg.openalex_api_key
+    if cfg.openalex_email:
+        params["mailto"] = cfg.openalex_email
+    return params
+
+
+def _doi_filters(doi: str) -> list[str]:
+    candidates = [f"doi:{doi}", f"doi:https://doi.org/{doi}"]
+    seen: set[str] = set()
+    filters: list[str] = []
+    for candidate in candidates:
+        if candidate not in seen:
+            seen.add(candidate)
+            filters.append(candidate)
+    return filters
 
 
 def _apply_enrichment(paper: Paper, enrichment: PaperOpenAlexEnrichment) -> Paper:
@@ -211,7 +303,14 @@ def _title_similarity(left: str, right: str) -> float:
 def _normalize_doi(value: str | None) -> str | None:
     if not value:
         return None
-    return value.removeprefix("https://doi.org/")
+    normalized = value.strip()
+    normalized = normalized.removeprefix("https://doi.org/")
+    normalized = normalized.removeprefix("http://doi.org/")
+    normalized = normalized.removeprefix("https://dx.doi.org/")
+    normalized = normalized.removeprefix("http://dx.doi.org/")
+    normalized = normalized.removeprefix("doi:")
+    normalized = normalized.strip()
+    return normalized.lower() or None
 
 
 def _coerce_bool(value: Any) -> bool | None:

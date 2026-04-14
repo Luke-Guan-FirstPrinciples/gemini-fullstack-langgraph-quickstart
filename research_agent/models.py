@@ -94,6 +94,8 @@ class PaperRanking(BaseModel):
     rank: int | None = None
     score: float = 0.0
     normalized_signals: dict[str, float] = Field(default_factory=dict)
+    explanation: str = ""
+    explanation_chips: list[str] = Field(default_factory=list)
 
 
 class Author(BaseModel):

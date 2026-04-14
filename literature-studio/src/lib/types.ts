@@ -248,6 +248,8 @@ export interface ResearchAgentPaperRanking {
   rank?: number | null;
   score?: number;
   normalized_signals?: Record<string, number>;
+  explanation?: string;
+  explanation_chips?: string[];
 }
 
 export interface ResearchAgentPaper {
