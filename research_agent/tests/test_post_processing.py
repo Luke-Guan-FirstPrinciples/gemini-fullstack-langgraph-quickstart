@@ -5,8 +5,29 @@ from unittest.mock import AsyncMock, patch
 
 from research_agent.config import Settings
 from research_agent.enrichment import _build_enrichment
+from research_agent.graph import run_research
 from research_agent.models import Paper, PaperOpenAlexEnrichment
 from research_agent.ranking import rerank_papers
+from research_agent.search.factory import create_search_provider
+
+
+class SettingsTests(unittest.TestCase):
+    @patch.dict(
+        "os.environ",
+        {
+            "SEARCH_PROVIDER": "google_cse",
+            "GOOGLE_API_KEY": "test-google-api-key",
+            "GOOGLE_SEARCH_ENGINE_ID": "legacy-search-engine-id",
+        },
+        clear=True,
+    )
+    def test_google_cse_accepts_legacy_search_engine_env_name(self) -> None:
+        cfg = Settings()
+
+        provider = create_search_provider(cfg)
+
+        self.assertEqual(cfg.google_cse_id, "legacy-search-engine-id")
+        self.assertEqual(type(provider).__name__, "GoogleCSEProvider")
 
 
 class EnrichmentTests(unittest.TestCase):
@@ -80,6 +101,23 @@ class RankingTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(ranked.weights["citation_count"], 0.6)
         self.assertEqual(ranked.weights["fwci"], 0.2)
         self.assertGreater(ranked.papers[0].ranking.score, ranked.papers[1].ranking.score)
+
+
+class GraphTests(unittest.IsolatedAsyncioTestCase):
+    async def test_run_research_preserves_explicit_zero_max_iterations(self) -> None:
+        cfg = Settings()
+        cfg.max_iterations = 2
+
+        graph = AsyncMock()
+        graph.ainvoke.return_value = {"all_search_results": []}
+
+        with patch("research_agent.graph.build_graph", return_value=graph), patch(
+            "research_agent.graph.setup_logging"
+        ):
+            await run_research("quantum error correction", cfg=cfg, max_iterations=0)
+
+        initial_state = graph.ainvoke.await_args.args[0]
+        self.assertEqual(initial_state["max_iterations"], 0)
 
 
 if __name__ == "__main__":

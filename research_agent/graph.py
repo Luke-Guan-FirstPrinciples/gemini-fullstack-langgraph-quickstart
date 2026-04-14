@@ -280,7 +280,7 @@ async def run_research(
         "structured_output": None,
         "ranked_output": None,
         "iteration": 0,
-        "max_iterations": max_iterations or cfg.max_iterations,
+        "max_iterations": cfg.max_iterations if max_iterations is None else max_iterations,
     }
 
     logger.info("Starting research pipeline for: %s", query)

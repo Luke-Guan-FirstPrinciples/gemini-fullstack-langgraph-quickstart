@@ -38,8 +38,18 @@ class Settings:
     # Search ---------------------------------------------------------------
     search_provider: str = os.getenv("SEARCH_PROVIDER", "google_cse")
     openai_search_model: str = os.getenv("OPENAI_SEARCH_MODEL", "gpt-5.4-mini")
-    google_cse_api_key: str = os.getenv("GOOGLE_CSE_API_KEY", os.getenv("GOOGLE_API_KEY", ""))
-    google_cse_id: str = os.getenv("GOOGLE_CSE_ID", "")
+    google_cse_api_key: str = field(
+        default_factory=lambda: os.getenv(
+            "GOOGLE_CSE_API_KEY",
+            os.getenv("GOOGLE_API_KEY", ""),
+        )
+    )
+    google_cse_id: str = field(
+        default_factory=lambda: os.getenv(
+            "GOOGLE_CSE_ID",
+            os.getenv("GOOGLE_SEARCH_ENGINE_ID", ""),
+        )
+    )
     tavily_api_key: str = os.getenv("TAVILY_API_KEY", "")
     jina_api_key: str = os.getenv("JINA_API_KEY", "")
     openalex_base_url: str = os.getenv("OPENALEX_BASE_URL", "https://api.openalex.org")
