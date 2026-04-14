@@ -3,7 +3,11 @@ from __future__ import annotations
 import unittest
 from unittest.mock import AsyncMock, patch
 
-from research_agent.author_pipeline import _build_author_enrichment, build_ranked_authors
+from research_agent.author_pipeline import (
+    _apply_author_enrichment,
+    _build_author_enrichment,
+    build_ranked_authors,
+)
 from research_agent.config import Settings
 from research_agent.enrichment import OpenAlexEnricher, _build_enrichment
 from research_agent.graph import run_research
@@ -188,6 +192,29 @@ class EnrichmentTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(
             enrichment.topics,
             ["Quantum Error Correction", "Fault Tolerance"],
+        )
+
+    def test_apply_author_enrichment_adds_search_fallback_urls(self) -> None:
+        author = Author(
+            name="Alice Quantum",
+            affiliations=["Quantum Lab"],
+        )
+        enrichment = AuthorOpenAlexEnrichment(status="not_found")
+
+        enriched = _apply_author_enrichment(author, enrichment)
+
+        self.assertEqual(enriched.openalex.status, "not_found")
+        self.assertIn(
+            "scholar.google.com/scholar?q=Alice+Quantum",
+            enriched.openalex.google_scholar_url,
+        )
+        self.assertIn(
+            "google.com/search?q=Alice+Quantum+Quantum+Lab+official+website",
+            enriched.openalex.personal_website_url,
+        )
+        self.assertIn(
+            "google.com/search?q=Alice+Quantum+Quantum+Lab+blog",
+            enriched.openalex.personal_blog_url,
         )
 
 

@@ -219,18 +219,33 @@ def _apply_author_enrichment(
     enrichment: AuthorOpenAlexEnrichment,
 ) -> Author:
     enriched = author.model_copy(deep=True)
-    enriched.openalex = enrichment
+    next_enrichment = enrichment.model_copy(deep=True)
+    if not next_enrichment.google_scholar_url:
+        next_enrichment.google_scholar_url = _build_google_scholar_search_url(author.name)
+    if not next_enrichment.personal_website_url:
+        next_enrichment.personal_website_url = _build_google_search_url(
+            author.name,
+            author.affiliations,
+            "official website",
+        )
+    if not next_enrichment.personal_blog_url:
+        next_enrichment.personal_blog_url = _build_google_search_url(
+            author.name,
+            author.affiliations,
+            "blog",
+        )
+    enriched.openalex = next_enrichment
 
-    if enrichment.status == "matched":
-        if enrichment.affiliations:
+    if next_enrichment.status == "matched":
+        if next_enrichment.affiliations:
             enriched.affiliations = _merge_unique_strings(
                 enriched.affiliations,
-                enrichment.affiliations,
+                next_enrichment.affiliations,
             )
-        if enrichment.topics:
+        if next_enrichment.topics:
             enriched.research_areas = _merge_unique_strings(
                 enriched.research_areas,
-                enrichment.topics,
+                next_enrichment.topics,
             )
 
     return enriched
@@ -596,6 +611,22 @@ def _first_non_empty(*values: str | None) -> str | None:
         if text:
             return text
     return None
+
+
+def _build_google_search_url(
+    author_name: str,
+    affiliations: list[str],
+    intent: str,
+) -> str:
+    parts = [author_name.strip()]
+    if affiliations:
+        parts.append(affiliations[0])
+    parts.append(intent)
+    return f"https://www.google.com/search?q={quote_plus(' '.join(part for part in parts if part))}"
+
+
+def _build_google_scholar_search_url(author_name: str) -> str:
+    return f"https://scholar.google.com/scholar?q={quote_plus(author_name.strip())}"
 
 
 def _clamp_score(value: float) -> float:

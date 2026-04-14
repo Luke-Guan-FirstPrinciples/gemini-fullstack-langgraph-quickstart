@@ -99,6 +99,8 @@ function FeedbackNoteIcon() {
 const RESEARCH_AGENT_MODE_STORAGE_KEY = "literature-studio-research-agent-mode";
 const RESEARCH_AGENT_FEEDBACK_STORAGE_KEY =
   "literature-studio-research-agent-feedback";
+const RESEARCH_AGENT_RESPONSE_CACHE_STORAGE_KEY =
+  "literature-studio-research-agent-response-cache";
 const DEFAULT_QUERY = DEFAULT_MOCK_RESEARCH_QUERY;
 const DEFAULT_MAX_ITERATIONS = 2;
 const DEFAULT_RESULTS_PER_QUERY = 10;
@@ -199,6 +201,32 @@ const getStoredFeedback = (): Record<string, PaperFeedbackEntry> => {
   }
 };
 
+const getStoredResearchAgentResponse = (): ResearchAgentRunResponse | null => {
+  const stored = window.localStorage.getItem(
+    RESEARCH_AGENT_RESPONSE_CACHE_STORAGE_KEY,
+  );
+  if (!stored) {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(stored) as Partial<ResearchAgentRunResponse>;
+    if (
+      parsed &&
+      typeof parsed === "object" &&
+      parsed.structured_output &&
+      parsed.ranked_output &&
+      parsed.meta
+    ) {
+      return parsed as ResearchAgentRunResponse;
+    }
+  } catch {
+    return null;
+  }
+
+  return null;
+};
+
 const buildPaperFeedbackKey = (paper: ResearchAgentPaper): string =>
   (
     paper.openalex?.openalex_id ??
@@ -264,7 +292,36 @@ const buildAuthorAffiliation = (author: ResearchAgentRunResponse["structured_out
 const buildAuthorRankLabel = (author: ResearchAgentRunResponse["structured_output"]["authors"][number]): string =>
   author.ranking?.rank ? `#${author.ranking.rank}` : "n/a";
 
+const buildAuthorSearchUrl = (
+  author: ResearchAgentRunResponse["structured_output"]["authors"][number],
+  intent: string,
+): string => {
+  const affiliation =
+    author.openalex?.affiliations?.[0] ?? author.affiliations?.[0] ?? "";
+  return `https://www.google.com/search?q=${encodeURIComponent(
+    [author.name, affiliation, intent].filter(Boolean).join(" "),
+  )}`;
+};
+
+const buildAuthorWebsiteUrl = (
+  author: ResearchAgentRunResponse["structured_output"]["authors"][number],
+): string =>
+  author.openalex?.personal_website_url ??
+  buildAuthorSearchUrl(author, "official website");
+
+const buildAuthorBlogUrl = (
+  author: ResearchAgentRunResponse["structured_output"]["authors"][number],
+): string =>
+  author.openalex?.personal_blog_url ?? buildAuthorSearchUrl(author, "blog");
+
+const buildAuthorScholarUrl = (
+  author: ResearchAgentRunResponse["structured_output"]["authors"][number],
+): string =>
+  author.openalex?.google_scholar_url ??
+  `https://scholar.google.com/scholar?q=${encodeURIComponent(author.name)}`;
+
 export function ResearchAgentPanel() {
+  const initialCachedResponse = getStoredResearchAgentResponse();
   const [dataMode, setDataMode] = useState<DataMode>(getInitialDataMode);
   const [controlMode, setControlMode] = useState<"simple" | "advanced">(
     "simple",
@@ -272,7 +329,9 @@ export function ResearchAgentPanel() {
   const [resultView, setResultView] = useState<"ranked" | "raw" | "authors">(
     "ranked",
   );
-  const [query, setQuery] = useState(DEFAULT_QUERY);
+  const [query, setQuery] = useState(
+    () => initialCachedResponse?.meta.query ?? DEFAULT_QUERY,
+  );
   const [llmProvider, setLlmProvider] = useState("");
   const [llmModel, setLlmModel] = useState("");
   const [searchProvider, setSearchProvider] = useState("");
@@ -290,17 +349,19 @@ export function ResearchAgentPanel() {
   const [feedbackByPaper, setFeedbackByPaper] = useState<
     Record<string, PaperFeedbackEntry>
   >(getStoredFeedback);
-  const [response, setResponse] = useState<ResearchAgentRunResponse | null>(() =>
-    getInitialDataMode() === "mock"
-      ? buildMockResearchAgentResponse({
-          query: DEFAULT_QUERY,
-          maxIterations: DEFAULT_MAX_ITERATIONS,
-          resultsPerQuery: DEFAULT_RESULTS_PER_QUERY,
-          semanticWeight: DEFAULT_SEMANTIC_WEIGHT,
-          citationWeight: DEFAULT_CITATION_WEIGHT,
-          fwciWeight: DEFAULT_FWCI_WEIGHT,
-        })
-      : null,
+  const [response, setResponse] = useState<ResearchAgentRunResponse | null>(
+    () =>
+      initialCachedResponse ??
+      (getInitialDataMode() === "mock"
+        ? buildMockResearchAgentResponse({
+            query: DEFAULT_QUERY,
+            maxIterations: DEFAULT_MAX_ITERATIONS,
+            resultsPerQuery: DEFAULT_RESULTS_PER_QUERY,
+            semanticWeight: DEFAULT_SEMANTIC_WEIGHT,
+            citationWeight: DEFAULT_CITATION_WEIGHT,
+            fwciWeight: DEFAULT_FWCI_WEIGHT,
+          })
+        : null),
   );
   const requestSequence = useRef(0);
 
@@ -317,6 +378,16 @@ export function ResearchAgentPanel() {
   });
 
   const loadMockResponse = () => {
+    const cachedResponse = getStoredResearchAgentResponse();
+    if (cachedResponse && query.trim() === cachedResponse.meta.query.trim()) {
+      setLoading(false);
+      setError(null);
+      startTransition(() => {
+        setResponse(cachedResponse);
+      });
+      return;
+    }
+
     const nextQuery = query.trim().length >= 3 ? query : DEFAULT_QUERY;
 
     if (nextQuery !== query) {
@@ -362,8 +433,33 @@ export function ResearchAgentPanel() {
 
   const handleDataModeChange = (nextMode: DataMode) => {
     setDataMode(nextMode);
+    const cachedResponse = getStoredResearchAgentResponse();
+
     if (nextMode === "mock") {
+      const lastLiveResponse =
+        response && response.meta.llm_provider !== "mock"
+          ? response
+          : cachedResponse;
+      if (lastLiveResponse) {
+        if (lastLiveResponse.meta.query !== query) {
+          setQuery(lastLiveResponse.meta.query);
+        }
+        startTransition(() => {
+          setResponse(lastLiveResponse);
+        });
+        return;
+      }
       loadMockResponse();
+      return;
+    }
+
+    if (nextMode === "live" && !response && cachedResponse) {
+      if (cachedResponse.meta.query !== query) {
+        setQuery(cachedResponse.meta.query);
+      }
+      startTransition(() => {
+        setResponse(cachedResponse);
+      });
     }
   };
 
@@ -393,6 +489,11 @@ export function ResearchAgentPanel() {
       if (requestSequence.current !== requestId) {
         return;
       }
+
+      window.localStorage.setItem(
+        RESEARCH_AGENT_RESPONSE_CACHE_STORAGE_KEY,
+        JSON.stringify(payload),
+      );
 
       startTransition(() => {
         setResponse(payload);
@@ -697,7 +798,7 @@ export function ResearchAgentPanel() {
 
         <p className="panel-note">
           {dataMode === "mock"
-            ? "Mock mode bypasses the network and instantly loads a realistic in-browser fixture so front-end work can continue without the research agent backend."
+            ? "Mock mode uses the last cached live result when available, otherwise it falls back to the in-browser fixture."
             : controlMode === "simple"
               ? "Default mode only asks for the query. Switch to advanced mode for provider, retrieval, and ranking controls."
               : "This panel targets the local FastAPI proxy in `research_agent/app.py`. Start it on port `8001` and it will return both enriched structured output and weighted ranked results."}
@@ -761,8 +862,9 @@ export function ResearchAgentPanel() {
 
         {dataMode === "mock" ? (
           <p className="status-message info">
-            Mock mode is active. Results are synthesized locally and load
-            immediately.
+            {response?.meta.llm_provider && response.meta.llm_provider !== "mock"
+              ? "Mock mode is active. Showing the last cached live result."
+              : "Mock mode is active. Results are synthesized locally and load immediately."}
           </p>
         ) : error ? (
           <p className="status-message error">{error}</p>
@@ -947,45 +1049,33 @@ export function ResearchAgentPanel() {
                               </div>
                             </td>
                             <td>{buildAuthorResearchFocus(author)}</td>
-                            <td>
-                              {author.openalex?.personal_website_url ? (
-                                <a
-                                  href={author.openalex.personal_website_url}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                >
-                                  Website
-                                </a>
-                              ) : (
-                                "n/a"
-                              )}
-                            </td>
-                            <td>
-                              {author.openalex?.personal_blog_url ? (
-                                <a
-                                  href={author.openalex.personal_blog_url}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                >
-                                  Blog
-                                </a>
-                              ) : (
-                                "n/a"
-                              )}
-                            </td>
-                            <td>
-                              {author.openalex?.google_scholar_url ? (
-                                <a
-                                  href={author.openalex.google_scholar_url}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                >
-                                  Scholar
-                                </a>
-                              ) : (
-                                "n/a"
-                              )}
-                            </td>
+                          <td>
+                            <a
+                              href={buildAuthorWebsiteUrl(author)}
+                              target="_blank"
+                              rel="noreferrer"
+                            >
+                              Website
+                            </a>
+                          </td>
+                          <td>
+                            <a
+                              href={buildAuthorBlogUrl(author)}
+                              target="_blank"
+                              rel="noreferrer"
+                            >
+                              Blog
+                            </a>
+                          </td>
+                          <td>
+                            <a
+                              href={buildAuthorScholarUrl(author)}
+                              target="_blank"
+                              rel="noreferrer"
+                            >
+                              Scholar
+                            </a>
+                          </td>
                             <td>
                               {author.openalex?.social_media_url ? (
                                 <a
