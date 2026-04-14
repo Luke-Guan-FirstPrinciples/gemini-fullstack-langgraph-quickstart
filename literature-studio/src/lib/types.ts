@@ -17,33 +17,72 @@ export interface ConnectedPapersAuthor {
   name: string;
 }
 
-export interface ConnectedPapersNode {
+export type ConnectedPapersExternalIds = Record<
+  string,
+  string | number | null | undefined
+>;
+
+export interface ConnectedPapersPaperBase {
   id: string;
   title: string;
   paperId: string;
+  paper_id?: string;
+  corpusid?: number;
   year?: number | null;
   venue?: string | null;
   journalName?: string | null;
+  journalVolume?: string | null;
+  journalPages?: string | null;
   url?: string | null;
   abstract?: string | null;
   tldr?: string | null;
-  path_length: number;
-  pos: [number, number];
+  doi?: string | null;
+  pmid?: string | null;
+  magId?: string | null;
+  arxivId?: string | null;
+  publicationDate?: string | null;
+  publicationTypes?: string[] | null;
   authors: ConnectedPapersAuthor[];
   citations_length?: number;
   references_length?: number;
+  total_citations?: number;
+  edges_count?: number;
   fieldsOfStudy?: string[] | null;
+  pdfUrls?: string[] | null;
+  externalIds?: ConnectedPapersExternalIds;
+  isOpenAccess?: boolean;
+  number_of_authors?: number;
+  pi_name?: string | null;
+  local_citations?: string[];
+  local_references?: string[];
 }
 
-export interface ConnectedPapersSidePaper {
+export interface ConnectedPapersNode extends ConnectedPapersPaperBase {
+  path_length: number;
+  pos: [number, number];
+  path?: string[];
+  ref_with_start?: number;
+  cit_with_start?: number;
+}
+
+export interface ConnectedPapersSidePaper extends ConnectedPapersPaperBase {}
+
+export interface ConnectedPapersCommonAuthor {
   id: string;
-  title: string;
-  year?: number | null;
-  venue?: string | null;
-  journalName?: string | null;
+  name: string;
+  mentions: string[];
+  mention_indexes?: number[];
   url?: string | null;
-  edges_count?: number;
-  authors: ConnectedPapersAuthor[];
+}
+
+export interface ConnectedPapersGraphParameters {
+  paper_id?: string;
+  total_nodes?: number;
+  num_commons?: number;
+  max_load?: number;
+  num_neighbors?: number;
+  spring_iterations?: number;
+  params_version?: number;
 }
 
 export interface ConnectedPapersGraph {
@@ -51,9 +90,12 @@ export interface ConnectedPapersGraph {
   edges: Array<[string, string, number]>;
   common_references: ConnectedPapersSidePaper[];
   common_citations: ConnectedPapersSidePaper[];
+  common_authors: ConnectedPapersCommonAuthor[];
   start_id: string;
   creation_time?: string;
   current_corpus_date?: string;
+  parameters?: ConnectedPapersGraphParameters | null;
+  path_lengths?: Record<string, number>;
 }
 
 export interface ConnectedPapersGraphResponse {

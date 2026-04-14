@@ -87,6 +87,9 @@ const buildPaperSummary = (paper: ResearchAgentPaper): string => {
 };
 
 export function ResearchAgentPanel() {
+  const [controlMode, setControlMode] = useState<"simple" | "advanced">(
+    "simple",
+  );
   const [resultView, setResultView] = useState<"ranked" | "raw">("ranked");
   const [query, setQuery] = useState(DEFAULT_QUERY);
   const [llmProvider, setLlmProvider] = useState("");
@@ -153,6 +156,33 @@ export function ResearchAgentPanel() {
   return (
     <div className="workspace-grid">
       <div className="control-panel">
+        <div className="panel-mode-row">
+          <div>
+            <p className="mini-label">Control surface</p>
+            <h3>{controlMode === "simple" ? "Default mode" : "Advanced mode"}</h3>
+          </div>
+          <div
+            className="segmented-control"
+            role="tablist"
+            aria-label="Research agent control mode"
+          >
+            <button
+              className={controlMode === "simple" ? "active" : undefined}
+              onClick={() => setControlMode("simple")}
+              type="button"
+            >
+              Default
+            </button>
+            <button
+              className={controlMode === "advanced" ? "active" : undefined}
+              onClick={() => setControlMode("advanced")}
+              type="button"
+            >
+              Advanced
+            </button>
+          </div>
+        </div>
+
         <label className="field">
           <span>Research query</span>
           <textarea
@@ -163,124 +193,145 @@ export function ResearchAgentPanel() {
           />
         </label>
 
-        <div className="input-grid compact">
-          <label className="field">
-            <span>LLM provider</span>
-            <select
-              value={llmProvider}
-              onChange={(event) => setLlmProvider(event.target.value)}
-            >
-              {providerOptions.map((option) => (
-                <option key={option.label} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </label>
+        {controlMode === "advanced" ? (
+          <>
+            <details className="disclosure-card" open>
+              <summary>Model and search providers</summary>
+              <div className="disclosure-body">
+                <div className="input-grid compact">
+                  <label className="field">
+                    <span>LLM provider</span>
+                    <select
+                      value={llmProvider}
+                      onChange={(event) => setLlmProvider(event.target.value)}
+                    >
+                      {providerOptions.map((option) => (
+                        <option key={option.label} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
 
-          <label className="field">
-            <span>Search provider</span>
-            <select
-              value={searchProvider}
-              onChange={(event) => setSearchProvider(event.target.value)}
-            >
-              {searchProviderOptions.map((option) => (
-                <option key={option.label} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
+                  <label className="field">
+                    <span>Search provider</span>
+                    <select
+                      value={searchProvider}
+                      onChange={(event) => setSearchProvider(event.target.value)}
+                    >
+                      {searchProviderOptions.map((option) => (
+                        <option key={option.label} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
 
-        <div className="input-grid compact">
-          <label className="field">
-            <span>Model override</span>
-            <input
-              value={llmModel}
-              onChange={(event) => setLlmModel(event.target.value)}
-              placeholder="Leave blank for env default"
-            />
-          </label>
+                <label className="field">
+                  <span>Model override</span>
+                  <input
+                    value={llmModel}
+                    onChange={(event) => setLlmModel(event.target.value)}
+                    placeholder="Leave blank for env default"
+                  />
+                </label>
+              </div>
+            </details>
 
-          <label className="field narrow">
-            <span>Max iterations</span>
-            <input
-              type="number"
-              min={0}
-              max={6}
-              value={maxIterations}
-              onChange={(event) => setMaxIterations(Number(event.target.value) || 0)}
-            />
-          </label>
-        </div>
+            <details className="disclosure-card">
+              <summary>Retrieval and ranking controls</summary>
+              <div className="disclosure-body">
+                <div className="input-grid compact">
+                  <label className="field narrow">
+                    <span>Max iterations</span>
+                    <input
+                      type="number"
+                      min={0}
+                      max={6}
+                      value={maxIterations}
+                      onChange={(event) =>
+                        setMaxIterations(Number(event.target.value) || 0)
+                      }
+                    />
+                  </label>
 
-        <div className="input-grid compact">
-          <label className="field narrow">
-            <span>Results / query</span>
-            <input
-              type="number"
-              min={1}
-              max={20}
-              value={resultsPerQuery}
-              onChange={(event) =>
-                setResultsPerQuery(Number(event.target.value) || 1)
-              }
-            />
-          </label>
-        </div>
+                  <label className="field narrow">
+                    <span>Results / query</span>
+                    <input
+                      type="number"
+                      min={1}
+                      max={20}
+                      value={resultsPerQuery}
+                      onChange={(event) =>
+                        setResultsPerQuery(Number(event.target.value) || 1)
+                      }
+                    />
+                  </label>
+                </div>
 
-        <div className="weight-grid">
-          <label className="field narrow">
-            <span>Semantic weight</span>
-            <input
-              type="number"
-              min={0}
-              step={0.05}
-              value={semanticWeight}
-              onChange={(event) =>
-                setSemanticWeight(Number(event.target.value) || 0)
-              }
-            />
-          </label>
+                <div className="weight-grid">
+                  <label className="field narrow">
+                    <span>Semantic weight</span>
+                    <input
+                      type="number"
+                      min={0}
+                      step={0.05}
+                      value={semanticWeight}
+                      onChange={(event) =>
+                        setSemanticWeight(Number(event.target.value) || 0)
+                      }
+                    />
+                  </label>
 
-          <label className="field narrow">
-            <span>Citation weight</span>
-            <input
-              type="number"
-              min={0}
-              step={0.05}
-              value={citationWeight}
-              onChange={(event) =>
-                setCitationWeight(Number(event.target.value) || 0)
-              }
-            />
-          </label>
+                  <label className="field narrow">
+                    <span>Citation weight</span>
+                    <input
+                      type="number"
+                      min={0}
+                      step={0.05}
+                      value={citationWeight}
+                      onChange={(event) =>
+                        setCitationWeight(Number(event.target.value) || 0)
+                      }
+                    />
+                  </label>
 
-          <label className="field narrow">
-            <span>FWCI weight</span>
-            <input
-              type="number"
-              min={0}
-              step={0.05}
-              value={fwciWeight}
-              onChange={(event) => setFwciWeight(Number(event.target.value) || 0)}
-            />
-          </label>
-        </div>
+                  <label className="field narrow">
+                    <span>FWCI weight</span>
+                    <input
+                      type="number"
+                      min={0}
+                      step={0.05}
+                      value={fwciWeight}
+                      onChange={(event) =>
+                        setFwciWeight(Number(event.target.value) || 0)
+                      }
+                    />
+                  </label>
+                </div>
+              </div>
+            </details>
 
-        <div className="chip-row">
-          {QUERY_PRESETS.map((preset) => (
-            <button
-              key={preset}
-              className="chip-button"
-              type="button"
-              onClick={() => setQuery(preset)}
-            >
-              {truncateText(preset, 36)}
-            </button>
-          ))}
-        </div>
+            <details className="disclosure-card">
+              <summary>Starter prompts</summary>
+              <div className="disclosure-body">
+                <div className="chip-row">
+                  {QUERY_PRESETS.map((preset) => (
+                    <button
+                      key={preset}
+                      className="chip-button"
+                      type="button"
+                      onClick={() => setQuery(preset)}
+                    >
+                      {truncateText(preset, 42)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </details>
+          </>
+        ) : null}
 
         <div className="action-row">
           <button
@@ -294,16 +345,23 @@ export function ResearchAgentPanel() {
         </div>
 
         <p className="panel-note">
-          This panel targets the local FastAPI proxy in `research_agent/app.py`.
-          Start it on port `8001` and it will return both enriched structured output
-          and weighted ranked results.
+          {controlMode === "simple"
+            ? "Default mode only asks for the query. Switch to advanced mode for provider, retrieval, and ranking controls."
+            : "This panel targets the local FastAPI proxy in `research_agent/app.py`. Start it on port `8001` and it will return both enriched structured output and weighted ranked results."}
         </p>
 
-        <div className="mono-card">
-          <span>Proxy request</span>
-          <code>POST {researchAgentBaseUrl}/run</code>
-          <code>{JSON.stringify(requestBody, null, 2)}</code>
-        </div>
+        {controlMode === "advanced" ? (
+          <details className="disclosure-card">
+            <summary>Proxy request preview</summary>
+            <div className="disclosure-body">
+              <div className="mono-card">
+                <span>Proxy request</span>
+                <code>POST {researchAgentBaseUrl}/run</code>
+                <code>{JSON.stringify(requestBody, null, 2)}</code>
+              </div>
+            </div>
+          </details>
+        ) : null}
 
         <div className="stat-grid">
           <article className="stat-card">

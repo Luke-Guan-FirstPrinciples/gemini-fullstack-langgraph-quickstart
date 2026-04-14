@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { trimTitle } from "../lib/format";
 import type { ConnectedPapersGraph, ConnectedPapersNode } from "../lib/types";
 
@@ -7,6 +8,9 @@ const PADDING = 34;
 
 interface ConnectedGraphProps {
   graph: ConnectedPapersGraph;
+  highlightedNodeIds?: string[];
+  onSelectNode?: (nodeId: string) => void;
+  selectedNodeId?: string | null;
 }
 
 interface Point {
@@ -17,6 +21,8 @@ interface Point {
 const toLabelSet = (
   nodes: ConnectedPapersNode[],
   startId: string,
+  selectedNodeId: string | null,
+  highlightedNodeIds: string[],
 ): Set<string> => {
   const closest = [...nodes]
     .sort((left, right) => left.path_length - right.path_length)
@@ -24,11 +30,22 @@ const toLabelSet = (
     .map((node) => node.id);
 
   closest.push(startId);
+  if (selectedNodeId) {
+    closest.push(selectedNodeId);
+  }
+  closest.push(...highlightedNodeIds.slice(0, 5));
   return new Set(closest);
 };
 
-export function ConnectedGraph({ graph }: ConnectedGraphProps) {
+export function ConnectedGraph({
+  graph,
+  highlightedNodeIds = [],
+  onSelectNode,
+  selectedNodeId = null,
+}: ConnectedGraphProps) {
   const nodes = Object.values(graph.nodes);
+  const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
+
   if (nodes.length === 0) {
     return null;
   }
@@ -44,14 +61,29 @@ export function ConnectedGraph({ graph }: ConnectedGraphProps) {
   const spanY = maxY - minY || 1;
 
   const points = new Map<string, Point>();
+  const connections = new Map<string, Set<string>>();
 
   nodes.forEach((node) => {
     const x = PADDING + ((node.pos[0] - minX) / spanX) * (WIDTH - PADDING * 2);
     const y = PADDING + ((node.pos[1] - minY) / spanY) * (HEIGHT - PADDING * 2);
     points.set(node.id, { x, y });
+    connections.set(node.id, new Set());
   });
 
-  const labelSet = toLabelSet(nodes, graph.start_id);
+  graph.edges.forEach(([from, to]) => {
+    connections.get(from)?.add(to);
+    connections.get(to)?.add(from);
+  });
+
+  const activeNodeId = hoveredNodeId ?? selectedNodeId ?? graph.start_id;
+  const activeNode = graph.nodes[activeNodeId] ?? graph.nodes[graph.start_id];
+  const activeConnections = connections.get(activeNode.id) ?? new Set<string>();
+  const focusSet = new Set<string>([
+    activeNode.id,
+    ...activeConnections,
+    ...highlightedNodeIds,
+  ]);
+  const labelSet = toLabelSet(nodes, graph.start_id, selectedNodeId, highlightedNodeIds);
 
   return (
     <div className="graph-card">
@@ -61,7 +93,23 @@ export function ConnectedGraph({ graph }: ConnectedGraphProps) {
           <h3>Connected Papers map</h3>
         </div>
         <p className="muted-copy">
-          SVG projection of the paper graph returned by the API.
+          Click a node to pin its neighborhood. Hovering temporarily previews a
+          different local cluster.
+        </p>
+      </div>
+
+      <div className="graph-legend">
+        <span className="graph-legend-item start">Seed paper</span>
+        <span className="graph-legend-item active">Focused node</span>
+        <span className="graph-legend-item related">Related neighborhood</span>
+      </div>
+
+      <div className="graph-focus-card">
+        <p className="mini-label">Focused node</p>
+        <h3>{activeNode.title}</h3>
+        <p className="muted-copy">
+          {activeNode.year ?? "n/a"} · {activeConnections.size} direct graph links · path
+          length {activeNode.path_length.toFixed(2)}
         </p>
       </div>
 
@@ -86,7 +134,13 @@ export function ConnectedGraph({ graph }: ConnectedGraphProps) {
             return null;
           }
 
-          const opacity = Math.min(0.42, 0.05 + weight * 0.18);
+          const edgeIsActive =
+            (from === activeNode.id && activeConnections.has(to)) ||
+            (to === activeNode.id && activeConnections.has(from)) ||
+            (focusSet.has(from) && focusSet.has(to));
+          const opacity = edgeIsActive
+            ? Math.min(0.8, 0.12 + weight * 0.28)
+            : Math.min(0.12, 0.02 + weight * 0.08);
 
           return (
             <line
@@ -97,7 +151,7 @@ export function ConnectedGraph({ graph }: ConnectedGraphProps) {
               y2={end.y}
               stroke="url(#edgeGlow)"
               strokeOpacity={opacity}
-              strokeWidth={1}
+              strokeWidth={edgeIsActive ? 1.6 : 1}
             />
           );
         })}
@@ -109,20 +163,46 @@ export function ConnectedGraph({ graph }: ConnectedGraphProps) {
           }
 
           const isStart = node.id === graph.start_id;
+          const isSelected = node.id === selectedNodeId;
+          const isActive = node.id === activeNode.id;
+          const isRelated = focusSet.has(node.id);
           const radius = isStart
             ? 7
-            : Math.max(3, 7 - Math.min(node.path_length, 6) * 0.45);
+            : isActive
+              ? 8
+              : Math.max(3, 7 - Math.min(node.path_length, 6) * 0.45);
+          const fill = isStart ? "#f6b655" : isActive ? "#ff7a6b" : "#53d0cf";
+          const fillOpacity = isActive ? 0.98 : isRelated ? 0.88 : 0.34;
+          const stroke = isSelected
+            ? "#fff8da"
+            : isActive
+              ? "#ffe2dc"
+              : "rgba(255,255,255,0.25)";
 
           return (
-            <g key={node.id}>
+            <g
+              key={node.id}
+              className="graph-node"
+              onClick={() => onSelectNode?.(node.id)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  onSelectNode?.(node.id);
+                }
+              }}
+              onMouseEnter={() => setHoveredNodeId(node.id)}
+              onMouseLeave={() => setHoveredNodeId(null)}
+              role="button"
+              tabIndex={0}
+            >
               <circle
                 cx={point.x}
                 cy={point.y}
                 r={radius}
-                fill={isStart ? "#f6b655" : "#53d0cf"}
-                fillOpacity={isStart ? 1 : 0.78}
-                stroke={isStart ? "#fff2cf" : "rgba(255,255,255,0.25)"}
-                strokeWidth={isStart ? 1.6 : 0.85}
+                fill={fill}
+                fillOpacity={isStart ? 1 : fillOpacity}
+                stroke={isStart ? "#fff2cf" : stroke}
+                strokeWidth={isSelected || isActive || isStart ? 1.8 : 0.85}
               >
                 <title>{node.title}</title>
               </circle>
