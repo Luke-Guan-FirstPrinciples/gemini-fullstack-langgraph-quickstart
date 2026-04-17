@@ -1,0 +1,62 @@
+# Research agent configuration overrides.
+#
+# Copy this file to `config.yaml` (at the repo root, working directory, or
+# inside `research_agent/`) and edit only the keys you care about. You can
+# also point at a custom path by setting `RESEARCH_CONFIG_FILE=/abs/path.yaml`.
+#
+# Precedence (highest wins):
+#   1. Environment variables
+#   2. config.yaml (this file)
+#   3. Hard-coded defaults in research_agent/config.py
+#
+# Everything in here is OPTIONAL — any key you omit stays at the code default.
+
+# Ranking weights used to combine signals in the reranker. Higher = more
+# influential. The final scores are normalised so the weights don't need to
+# sum to 1; they just need to express relative importance.
+ranking:
+  semantic_relevance: 0.45
+  citation_count: 0.55
+
+# LLM provider defaults. Leave `model` blank to pick the provider-specific
+# default listed below.
+llm:
+  provider: gemini        # gemini | openai | anthropic
+  model: ""
+  gemini_model: gemini-3.1-pro-preview
+  openai_model: gpt-5.4-mini
+  anthropic_model: claude-3-5-sonnet-latest
+
+search:
+  provider: google_cse    # google_cse | tavily | jina | openai
+  openai_search_model: gpt-5.4-mini
+
+pipeline:
+  max_iterations: 2
+  results_per_query: 10
+  openalex_parallelism: 4
+  openalex_timeout_seconds: 30
+  openalex_min_title_similarity: 0.82
+  openalex_title_search_limit: 5
+  rerank_batch_size: 12
+  rerank_model: ""        # leave blank to reuse the main LLM model
+  preferred_sources:
+    - arxiv.org
+    - inspirehep.net
+    - nature.com
+    - science.org
+    - journals.aps.org
+
+semantic_scholar:
+  use_api_key: false
+  parallelism: 1
+  timeout_seconds: 30
+  requests_per_second: 1.0
+  max_retries: 1
+  initial_backoff_seconds: 2.0
+  max_backoff_seconds: 30.0
+  min_title_similarity: 0.82
+
+logging:
+  dir: logs/research_agent
+  level: DEBUG

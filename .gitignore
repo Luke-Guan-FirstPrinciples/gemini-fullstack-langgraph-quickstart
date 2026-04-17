@@ -162,6 +162,9 @@ celerybeat.pid
 # Environments
 .env
 .venv
+# Local research agent config overrides (keep config.sample.yaml tracked)
+config.yaml
+config.yml
 env/
 venv/
 ENV/

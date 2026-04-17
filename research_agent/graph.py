@@ -17,11 +17,7 @@ from langgraph.graph import END, START, StateGraph
 
 from research_agent.config import Settings, settings
 from research_agent.deduplication import dedupe_papers, dedupe_search_results
-from research_agent.enrichment import (
-    OpenAlexEnricher,
-    SemanticScholarEnricher,
-    WebSearchCitationsEnricher,
-)
+from research_agent.enrichment import OpenAlexEnricher, SemanticScholarEnricher
 from research_agent.llm import create_llm, with_structured_output
 from research_agent.logging_config import setup_logging
 from research_agent.models import (
@@ -169,15 +165,7 @@ async def enrich_results(state: ResearchState, config: RunnableConfig) -> dict[s
     enriched_with_semantic_scholar = await semantic_scholar_enricher.enrich_papers(
         enriched_papers
     )
-
-    deduped = dedupe_papers(enriched_with_semantic_scholar)
-
-    if cfg.web_search_citations_enabled:
-        logger.info("Enriching %d papers with web-search citation counts", len(deduped))
-        web_enricher = WebSearchCitationsEnricher(cfg, create_search_provider(cfg))
-        deduped = await web_enricher.enrich_papers(deduped)
-
-    output.papers = deduped
+    output.papers = dedupe_papers(enriched_with_semantic_scholar)
 
     return {"structured_output": output.model_dump()}
 

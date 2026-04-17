@@ -91,6 +91,39 @@ Install dependencies in the Python environment you plan to run:
 pip install -r research_agent/requirements.txt
 ```
 
+### `config.yaml` (optional)
+
+Most runtime knobs can be tweaked in YAML instead of exporting env vars. Copy
+the sample and edit only what you need:
+
+```bash
+cp config.sample.yaml config.yaml
+```
+
+Precedence is **env var > `config.yaml` > code default**, so env vars still
+win for secrets and one-off overrides. The loader searches (in order):
+
+1. `$RESEARCH_CONFIG_FILE` if set
+2. `./config.yaml` and `./config.yml` (cwd)
+3. `<repo_root>/config.yaml`
+4. `research_agent/config.yaml`
+
+Example (`config.yaml`):
+
+```yaml
+ranking:
+  semantic_relevance: 0.45
+  citation_count: 0.55
+pipeline:
+  max_iterations: 2
+semantic_scholar:
+  max_retries: 1
+```
+
+See `config.sample.yaml` at the repo root for the full list of supported keys.
+
+### Environment variables
+
 Minimum env vars depend on the provider combination you use.
 
 Common ones:
@@ -132,14 +165,6 @@ Notes:
 - To use an API key, set `RESEARCH_SEMANTIC_SCHOLAR_USE_API_KEY=true` and
   provide `SEMANTIC_SCHOLAR_API_KEY` (or `S2_API_KEY`). When enabled you can
   raise `RESEARCH_SEMANTIC_SCHOLAR_REQUESTS_PER_SECOND` to match your quota.
-- A third citation-count signal is scraped from open-web search snippets
-  (e.g. `"Cited by N"` fragments). It spends the configured search provider's
-  quota and is tunable via:
-  - `RESEARCH_WEB_SEARCH_CITATIONS_ENABLED` (default `true`)
-  - `RESEARCH_WEB_SEARCH_CITATIONS_MAX_PAPERS` (default `20`)
-  - `RESEARCH_WEB_SEARCH_CITATIONS_PARALLELISM` (default `2`)
-  - `RESEARCH_WEB_SEARCH_CITATIONS_RESULTS_PER_PAPER` (default `5`)
-  - `RESEARCH_WEB_SEARCH_CITATIONS_QUERY_TEMPLATE` (default `"{title}" "cited by"`)
 
 ## Common Commands
 

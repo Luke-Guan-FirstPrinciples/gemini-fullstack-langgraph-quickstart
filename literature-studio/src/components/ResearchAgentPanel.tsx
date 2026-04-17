@@ -280,13 +280,12 @@ const buildSemanticScholarStatusLabel = (paper: ResearchAgentPaper): string => {
 };
 
 interface CitationSourceEntry {
-  id: "semantic_scholar" | "openalex" | "web_search";
+  id: "semantic_scholar" | "openalex";
   label: string;
   count: number | null | undefined;
   status: string;
   sourceUrl: string | null;
   sourceLabel: string | null;
-  snippet: string | null;
 }
 
 const buildCitationSources = (paper: ResearchAgentPaper): CitationSourceEntry[] => {
@@ -299,7 +298,6 @@ const buildCitationSources = (paper: ResearchAgentPaper): CitationSourceEntry[] 
       sourceUrl: paper.semantic_scholar?.url ?? null,
       sourceLabel: paper.semantic_scholar?.publication_venue_name ??
         paper.semantic_scholar?.venue ?? null,
-      snippet: null,
     },
     {
       id: "openalex",
@@ -308,16 +306,6 @@ const buildCitationSources = (paper: ResearchAgentPaper): CitationSourceEntry[] 
       status: paper.openalex?.status ?? "not_found",
       sourceUrl: paper.openalex?.landing_page_url ?? paper.openalex?.openalex_id ?? null,
       sourceLabel: paper.openalex?.source_display_name ?? null,
-      snippet: null,
-    },
-    {
-      id: "web_search",
-      label: "Web search",
-      count: paper.web_search?.citation_count ?? null,
-      status: paper.web_search?.status ?? "not_found",
-      sourceUrl: paper.web_search?.source_url ?? null,
-      sourceLabel: paper.web_search?.source_display_name ?? null,
-      snippet: paper.web_search?.snippet ?? null,
     },
   ];
 };
@@ -1106,7 +1094,7 @@ export function ResearchAgentPanel() {
                           <span>
                             Citations{" "}
                             <span className="citations-source-count">
-                              ({matchedCitationSources.length}/3)
+                              ({matchedCitationSources.length}/2)
                             </span>
                           </span>
                           <strong>{formatCompactNumber(primaryCitationCount)}</strong>
@@ -1172,11 +1160,6 @@ export function ResearchAgentPanel() {
                                   >
                                     View source
                                   </a>
-                                ) : null}
-                                {source.snippet ? (
-                                  <p className="citation-breakdown-snippet">
-                                    {truncateText(source.snippet, 200)}
-                                  </p>
                                 ) : null}
                               </li>
                             );

@@ -132,7 +132,6 @@ def _paper_to_sample(paper: Any, index: int) -> dict[str, Any]:
     data = _as_dict(paper)
     openalex = _as_dict(data.get("openalex"))
     semantic_scholar = _as_dict(data.get("semantic_scholar"))
-    web_search = _as_dict(data.get("web_search"))
 
     title = _coerce_str(data.get("title")) or ""
     url = _coerce_str(data.get("url")) or ""
@@ -173,14 +172,6 @@ def _paper_to_sample(paper: Any, index: int) -> dict[str, Any]:
         "cited_by_count_from_semantic_scholar": _coerce_int(
             semantic_scholar.get("citation_count")
         ),
-        "cited_by_count_from_web_search": _coerce_int(web_search.get("citation_count")),
-        "web_search_source_url": _coerce_str(web_search.get("source_url")),
-        "web_search_source_display_name": _coerce_str(
-            web_search.get("source_display_name")
-        ),
-        "web_search_snippet": _coerce_str(web_search.get("snippet")),
-        "web_search_query": _coerce_str(web_search.get("query")),
-        "web_search_status": _coerce_str(web_search.get("status")),
         "publication_venue": publication_venue,
         "fwci": _coerce_float(openalex.get("fwci")),
         "openalex_author_ids": [],

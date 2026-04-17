@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+import json
 import logging
 import time
 from datetime import datetime
+from pathlib import Path
 from typing import Any
 
 from fastapi import FastAPI, HTTPException
@@ -117,14 +119,38 @@ async def run_pipeline(payload: ResearchAgentRunRequest) -> Any:
         ranked_output["_meta"] = meta
 
     local_result_path: str | None = None
+    raw_result_path: str | None = None
+    ranked_result_path: str | None = None
     try:
+        log_dir = Path(cfg.log_dir)
+        log_dir.mkdir(parents=True, exist_ok=True)
+        now = datetime.now()
+        timestamp = now.strftime("%Y%m%d_%H%M%S")
+
+        raw_path = log_dir / f"results_{timestamp}.json"
+        ranked_path = log_dir / f"ranked_results_{timestamp}.json"
+        raw_path.write_text(
+            json.dumps(structured_output, indent=2, default=str),
+            encoding="utf-8",
+        )
+        ranked_path.write_text(
+            json.dumps(ranked_output, indent=2, default=str),
+            encoding="utf-8",
+        )
+        raw_result_path = str(raw_path)
+        ranked_result_path = str(ranked_path)
+
         local_payload = build_local_result_payload(
             payload.query,
             final_state,
             cfg,
             elapsed_seconds=elapsed_seconds,
         )
-        path = save_local_results(local_payload, output_dir=cfg.log_dir)
+        path = save_local_results(
+            local_payload,
+            output_dir=log_dir,
+            timestamp=now,
+        )
         local_result_path = str(path)
     except Exception:
         logger.exception("Failed to persist local research result payload")
@@ -132,6 +158,10 @@ async def run_pipeline(payload: ResearchAgentRunRequest) -> Any:
     meta["elapsed_seconds"] = elapsed_seconds
     if local_result_path:
         meta["local_result_path"] = local_result_path
+    if raw_result_path:
+        meta["raw_result_path"] = raw_result_path
+    if ranked_result_path:
+        meta["ranked_result_path"] = ranked_result_path
 
     return {
         "parsed_query": final_state.get("parsed_query"),
@@ -139,4 +169,6 @@ async def run_pipeline(payload: ResearchAgentRunRequest) -> Any:
         "ranked_output": ranked_output,
         "meta": meta,
         "local_result_path": local_result_path,
+        "raw_result_path": raw_result_path,
+        "ranked_result_path": ranked_result_path,
     }

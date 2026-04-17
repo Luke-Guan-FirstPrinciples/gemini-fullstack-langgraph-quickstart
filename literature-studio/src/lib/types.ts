@@ -271,16 +271,6 @@ export interface ResearchAgentPaperSemanticScholar {
   error?: string | null;
 }
 
-export interface ResearchAgentPaperWebSearchCitations {
-  status: "matched" | "not_found" | "error" | "skipped";
-  citation_count?: number | null;
-  source_url?: string | null;
-  source_display_name?: string | null;
-  snippet?: string | null;
-  query?: string | null;
-  error?: string | null;
-}
-
 export interface ResearchAgentPaperRanking {
   rank?: number | null;
   score?: number;
@@ -300,7 +290,6 @@ export interface ResearchAgentPaper {
   key_finding?: string;
   openalex?: ResearchAgentPaperOpenAlex | null;
   semantic_scholar?: ResearchAgentPaperSemanticScholar | null;
-  web_search?: ResearchAgentPaperWebSearchCitations | null;
   ranking?: ResearchAgentPaperRanking | null;
 }
 

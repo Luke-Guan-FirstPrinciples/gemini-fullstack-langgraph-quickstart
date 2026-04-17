@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import os
 import time
 import unittest
 from unittest.mock import AsyncMock, patch
@@ -12,17 +13,14 @@ from research_agent.deduplication import dedupe_papers, dedupe_search_results
 from research_agent.enrichment import (
     OpenAlexEnricher,
     SemanticScholarEnricher,
-    WebSearchCitationsEnricher,
     _build_enrichment,
     _build_semantic_scholar_enrichment,
-    _extract_citation_count,
 )
 from research_agent.graph import run_research
 from research_agent.models import (
     Paper,
     PaperOpenAlexEnrichment,
     PaperSemanticScholarEnrichment,
-    SearchResult,
 )
 from research_agent.ranking import rerank_papers
 from research_agent.search.factory import create_search_provider
@@ -70,6 +68,74 @@ class SettingsTests(unittest.TestCase):
 
         self.assertEqual(cfg.google_cse_id, "legacy-search-engine-id")
         self.assertEqual(type(provider).__name__, "GoogleCSEProvider")
+
+    def test_yaml_overrides_are_applied_when_env_unset(self) -> None:
+        import research_agent.config as cfg_mod
+
+        overrides = {
+            "semantic_relevance_weight": 0.45,
+            "citation_count_weight": 0.55,
+            "max_iterations": 4,
+            "preferred_sources": ["example.org"],
+        }
+        env_without_weights = {
+            key: value
+            for key, value in os.environ.items()
+            if key
+            not in {
+                "RESEARCH_WEIGHT_SEMANTIC_RELEVANCE",
+                "RESEARCH_WEIGHT_CITATION_COUNT",
+                "RESEARCH_MAX_ITERATIONS",
+            }
+        }
+        with patch.dict("os.environ", env_without_weights, clear=True), patch.dict(
+            cfg_mod._YAML_OVERRIDES, overrides, clear=True
+        ):
+            cfg = Settings()
+
+        self.assertAlmostEqual(cfg.semantic_relevance_weight, 0.45)
+        self.assertAlmostEqual(cfg.citation_count_weight, 0.55)
+        self.assertEqual(cfg.max_iterations, 4)
+        self.assertEqual(cfg.preferred_sources, ["example.org"])
+
+    def test_env_variable_overrides_yaml(self) -> None:
+        import research_agent.config as cfg_mod
+
+        overrides = {"semantic_relevance_weight": 0.2}
+        with patch.dict(
+            "os.environ",
+            {"RESEARCH_WEIGHT_SEMANTIC_RELEVANCE": "0.9"},
+            clear=True,
+        ), patch.dict(cfg_mod._YAML_OVERRIDES, overrides, clear=True):
+            cfg = Settings()
+
+        self.assertAlmostEqual(cfg.semantic_relevance_weight, 0.9)
+
+    def test_yaml_coercion_handles_string_values(self) -> None:
+        import research_agent.config as cfg_mod
+
+        overrides = {
+            "semantic_relevance_weight": "0.7",
+            "semantic_scholar_use_api_key": "true",
+            "preferred_sources": "arxiv.org, nature.com",
+        }
+        env_without_keys = {
+            key: value
+            for key, value in os.environ.items()
+            if key
+            not in {
+                "RESEARCH_WEIGHT_SEMANTIC_RELEVANCE",
+                "RESEARCH_SEMANTIC_SCHOLAR_USE_API_KEY",
+            }
+        }
+        with patch.dict("os.environ", env_without_keys, clear=True), patch.dict(
+            cfg_mod._YAML_OVERRIDES, overrides, clear=True
+        ):
+            cfg = Settings()
+
+        self.assertAlmostEqual(cfg.semantic_relevance_weight, 0.7)
+        self.assertTrue(cfg.semantic_scholar_use_api_key)
+        self.assertEqual(cfg.preferred_sources, ["arxiv.org", "nature.com"])
 
 
 class EnrichmentTests(unittest.IsolatedAsyncioTestCase):
@@ -347,89 +413,6 @@ class EnrichmentTests(unittest.IsolatedAsyncioTestCase):
         elapsed = time.monotonic() - start
 
         self.assertGreaterEqual(elapsed, 2 * (1.0 / 20.0) * 0.9)
-
-
-class WebSearchCitationsEnricherTests(unittest.IsolatedAsyncioTestCase):
-    def test_extract_citation_count_handles_common_patterns(self) -> None:
-        self.assertEqual(_extract_citation_count("Cited by 123 — Nature"), 123)
-        self.assertEqual(_extract_citation_count("1,245 citations reported"), 1245)
-        self.assertEqual(_extract_citation_count("Citations: 42"), 42)
-        self.assertIsNone(_extract_citation_count("No numbers here"))
-        self.assertIsNone(_extract_citation_count(None))
-
-    async def test_enrich_papers_extracts_count_from_best_snippet(self) -> None:
-        cfg = Settings()
-        cfg.web_search_citations_enabled = True
-        cfg.web_search_citations_parallelism = 1
-        cfg.web_search_citations_max_papers = 5
-
-        class _FakeProvider:
-            async def search(self, query: str, num_results: int = 10) -> list[SearchResult]:
-                return [
-                    SearchResult(
-                        title="Scholarly article",
-                        url="https://scholar.example/article",
-                        snippet="Quantum widgets — Cited by 42 — 2024",
-                        source="scholar.example",
-                    ),
-                    SearchResult(
-                        title="Blog post",
-                        url="https://blog.example",
-                        snippet="Read our thoughts on quantum widgets.",
-                        source="blog.example",
-                    ),
-                ]
-
-        enricher = WebSearchCitationsEnricher(cfg, _FakeProvider())  # type: ignore[arg-type]
-        paper = Paper(title="Quantum Widgets for Everyone", authors=["Alice"])
-
-        [enriched] = await enricher.enrich_papers([paper])
-
-        self.assertIsNotNone(enriched.web_search)
-        self.assertEqual(enriched.web_search.status, "matched")
-        self.assertEqual(enriched.web_search.citation_count, 42)
-        self.assertEqual(enriched.web_search.source_url, "https://scholar.example/article")
-
-    async def test_enrich_papers_respects_disabled_flag(self) -> None:
-        cfg = Settings()
-        cfg.web_search_citations_enabled = False
-
-        class _UnusedProvider:
-            async def search(self, query: str, num_results: int = 10) -> list[SearchResult]:
-                raise AssertionError("provider should not be called when disabled")
-
-        enricher = WebSearchCitationsEnricher(cfg, _UnusedProvider())  # type: ignore[arg-type]
-        papers = [Paper(title="Paper A", authors=[]), Paper(title="Paper B", authors=[])]
-
-        enriched = await enricher.enrich_papers(papers)
-
-        self.assertEqual(len(enriched), 2)
-        for paper in enriched:
-            self.assertIsNotNone(paper.web_search)
-            self.assertEqual(paper.web_search.status, "skipped")
-
-    async def test_enrich_papers_marks_papers_without_citation_as_not_found(self) -> None:
-        cfg = Settings()
-        cfg.web_search_citations_enabled = True
-        cfg.web_search_citations_parallelism = 1
-
-        class _EmptyProvider:
-            async def search(self, query: str, num_results: int = 10) -> list[SearchResult]:
-                return [
-                    SearchResult(
-                        title="Unrelated",
-                        url="https://example.org",
-                        snippet="Nothing about citations here.",
-                        source="example.org",
-                    )
-                ]
-
-        enricher = WebSearchCitationsEnricher(cfg, _EmptyProvider())  # type: ignore[arg-type]
-        [enriched] = await enricher.enrich_papers(
-            [Paper(title="Quantum Widgets", authors=[])]
-        )
-        self.assertEqual(enriched.web_search.status, "not_found")
-        self.assertIsNone(enriched.web_search.citation_count)
 
 
 class DeduplicationTests(unittest.TestCase):

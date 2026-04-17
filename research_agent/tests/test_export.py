@@ -52,14 +52,6 @@ def _make_final_state() -> dict:
                         "publication_venue_name": "Nature",
                         "venue": "Nature",
                     },
-                    "web_search": {
-                        "status": "matched",
-                        "citation_count": 55,
-                        "source_url": "https://scholar.example/123",
-                        "source_display_name": "google_scholar",
-                        "snippet": "Cited by 55 — Example venue",
-                        "query": "\"Surface Code Breakthrough\" \"cited by\"",
-                    },
                 },
                 {
                     "title": "Decoding Improvements",
@@ -164,33 +156,26 @@ class BuildLocalResultPayloadTests(unittest.TestCase):
         self.assertEqual(len(papers), 2)
 
         first = papers[0]
-        required_sample_keys = {
-            "id",
-            "title",
-            "authors",
-            "published",
-            "summary",
-            "pdf_url",
-            "full_content",
-            "cite_key",
-            "source",
-            "openalex_id",
-            "cited_by_count_from_openalex",
-            "cited_by_count_from_semantic_scholar",
-            "publication_venue",
-            "fwci",
-            "openalex_author_ids",
-        }
-        third_source_keys = {
-            "cited_by_count_from_web_search",
-            "web_search_source_url",
-            "web_search_source_display_name",
-            "web_search_snippet",
-            "web_search_query",
-            "web_search_status",
-        }
-        self.assertTrue(required_sample_keys.issubset(first.keys()))
-        self.assertTrue(third_source_keys.issubset(first.keys()))
+        self.assertEqual(
+            set(first.keys()),
+            {
+                "id",
+                "title",
+                "authors",
+                "published",
+                "summary",
+                "pdf_url",
+                "full_content",
+                "cite_key",
+                "source",
+                "openalex_id",
+                "cited_by_count_from_openalex",
+                "cited_by_count_from_semantic_scholar",
+                "publication_venue",
+                "fwci",
+                "openalex_author_ids",
+            },
+        )
         self.assertEqual(first["id"], "2307.13100v2")
         self.assertEqual(first["source"], "arxiv")
         self.assertEqual(first["pdf_url"], "https://arxiv.org/pdf/2307.13100.pdf")
@@ -202,11 +187,6 @@ class BuildLocalResultPayloadTests(unittest.TestCase):
         self.assertEqual(first["cited_by_count_from_semantic_scholar"], 77)
         self.assertEqual(first["publication_venue"], "Nature")
         self.assertEqual(first["fwci"], 3.7)
-        self.assertEqual(first["cited_by_count_from_web_search"], 55)
-        self.assertEqual(
-            first["web_search_source_url"], "https://scholar.example/123"
-        )
-        self.assertEqual(first["web_search_status"], "matched")
 
         second = papers[1]
         self.assertEqual(second["id"], "https://example.test/paper")
