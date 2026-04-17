@@ -36,28 +36,23 @@ async def rerank_papers(
 
     citation_scale = _max_log_signal(
         [
-            float(paper.openalex.citation_count or 0)
+            float(paper.semantic_scholar.citation_count or 0)
             for paper in papers
-            if paper.openalex and paper.openalex.citation_count is not None
-        ]
-    )
-    fwci_scale = _max_log_signal(
-        [
-            float(paper.openalex.fwci or 0.0)
-            for paper in papers
-            if paper.openalex and paper.openalex.fwci is not None
+            if paper.semantic_scholar and paper.semantic_scholar.citation_count is not None
         ]
     )
 
     ranked_papers: list[Paper] = []
     for paper, semantic_score in zip(papers, semantic_scores):
         paper_copy = paper.model_copy(deep=True)
-        citation_count = float(paper.openalex.citation_count or 0) if paper.openalex else 0.0
-        fwci = float(paper.openalex.fwci or 0.0) if paper.openalex else 0.0
+        citation_count = (
+            float(paper.semantic_scholar.citation_count or 0)
+            if paper.semantic_scholar
+            else 0.0
+        )
         normalized_signals = {
             "semantic_relevance": _clamp_score(semantic_score),
             "citation_count": _normalize_log_signal(citation_count, citation_scale),
-            "fwci": _normalize_log_signal(max(fwci, 0.0), fwci_scale),
         }
         explanation_chips = _build_explanation_chips(paper_copy, normalized_signals)
         paper_copy.ranking = PaperRanking(
@@ -74,7 +69,7 @@ async def rerank_papers(
         key=lambda paper: (
             -(paper.ranking.score if paper.ranking else 0.0),
             -(paper.ranking.normalized_signals.get("semantic_relevance", 0.0) if paper.ranking else 0.0),
-            -(paper.openalex.citation_count or 0) if paper.openalex else 0,
+            -(paper.semantic_scholar.citation_count or 0) if paper.semantic_scholar else 0,
             paper.title.lower(),
         )
     )
@@ -180,7 +175,6 @@ def _normalize_weights(weights: dict[str, float]) -> dict[str, float]:
         return {
             "semantic_relevance": 1.0,
             "citation_count": 0.0,
-            "fwci": 0.0,
         }
     return {name: round(value / total, 6) for name, value in cleaned.items()}
 
@@ -206,26 +200,18 @@ def _build_explanation_chips(
     normalized_signals: dict[str, float],
 ) -> list[str]:
     chips: list[str] = []
-    openalex = paper.openalex
+    semantic_scholar = paper.semantic_scholar
 
-    if openalex:
-        if openalex.is_in_top_1_percent:
-            chips.append("Highly cited (top 1%)")
-        elif openalex.is_in_top_10_percent:
-            chips.append("Highly cited (top 10%)")
-        elif normalized_signals.get("citation_count", 0.0) >= 0.72:
-            chips.append("Strong citation record")
+    if normalized_signals.get("citation_count", 0.0) >= 0.72:
+        chips.append("Strong citation record")
+    elif semantic_scholar and (semantic_scholar.citation_count or 0) > 0:
+        chips.append("Cited in Semantic Scholar")
 
     semantic_relevance = normalized_signals.get("semantic_relevance", 0.0)
     if semantic_relevance >= 0.84:
         chips.append("Strong topical match")
     elif semantic_relevance >= 0.68:
         chips.append("Semantically close to your query")
-
-    if openalex and (
-        (openalex.fwci or 0.0) >= 3.0 or normalized_signals.get("fwci", 0.0) >= 0.78
-    ):
-        chips.append("High field-weighted impact")
 
     current_year = datetime.now().year
     if paper.year is not None and paper.year >= current_year - 2:
@@ -234,10 +220,10 @@ def _build_explanation_chips(
     if not chips:
         if semantic_relevance >= 0.5:
             chips.append("Semantically relevant")
-        elif normalized_signals.get("citation_count", 0.0) >= normalized_signals.get("fwci", 0.0):
-            chips.append("Cited in this result set")
+        elif normalized_signals.get("citation_count", 0.0) > 0:
+            chips.append("Cited in Semantic Scholar")
         else:
-            chips.append("Notable field impact")
+            chips.append("Candidate paper")
 
     deduped: list[str] = []
     seen: set[str] = set()
@@ -263,6 +249,5 @@ def _build_explanation(chips: list[str]) -> str:
 def _normalization_meta() -> dict[str, str]:
     return {
         "semantic_relevance": "llm score in [0,1] with lexical fallback",
-        "citation_count": "log1p(citation_count) scaled by max paper citation count in run",
-        "fwci": "log1p(fwci) scaled by max paper fwci in run",
+        "citation_count": "log1p(semantic_scholar.citation_count) scaled by max paper citation count in run",
     }

@@ -6,10 +6,12 @@ import argparse
 import asyncio
 import json
 import sys
+import time
 from datetime import datetime
 from pathlib import Path
 
 from research_agent.config import Settings
+from research_agent.export import build_local_result_payload, save_local_results
 from research_agent.graph import run_research
 
 
@@ -65,7 +67,7 @@ def _build_parser() -> argparse.ArgumentParser:
         "--fwci-weight",
         type=float,
         default=None,
-        help="Weight for FWCI in paper reranking",
+        help=argparse.SUPPRESS,
     )
     return p
 
@@ -86,9 +88,8 @@ def main() -> None:
         cfg.semantic_relevance_weight = args.semantic_weight
     if args.citation_weight is not None:
         cfg.citation_count_weight = args.citation_weight
-    if args.fwci_weight is not None:
-        cfg.fwci_weight = args.fwci_weight
 
+    started_at = time.monotonic()
     final_state = asyncio.run(
         run_research(
             args.query,
@@ -96,6 +97,7 @@ def main() -> None:
             max_iterations=args.max_iterations,
         )
     )
+    elapsed_seconds = time.monotonic() - started_at
 
     # Extract the structured output
     output = final_state.get("structured_output") or {}
@@ -142,13 +144,27 @@ def main() -> None:
     # Also save to log dir
     log_dir = Path(cfg.log_dir)
     log_dir.mkdir(parents=True, exist_ok=True)
-    ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+    now = datetime.now()
+    ts = now.strftime("%Y%m%d_%H%M%S")
     result_path = log_dir / f"results_{ts}.json"
     ranked_path = log_dir / f"ranked_results_{ts}.json"
     result_path.write_text(result_json, encoding="utf-8")
     ranked_path.write_text(ranked_json, encoding="utf-8")
     print(f"Results also saved to {result_path}", file=sys.stderr)
     print(f"Ranked results also saved to {ranked_path}", file=sys.stderr)
+
+    local_payload = build_local_result_payload(
+        args.query,
+        final_state,
+        cfg,
+        elapsed_seconds=elapsed_seconds,
+    )
+    local_path = save_local_results(
+        local_payload,
+        output_dir=log_dir,
+        timestamp=now,
+    )
+    print(f"Local research payload saved to {local_path}", file=sys.stderr)
 
 
 if __name__ == "__main__":

@@ -1,12 +1,10 @@
 import type {
-  ResearchAgentAuthor,
   ResearchAgentPaper,
   ResearchAgentRunResponse,
 } from "./types";
 
 interface BuildMockResearchAgentResponseOptions {
   citationWeight: number;
-  fwciWeight: number;
   maxIterations: number;
   query: string;
   resultsPerQuery: number;
@@ -189,24 +187,21 @@ const slugify = (value: string): string =>
 
 const normalizeWeights = (weights: {
   citation: number;
-  fwci: number;
   semantic: number;
 }) => {
   const safeWeights = {
     semantic: Math.max(weights.semantic, 0),
     citation: Math.max(weights.citation, 0),
-    fwci: Math.max(weights.fwci, 0),
   };
-  const total = safeWeights.semantic + safeWeights.citation + safeWeights.fwci;
+  const total = safeWeights.semantic + safeWeights.citation;
 
   if (total <= 0) {
-    return { semantic: 1, citation: 0, fwci: 0 };
+    return { semantic: 1, citation: 0 };
   }
 
   return {
     semantic: safeWeights.semantic / total,
     citation: safeWeights.citation / total,
-    fwci: safeWeights.fwci / total,
   };
 };
 
@@ -259,6 +254,7 @@ const buildKeywords = (query: string): string[] => {
   const keywords = [
     ...tokens.slice(0, 6).map(toDisplayToken),
     "OpenAlex enrichment",
+    "Semantic Scholar citations",
     "Weighted ranking",
   ];
 
@@ -268,7 +264,7 @@ const buildKeywords = (query: string): string[] => {
 const buildSearchQueries = (query: string): string[] => [
   query,
   `"${query}" decoder benchmark`,
-  `${query} OpenAlex citation impact`,
+  `${query} Semantic Scholar citation context`,
   `${query} site:arxiv.org`,
 ];
 
@@ -301,24 +297,18 @@ const buildExplanationChips = (
   normalizedSignals: Record<string, number>,
 ): string[] => {
   const chips: string[] = [];
-  const openalex = paper.openalex;
+  const semanticScholar = paper.semantic_scholar;
 
-  if (openalex?.is_in_top_1_percent) {
-    chips.push("Highly cited (top 1%)");
-  } else if (openalex?.is_in_top_10_percent) {
-    chips.push("Highly cited (top 10%)");
-  } else if ((normalizedSignals.citation_count ?? 0) >= 0.72) {
+  if ((normalizedSignals.citation_count ?? 0) >= 0.72) {
     chips.push("Strong citation record");
+  } else if ((semanticScholar?.citation_count ?? 0) > 0) {
+    chips.push("Cited in Semantic Scholar");
   }
 
   if ((normalizedSignals.semantic_relevance ?? 0) >= 0.84) {
     chips.push("Strong topical match");
   } else if ((normalizedSignals.semantic_relevance ?? 0) >= 0.68) {
     chips.push("Semantically close to your query");
-  }
-
-  if (openalex && ((openalex.fwci ?? 0) >= 3 || (normalizedSignals.fwci ?? 0) >= 0.78)) {
-    chips.push("High field-weighted impact");
   }
 
   const currentYear = new Date().getFullYear();
@@ -329,12 +319,10 @@ const buildExplanationChips = (
   if (!chips.length) {
     if ((normalizedSignals.semantic_relevance ?? 0) >= 0.5) {
       chips.push("Semantically relevant");
-    } else if (
-      (normalizedSignals.citation_count ?? 0) >= (normalizedSignals.fwci ?? 0)
-    ) {
-      chips.push("Cited in this result set");
+    } else if ((normalizedSignals.citation_count ?? 0) > 0) {
+      chips.push("Cited in Semantic Scholar");
     } else {
-      chips.push("Notable field impact");
+      chips.push("Candidate paper");
     }
   }
 
@@ -353,186 +341,6 @@ const buildExplanation = (chips: string[]): string => {
   return [head, ...tail.map((chip) => `${chip.charAt(0).toLowerCase()}${chip.slice(1)}`)].join(
     ", ",
   );
-};
-
-const buildAuthorFocusTags = (paper: ResearchAgentPaper): string[] => {
-  const haystack = [paper.title, paper.abstract, paper.key_finding, paper.source]
-    .filter(Boolean)
-    .join(" ")
-    .toLowerCase();
-  const tags: string[] = [];
-
-  if (/error correction|surface code|fault[- ]tolerant/.test(haystack)) {
-    tags.push("Quantum error correction");
-  }
-  if (/bias|biased|dephasing|photon loss|erasure/.test(haystack)) {
-    tags.push("Biased-noise decoding");
-  }
-  if (/neutral[- ]atom/.test(haystack)) {
-    tags.push("Neutral-atom fault tolerance");
-  }
-  if (/neural|machine learning|reinforcement|adaptive/.test(haystack)) {
-    tags.push("ML-assisted decoding");
-  }
-  if (/benchmark|evaluation|trace|calibration/.test(haystack)) {
-    tags.push("Benchmarking and evaluation");
-  }
-
-  return tags.length ? tags : ["Quantum information"];
-};
-
-const buildMockRankedAuthors = (
-  queryTokens: string[],
-  rankedPapers: ResearchAgentPaper[],
-): ResearchAgentAuthor[] => {
-  const authorMap = new Map<
-    string,
-    {
-      citationCount: number;
-      name: string;
-      papers: ResearchAgentPaper[];
-      paperSupport: number;
-      researchAreas: string[];
-    }
-  >();
-
-  rankedPapers.slice(0, 18).forEach((paper) => {
-    const paperSupport = paper.ranking?.score ?? 0;
-    const paperCitations = paper.openalex?.citation_count ?? 0;
-    const focusTags = buildAuthorFocusTags(paper);
-
-    paper.authors.forEach((name) => {
-      const key = name.toLowerCase();
-      const current =
-        authorMap.get(key) ?? {
-          citationCount: 0,
-          name,
-          papers: [],
-          paperSupport: 0,
-          researchAreas: [],
-        };
-
-      current.citationCount += paperCitations;
-      current.paperSupport += paperSupport;
-      current.papers.push(paper);
-      current.researchAreas = Array.from(
-        new Set([...current.researchAreas, ...focusTags]),
-      ).slice(0, 4);
-
-      authorMap.set(key, current);
-    });
-  });
-
-  const authorRows = Array.from(authorMap.values()).map((author, index) => {
-    const slug = slugify(author.name);
-    const topicText = author.researchAreas.join(" ").toLowerCase();
-    const queryOverlap =
-      queryTokens.length > 0
-        ? queryTokens.filter((token) => topicText.includes(token)).length /
-          queryTokens.length
-        : 0.5;
-
-    return {
-      affiliations: [
-        index % 3 === 0
-          ? "Caltech Institute for Quantum Information"
-          : index % 3 === 1
-            ? "ETH Zurich Quantum Engineering Center"
-            : "Center for Adaptive Quantum Systems",
-      ],
-      matched_paper_count: author.papers.length,
-      matched_paper_titles: author.papers.slice(0, 4).map((paper) => paper.title),
-      name: author.name,
-      openalex: {
-        status: "matched",
-        openalex_id: `https://openalex.org/A${4400000000 + index}`,
-        matched_name: author.name,
-        name_similarity: 0.97,
-        search_relevance_score: 0.9,
-        citation_count: author.citationCount,
-        works_count: 18 + index * 3,
-        orcid: index % 2 === 0 ? `0000-0002-000${index}-00${index}` : null,
-        affiliations: [
-          index % 3 === 0
-            ? "Caltech Institute for Quantum Information US"
-            : index % 3 === 1
-              ? "ETH Zurich Quantum Engineering Center CH"
-              : "Center for Adaptive Quantum Systems US",
-        ],
-        topics: author.researchAreas,
-        personal_website_url: `https://${slug}.research.example.com`,
-        personal_blog_url:
-          index % 4 === 0 ? `https://${slug}.research.example.com/blog` : null,
-        google_scholar_url: `https://scholar.google.com/scholar?q=${encodeURIComponent(author.name)}`,
-        social_media_url:
-          index % 3 === 0 ? `https://x.com/${slug.replace(/-/g, "_")}` : null,
-        semantic_scholar_id: `${980000 + index}`,
-        error: null,
-      },
-      ranking: {
-        rank: null,
-        score: 0,
-        normalized_signals: {
-          query_topic_overlap: Number(clamp(queryOverlap, 0.2, 0.98).toFixed(4)),
-          paper_support: 0,
-          citation_count: 0,
-        },
-        explanation: "",
-        explanation_chips: [],
-      },
-      research_areas: author.researchAreas,
-    } satisfies ResearchAgentAuthor;
-  });
-
-  const maxCitationCount = Math.max(
-    1,
-    ...authorRows.map((author) => author.openalex?.citation_count ?? 0),
-  );
-  const maxPaperSupport = Math.max(
-    1,
-    ...Array.from(authorMap.values()).map((author) => author.paperSupport),
-  );
-
-  return authorRows
-    .map((author) => {
-      const supportEntry = authorMap.get(author.name.toLowerCase());
-      const citationSignal = (author.openalex?.citation_count ?? 0) / maxCitationCount;
-      const paperSupportSignal = (supportEntry?.paperSupport ?? 0) / maxPaperSupport;
-      const topicSignal =
-        author.ranking?.normalized_signals?.query_topic_overlap ?? 0;
-      const score =
-        0.4 * topicSignal + 0.35 * paperSupportSignal + 0.25 * citationSignal;
-      const chips = [
-        author.matched_paper_count && author.matched_paper_count >= 2
-          ? `Appears across ${author.matched_paper_count} top papers`
-          : "Supported by top-ranked papers",
-        topicSignal >= 0.6 ? "Relevant research focus" : "Author surfaced from this result set",
-        citationSignal >= 0.6 ? "Highly cited author" : "Meaningful citation footprint",
-      ];
-
-      return {
-        ...author,
-        ranking: {
-          rank: null,
-          score: Number(score.toFixed(4)),
-          normalized_signals: {
-            query_topic_overlap: Number(topicSignal.toFixed(4)),
-            paper_support: Number(paperSupportSignal.toFixed(4)),
-            citation_count: Number(citationSignal.toFixed(4)),
-          },
-          explanation: buildExplanation(chips),
-          explanation_chips: chips,
-        },
-      };
-    })
-    .sort((left, right) => (right.ranking?.score ?? 0) - (left.ranking?.score ?? 0))
-    .map((author, index) => ({
-      ...author,
-      ranking: {
-        ...author.ranking,
-        rank: index + 1,
-      },
-    }));
 };
 
 const buildMockPaperCatalog = (count: number): MockPaperSeed[] =>
@@ -604,6 +412,32 @@ const buildStructuredPaper = (paper: MockPaperSeed): ResearchAgentPaper => ({
     landing_page_url: paper.landingPageUrl,
     error: null,
   },
+  semantic_scholar: {
+    status: "matched",
+    paper_id: paper.openalexId.split("/").at(-1) ?? paper.openalexId,
+    corpus_id: undefined,
+    matched_title: paper.title,
+    title_similarity: 0.99,
+    match_score: 180,
+    citation_count: paper.citationCount,
+    influential_citation_count: Math.round(paper.citationCount * 0.2),
+    venue: paper.source,
+    publication_venue_name: paper.source,
+    publication_venue: {
+      venue_id: `venue-${slugify(paper.source)}`,
+      name: paper.source,
+      type: /conference|symposium|workshop/i.test(paper.source)
+        ? "conference"
+        : "journal",
+      alternate_names: [paper.source],
+      url: paper.url,
+    },
+    authors: paper.authors,
+    doi: paper.doi,
+    publication_year: paper.year,
+    url: `https://www.semanticscholar.org/paper/${paper.openalexId.split("/").at(-1) ?? slugify(paper.title)}`,
+    error: null,
+  },
 });
 
 export function buildMockResearchAgentResponse(
@@ -616,7 +450,6 @@ export function buildMockResearchAgentResponse(
   const weights = normalizeWeights({
     semantic: options.semanticWeight,
     citation: options.citationWeight,
-    fwci: options.fwciWeight,
   });
   const iterations = clamp(options.maxIterations, 0, 6);
   const targetPaperCount = clamp(
@@ -628,22 +461,18 @@ export function buildMockResearchAgentResponse(
   const queryTokens = extractQueryTokens(query);
   const structuredPapers = mockPaperCatalog.map(buildStructuredPaper);
   const maxCitations = Math.max(...mockPaperCatalog.map((paper) => paper.citationCount));
-  const maxFwci = Math.max(...mockPaperCatalog.map((paper) => paper.fwci));
 
   const rankedPapers = structuredPapers
     .map((paper, index) => {
       const seed = mockPaperCatalog[index];
       const semanticRelevance = computeSemanticRelevance(queryTokens, seed);
       const citationSignal = seed.citationCount / maxCitations;
-      const fwciSignal = seed.fwci / maxFwci;
       const score =
         weights.semantic * semanticRelevance +
-        weights.citation * citationSignal +
-        weights.fwci * fwciSignal;
+        weights.citation * citationSignal;
       const normalizedSignals = {
         semantic_relevance: Number(semanticRelevance.toFixed(4)),
         citation_count: Number(citationSignal.toFixed(4)),
-        fwci: Number(fwciSignal.toFixed(4)),
       };
       const explanationChips = buildExplanationChips(paper, normalizedSignals);
 
@@ -667,8 +496,6 @@ export function buildMockResearchAgentResponse(
       },
     }));
 
-  const rankedAuthors = buildMockRankedAuthors(queryTokens, rankedPapers);
-
   const returnedPaperCount = targetPaperCount;
   const timestamp = new Date().toISOString();
   const meta = {
@@ -679,7 +506,6 @@ export function buildMockResearchAgentResponse(
     ranking_weights: {
       semantic_relevance: Number(weights.semantic.toFixed(3)),
       citation_count: Number(weights.citation.toFixed(3)),
-      fwci: Number(weights.fwci.toFixed(3)),
     },
     iterations,
     total_raw_results: returnedPaperCount * (iterations + 1),
@@ -696,7 +522,6 @@ export function buildMockResearchAgentResponse(
     },
     structured_output: {
       papers: structuredPapers.slice(0, returnedPaperCount),
-      authors: rankedAuthors,
       labs: [
         {
           name: "Caltech Surface Code Lab",
@@ -735,20 +560,7 @@ export function buildMockResearchAgentResponse(
       normalization: {
         semantic_relevance: "query-token overlap blended with fixture prior",
         citation_count: "max-normalized within mock paper set",
-        fwci: "max-normalized within mock paper set",
       },
-      author_weights: {
-        query_topic_overlap: 0.4,
-        paper_support: 0.35,
-        citation_count: 0.25,
-      },
-      author_normalization: {
-        query_topic_overlap: "token overlap between the query and author topics/research areas",
-        paper_support:
-          "sum of supporting paper ranking scores scaled by the max author support in run",
-        citation_count: "max-normalized within mock author set",
-      },
-      authors: rankedAuthors,
       papers: rankedPapers.slice(0, returnedPaperCount),
       _meta: meta,
     },

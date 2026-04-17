@@ -2,7 +2,7 @@
 
 LLM-driven academic literature search pipeline for this repo.
 
-It takes a natural-language query, generates targeted search queries, structures the results, enriches papers with OpenAlex metadata, reranks them, and optionally loops for gap-filling.
+It takes a natural-language query, generates targeted search queries, structures the results, enriches papers with OpenAlex and Semantic Scholar metadata, reranks them, and optionally loops for gap-filling.
 
 ## Workflow
 
@@ -22,13 +22,13 @@ parse_query -> execute_search -> structure_results -> enrich_results -> rerank_r
 ### 2. `execute_search`
 
 - Runs all current search queries in parallel
+- Deduplicates repeated raw search hits across queries and loop iterations before they accumulate
 - Uses the configured search provider: `google_cse`, `openai`, `tavily`, or `jina`
 
 ### 3. `structure_results`
 
 - Uses the LLM to turn raw search hits into:
 - papers
-- authors
 - labs
 - fields
 - keywords
@@ -36,22 +36,22 @@ parse_query -> execute_search -> structure_results -> enrich_results -> rerank_r
 
 ### 4. `enrich_results`
 
-- Looks up each paper title in OpenAlex
+- Looks up each paper in OpenAlex and Semantic Scholar
+- Merges duplicate paper records after enrichment using DOI, OpenAlex ID, Semantic Scholar ID, and canonicalized title/year fallbacks
 - Adds:
-- authors
-- citation count
-- FWCI
+- canonical paper author list
 - DOI
 - publication year
 - OpenAlex match metadata
+- Semantic Scholar citation count
+- Semantic Scholar publication venue
 
 ### 5. `rerank_results`
 
 - Computes a semantic relevance score for each paper
 - Combines weighted signals:
 - semantic relevance
-- citation count
-- FWCI
+- Semantic Scholar citation count
 - Produces `ranked_output`
 
 ### 6. `assess_coverage`
@@ -69,6 +69,12 @@ Each run writes:
 - `logs/research_agent/ranked_results_<timestamp>.json`
 
 `results_*.json` is the enriched structured output.
+Paper lists are deduplicated before they are written out or reranked.
+
+Paper records keep two venue/source fields:
+
+- `source`: web/LLM-derived venue or publisher string from the discovery pass
+- `semantic_scholar.publication_venue_name`: publication venue resolved from Semantic Scholar
 
 `ranked_results_*.json` is the ranked paper list with:
 
@@ -76,7 +82,6 @@ Each run writes:
 - `ranking.score`
 - `ranking.normalized_signals.semantic_relevance`
 - `ranking.normalized_signals.citation_count`
-- `ranking.normalized_signals.fwci`
 
 ## Setup
 
@@ -96,6 +101,8 @@ GEMINI_API_KEY=...
 GOOGLE_CSE_API_KEY=...
 GOOGLE_CSE_ID=...
 OPENALEX_EMAIL=you@example.com
+S2_API_KEY=...
+RESEARCH_SEMANTIC_SCHOLAR_USE_API_KEY=false
 ```
 
 Useful model env vars:
@@ -113,6 +120,18 @@ Notes:
 
 - `LLM_MODEL` is a generic override. If unset, the code chooses a provider-specific default model.
 - OpenAlex enrichment works without an API key, but setting `OPENALEX_EMAIL` is recommended.
+- Semantic Scholar enrichment works without an API key. By default the client
+  sends no key and respects the public, unauthenticated rate limit (~1 req/s).
+  Requests to `/paper/{id}` (DOI/arXiv) are preferred; only titles fall back to
+  `/paper/search/match`. Tunable via:
+  - `RESEARCH_SEMANTIC_SCHOLAR_REQUESTS_PER_SECOND` (default `1.0`)
+  - `RESEARCH_SEMANTIC_SCHOLAR_PARALLELISM` (default `1`)
+  - `RESEARCH_SEMANTIC_SCHOLAR_MAX_RETRIES` (default `5`)
+  - `RESEARCH_SEMANTIC_SCHOLAR_INITIAL_BACKOFF_SECONDS` (default `2.0`)
+  - `RESEARCH_SEMANTIC_SCHOLAR_MAX_BACKOFF_SECONDS` (default `30.0`)
+- To use an API key, set `RESEARCH_SEMANTIC_SCHOLAR_USE_API_KEY=true` and
+  provide `SEMANTIC_SCHOLAR_API_KEY` (or `S2_API_KEY`). When enabled you can
+  raise `RESEARCH_SEMANTIC_SCHOLAR_REQUESTS_PER_SECOND` to match your quota.
 
 ## Common Commands
 
@@ -147,8 +166,7 @@ Set ranking weights explicitly:
 ```bash
 python -m research_agent "biased-noise quantum error correction" \
   --semantic-weight 0.7 \
-  --citation-weight 0.2 \
-  --fwci-weight 0.1
+  --citation-weight 0.3
 ```
 
 Write outputs to custom files:
@@ -198,8 +216,7 @@ curl -X POST http://127.0.0.1:8001/run \
     "llmProvider": "openai",
     "searchProvider": "openai",
     "semanticWeight": 0.6,
-    "citationWeight": 0.25,
-    "fwciWeight": 0.15
+    "citationWeight": 0.25
   }'
 ```
 

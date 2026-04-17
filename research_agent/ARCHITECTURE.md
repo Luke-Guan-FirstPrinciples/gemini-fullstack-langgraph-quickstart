@@ -2,7 +2,7 @@
 
 ## Architecture Overview
 
-The research agent is a **LangGraph-based pipeline** that takes a natural language research query and produces structured academic output (papers, authors, labs) via LLM-powered search, enrichment, and ranking.
+The research agent is a **LangGraph-based pipeline** that takes a natural language research query and produces structured academic output (papers, labs, fields, keywords) via LLM-powered search, enrichment, and ranking.
 
 ### Pipeline (4 core nodes, iterative loop)
 
@@ -19,7 +19,7 @@ After the core loop, post-processing steps enrich and rank the results.
 | File | Purpose |
 |------|---------|
 | `graph.py` | LangGraph pipeline definition — nodes, edges, state |
-| `models.py` | Pydantic schemas (`ResearchState`, `Paper`, `Author`, `Lab`, etc.) |
+| `models.py` | Pydantic schemas (`ResearchState`, `Paper`, `Lab`, etc.) |
 | `prompts.py` | System/human prompts for each LLM node |
 | `llm.py` | LLM factory — Gemini (default), OpenAI, or Anthropic |
 | `search/` | Pluggable search providers (Google CSE, Tavily, Jina, OpenAI) |
@@ -53,6 +53,7 @@ Runs all search queries in parallel through the configured search provider.
 - **Input:** list of search query strings from `parse_query`
 - **Output:** raw `SearchResult` objects (title, url, snippet, source)
 - **How:** Async parallel execution via the `SearchProvider` abstraction. No LLM calls — pure API calls to the search backend.
+- **Deduplication:** repeated raw search hits are filtered by canonical URL and title/source keys before they are appended into `all_search_results`.
 
 #### Available search providers
 
@@ -68,7 +69,7 @@ Runs all search queries in parallel through the configured search provider.
 Parses raw search results into structured academic objects.
 
 - **Input:** all accumulated search results + original query
-- **Output:** `ResearchOutput` — papers, authors, labs, fields, keywords, sub_queries
+- **Output:** `ResearchOutput` — papers, labs, fields, keywords, sub_queries
 - **How:** **One LLM call** for all results. Builds a single text block of all results (title, URL, snippet) and sends it to the LLM, which returns the full structured output in one response. It does **not** make one call per paper.
 
 ### 4. `assess_coverage`
@@ -90,19 +91,20 @@ Evaluates whether the results sufficiently cover the query.
 
 ### Enrichment (`enrichment.py`)
 
-After the core graph loop, papers are enriched with metadata from academic APIs (OpenAlex). This provides structured data that web search cannot: citation counts, FWCI (Field-Weighted Citation Impact), and other bibliometric signals.
+After the core graph loop, papers are enriched with metadata from academic APIs (OpenAlex and Semantic Scholar). This provides structured data that web search cannot: citation counts, canonical paper IDs, publication venues, and other bibliometric signals.
+
+After enrichment, duplicate paper records are merged using DOI, OpenAlex IDs, Semantic Scholar IDs, and canonicalized title/year fallbacks before reranking.
 
 ### Ranking (`ranking.py`)
 
-Papers are scored and ranked using three signals:
+Papers are scored and ranked using two signals:
 
 | Signal | Source | Normalization |
 |--------|--------|---------------|
 | `semantic_relevance` | LLM reranking call | LLM scores each paper's relevance to the query (0–1). Falls back to token overlap if the LLM call fails. |
-| `citation_count` | OpenAlex enrichment | `log1p(citation_count)` divided by the max across all papers in the run. Most-cited paper ≈ 1.0. |
-| `fwci` | OpenAlex enrichment | `log1p(fwci)` divided by the max across all papers in the run. FWCI > 1.0 means cited more than average for its field/year. |
+| `citation_count` | Semantic Scholar enrichment | `log1p(citation_count)` divided by the max across all papers in the run. Most-cited paper ≈ 1.0. |
 
-The final **score** is a weighted sum of all three signals. Weights are configurable via `cfg.ranking_weights()` and normalized to sum to 1.0.
+The final **score** is a weighted sum of both signals. Weights are configurable via `cfg.ranking_weights()` and normalized to sum to 1.0.
 
 ---
 
@@ -121,7 +123,7 @@ class ResearchState(TypedDict):
     max_iterations: int
 ```
 
-The `all_search_results` field uses LangGraph's `Annotated[list, add]` reducer — each iteration's results are **appended** to the list, so `structure_results` always processes the full set.
+The `all_search_results` field uses LangGraph's `Annotated[list, add]` reducer. `execute_search` returns only new unique results for each loop, so the accumulated list stays deduplicated while `structure_results` still processes the full set.
 
 ---
 
@@ -154,9 +156,9 @@ The current architecture uses **web search** (general search APIs with `site:` o
 A hybrid approach would be:
 
 1. **Web search** to discover papers (current approach)
-2. **Academic API enrichment** after discovery — look up papers by DOI or title in Semantic Scholar/OpenAlex to get structured metadata (citations, abstracts, author IDs)
+2. **Academic API enrichment** after discovery — look up papers by DOI or title in Semantic Scholar/OpenAlex to get structured metadata (citations, abstracts, canonical paper metadata)
 
-This is the approach used today: web search for discovery, OpenAlex for enrichment. It avoids the query translation problem while still getting structured academic data.
+This is the approach used today: web search for discovery, then OpenAlex plus Semantic Scholar for enrichment. It avoids the query translation problem while still getting structured academic data.
 
 ---
 
@@ -194,5 +196,6 @@ No code changes required — LangChain/LangGraph automatically sends traces to L
 | Google CSE | Search | Web search | `GOOGLE_CSE_API_KEY`, `GOOGLE_CSE_ID` |
 | Tavily | Search | Web search | `TAVILY_API_KEY` |
 | Jina AI | Search | Web search | `JINA_API_KEY` |
-| OpenAlex | Enrichment | Citation counts, FWCI, bibliometric data | (no key required) |
+| OpenAlex | Enrichment | Canonical metadata, DOI/year recovery, bibliometric context | `OPENALEX_API_KEY` optional |
+| Semantic Scholar | Enrichment | Citation counts, publication venues, Semantic Scholar paper IDs | `S2_API_KEY` optional |
 | LangSmith | Observability | Tracing and debugging | `LANGCHAIN_API_KEY` |

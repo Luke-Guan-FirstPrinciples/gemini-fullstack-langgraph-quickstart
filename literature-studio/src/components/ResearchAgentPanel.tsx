@@ -106,7 +106,6 @@ const DEFAULT_MAX_ITERATIONS = 2;
 const DEFAULT_RESULTS_PER_QUERY = 10;
 const DEFAULT_SEMANTIC_WEIGHT = 0.6;
 const DEFAULT_CITATION_WEIGHT = 0.25;
-const DEFAULT_FWCI_WEIGHT = 0.15;
 const RESULTS_PAGE_SIZE = 10;
 const EMPTY_FEEDBACK: PaperFeedbackEntry = {
   vote: null,
@@ -144,7 +143,6 @@ const buildRequestBody = (params: {
   resultsPerQuery: number;
   semanticWeight: number;
   citationWeight: number;
-  fwciWeight: number;
 }) => {
   const body: Record<string, unknown> = {
     query: params.query.trim(),
@@ -152,7 +150,6 @@ const buildRequestBody = (params: {
     resultsPerQuery: params.resultsPerQuery,
     semanticWeight: params.semanticWeight,
     citationWeight: params.citationWeight,
-    fwciWeight: params.fwciWeight,
   };
 
   if (params.llmProvider) {
@@ -229,6 +226,7 @@ const getStoredResearchAgentResponse = (): ResearchAgentRunResponse | null => {
 
 const buildPaperFeedbackKey = (paper: ResearchAgentPaper): string =>
   (
+    paper.semantic_scholar?.paper_id ??
     paper.openalex?.openalex_id ??
     paper.doi ??
     paper.url ??
@@ -238,7 +236,11 @@ const buildPaperFeedbackKey = (paper: ResearchAgentPaper): string =>
     .toLowerCase();
 
 const buildPaperDestination = (paper: ResearchAgentPaper): string | null =>
-  paper.openalex?.landing_page_url ?? paper.url ?? paper.openalex?.openalex_id ?? null;
+  paper.openalex?.landing_page_url ??
+  paper.semantic_scholar?.url ??
+  paper.url ??
+  paper.openalex?.openalex_id ??
+  null;
 
 const buildPaperSummary = (paper: ResearchAgentPaper): string => {
   const summary = paper.key_finding?.trim() || paper.abstract?.trim();
@@ -265,60 +267,17 @@ const buildOpenAlexStatusLabel = (paper: ResearchAgentPaper): string => {
   return "OpenAlex missing";
 };
 
-const buildAuthorResearchFocus = (author: ResearchAgentRunResponse["structured_output"]["authors"][number]): string => {
-  const values = Array.from(
-    new Set([...(author.research_areas ?? []), ...(author.openalex?.topics ?? [])]),
-  ).filter(Boolean);
-
-  if (!values.length) {
-    return "n/a";
+const buildSemanticScholarStatusLabel = (paper: ResearchAgentPaper): string => {
+  if (paper.semantic_scholar?.status === "matched") {
+    return "Semantic Scholar matched";
   }
 
-  return truncateText(values.join(", "), 160);
-};
-
-const buildAuthorAffiliation = (author: ResearchAgentRunResponse["structured_output"]["authors"][number]): string => {
-  const values = Array.from(
-    new Set([...(author.openalex?.affiliations ?? []), ...(author.affiliations ?? [])]),
-  ).filter(Boolean);
-
-  if (!values.length) {
-    return "n/a";
+  if (paper.semantic_scholar?.status === "error") {
+    return "Semantic Scholar error";
   }
 
-  return truncateText(values.join(" / "), 140);
+  return "Semantic Scholar missing";
 };
-
-const buildAuthorRankLabel = (author: ResearchAgentRunResponse["structured_output"]["authors"][number]): string =>
-  author.ranking?.rank ? `#${author.ranking.rank}` : "n/a";
-
-const buildAuthorSearchUrl = (
-  author: ResearchAgentRunResponse["structured_output"]["authors"][number],
-  intent: string,
-): string => {
-  const affiliation =
-    author.openalex?.affiliations?.[0] ?? author.affiliations?.[0] ?? "";
-  return `https://www.google.com/search?q=${encodeURIComponent(
-    [author.name, affiliation, intent].filter(Boolean).join(" "),
-  )}`;
-};
-
-const buildAuthorWebsiteUrl = (
-  author: ResearchAgentRunResponse["structured_output"]["authors"][number],
-): string =>
-  author.openalex?.personal_website_url ??
-  buildAuthorSearchUrl(author, "official website");
-
-const buildAuthorBlogUrl = (
-  author: ResearchAgentRunResponse["structured_output"]["authors"][number],
-): string =>
-  author.openalex?.personal_blog_url ?? buildAuthorSearchUrl(author, "blog");
-
-const buildAuthorScholarUrl = (
-  author: ResearchAgentRunResponse["structured_output"]["authors"][number],
-): string =>
-  author.openalex?.google_scholar_url ??
-  `https://scholar.google.com/scholar?q=${encodeURIComponent(author.name)}`;
 
 export function ResearchAgentPanel() {
   const initialCachedResponse = getStoredResearchAgentResponse();
@@ -326,7 +285,7 @@ export function ResearchAgentPanel() {
   const [controlMode, setControlMode] = useState<"simple" | "advanced">(
     "simple",
   );
-  const [resultView, setResultView] = useState<"ranked" | "raw" | "authors">(
+  const [resultView, setResultView] = useState<"ranked" | "raw">(
     "ranked",
   );
   const [query, setQuery] = useState(
@@ -343,7 +302,6 @@ export function ResearchAgentPanel() {
   >({});
   const [semanticWeight, setSemanticWeight] = useState(DEFAULT_SEMANTIC_WEIGHT);
   const [citationWeight, setCitationWeight] = useState(DEFAULT_CITATION_WEIGHT);
-  const [fwciWeight, setFwciWeight] = useState(DEFAULT_FWCI_WEIGHT);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [feedbackByPaper, setFeedbackByPaper] = useState<
@@ -359,7 +317,6 @@ export function ResearchAgentPanel() {
             resultsPerQuery: DEFAULT_RESULTS_PER_QUERY,
             semanticWeight: DEFAULT_SEMANTIC_WEIGHT,
             citationWeight: DEFAULT_CITATION_WEIGHT,
-            fwciWeight: DEFAULT_FWCI_WEIGHT,
           })
         : null),
   );
@@ -374,7 +331,6 @@ export function ResearchAgentPanel() {
     resultsPerQuery,
     semanticWeight,
     citationWeight,
-    fwciWeight,
   });
 
   const loadMockResponse = () => {
@@ -406,7 +362,6 @@ export function ResearchAgentPanel() {
           resultsPerQuery,
           semanticWeight,
           citationWeight,
-          fwciWeight,
         }),
       );
     });
@@ -560,7 +515,6 @@ export function ResearchAgentPanel() {
   };
 
   const rankedPapers = response?.ranked_output.papers ?? [];
-  const rankedAuthors = response?.ranked_output.authors ?? [];
   const structured = response?.structured_output;
   const rawPapers = structured?.papers ?? [];
   const visiblePapers = resultView === "raw" ? rawPapers : rankedPapers;
@@ -571,8 +525,7 @@ export function ResearchAgentPanel() {
     pageStartIndex,
     pageStartIndex + RESULTS_PAGE_SIZE,
   );
-  const topPaper = rankedPapers[0];
-  const weightTotal = semanticWeight + citationWeight + fwciWeight;
+  const weightTotal = semanticWeight + citationWeight;
 
   return (
     <div className="workspace-grid">
@@ -745,18 +698,6 @@ export function ResearchAgentPanel() {
                     />
                   </label>
 
-                  <label className="field narrow">
-                    <span>FWCI weight</span>
-                    <input
-                      type="number"
-                      min={0}
-                      step={0.05}
-                      value={fwciWeight}
-                      onChange={(event) =>
-                        setFwciWeight(Number(event.target.value) || 0)
-                      }
-                    />
-                  </label>
                 </div>
               </div>
             </details>
@@ -820,17 +761,16 @@ export function ResearchAgentPanel() {
                 <code>
                   {JSON.stringify(
                     dataMode === "mock"
-                      ? {
-                          mode: "mock",
-                          query: requestBody.query,
-                          resultsPerQuery,
-                          maxIterations,
-                          weights: {
-                            semanticWeight,
-                            citationWeight,
-                            fwciWeight,
-                          },
-                        }
+                        ? {
+                            mode: "mock",
+                            query: requestBody.query,
+                            resultsPerQuery,
+                            maxIterations,
+                            weights: {
+                              semanticWeight,
+                              citationWeight,
+                            },
+                          }
                       : requestBody,
                     null,
                     2,
@@ -893,13 +833,6 @@ export function ResearchAgentPanel() {
               >
                 Raw result
               </button>
-              <button
-                className={resultView === "authors" ? "active" : undefined}
-                type="button"
-                onClick={() => setResultView("authors")}
-              >
-                Top authors
-              </button>
             </div>
 
             <div className="summary-grid">
@@ -951,15 +884,6 @@ export function ResearchAgentPanel() {
                     </span>
                   </li>
                   <li>
-                    <strong>Notable authors</strong>
-                    <span>
-                      {(structured?.authors ?? [])
-                        .slice(0, 5)
-                        .map((author) => author.name)
-                        .join(", ") || "No author aggregation returned."}
-                    </span>
-                  </li>
-                  <li>
                     <strong>Labs</strong>
                     <span>
                       {(structured?.labs ?? [])
@@ -976,150 +900,6 @@ export function ResearchAgentPanel() {
               </article>
             </div>
 
-            {resultView === "ranked" && topPaper ? (
-              <article className="spotlight-card">
-                <div className="spotlight-copy">
-                  <p className="mini-label">Top ranked paper</p>
-                  <h3>{topPaper.title}</h3>
-                  <p>{buildPaperSummary(topPaper)}</p>
-                  {topPaper.ranking?.explanation_chips?.length ? (
-                    <div className="inline-tags explanation-row">
-                      {topPaper.ranking.explanation_chips.map((chip) => (
-                        <span key={chip} className="tag explanation-chip">
-                          {chip}
-                        </span>
-                      ))}
-                    </div>
-                  ) : null}
-                </div>
-                <div className="inline-details">
-                  <span>Rank #{topPaper.ranking?.rank ?? "n/a"}</span>
-                  <span>Score {formatDecimal(topPaper.ranking?.score, 3)}</span>
-                  <span>
-                    {formatCompactNumber(topPaper.openalex?.citation_count)} citations
-                  </span>
-                  <span>FWCI {formatDecimal(topPaper.openalex?.fwci, 2)}</span>
-                  <span>{topPaper.openalex?.source_display_name ?? topPaper.source ?? "Source unknown"}</span>
-                </div>
-              </article>
-            ) : null}
-
-            {resultView === "authors" ? (
-              <article className="result-card author-table-card">
-                <div className="author-table-header">
-                  <div>
-                    <p className="mini-label">Author pipeline</p>
-                    <h3>Top researchers from the ranked paper set</h3>
-                  </div>
-                  <p className="muted-copy">
-                    OpenAlex-enriched authors ranked from query-topic fit, paper
-                    support, and citation footprint.
-                  </p>
-                </div>
-
-                <div className="author-table-shell">
-                  <table className="author-table">
-                    <thead>
-                      <tr>
-                        <th>Researcher</th>
-                        <th>Specialty / focus</th>
-                        <th>Website</th>
-                        <th>Blog</th>
-                        <th>Google Scholar</th>
-                        <th>Social</th>
-                        <th>Citations</th>
-                        <th>OpenAlex ID</th>
-                        <th>Semantic Scholar ID</th>
-                        <th>Affiliation</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {rankedAuthors.length ? (
-                        rankedAuthors.map((author) => (
-                          <tr
-                            key={
-                              author.openalex?.openalex_id ??
-                              `${author.name}:${author.affiliations?.join("|") ?? ""}`
-                            }
-                          >
-                            <td>
-                              <div className="author-name-cell">
-                                <strong>{author.name}</strong>
-                                <span>{buildAuthorRankLabel(author)}</span>
-                              </div>
-                            </td>
-                            <td>{buildAuthorResearchFocus(author)}</td>
-                          <td>
-                            <a
-                              href={buildAuthorWebsiteUrl(author)}
-                              target="_blank"
-                              rel="noreferrer"
-                            >
-                              Website
-                            </a>
-                          </td>
-                          <td>
-                            <a
-                              href={buildAuthorBlogUrl(author)}
-                              target="_blank"
-                              rel="noreferrer"
-                            >
-                              Blog
-                            </a>
-                          </td>
-                          <td>
-                            <a
-                              href={buildAuthorScholarUrl(author)}
-                              target="_blank"
-                              rel="noreferrer"
-                            >
-                              Scholar
-                            </a>
-                          </td>
-                            <td>
-                              {author.openalex?.social_media_url ? (
-                                <a
-                                  href={author.openalex.social_media_url}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                >
-                                  Social
-                                </a>
-                              ) : (
-                                "n/a"
-                              )}
-                            </td>
-                            <td>
-                              {formatCompactNumber(author.openalex?.citation_count)}
-                            </td>
-                            <td>
-                              {author.openalex?.openalex_id ? (
-                                <a
-                                  href={author.openalex.openalex_id}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                >
-                                  {author.openalex.openalex_id.split("/").at(-1)}
-                                </a>
-                              ) : (
-                                "n/a"
-                              )}
-                            </td>
-                            <td>{author.openalex?.semantic_scholar_id ?? "n/a"}</td>
-                            <td>{buildAuthorAffiliation(author)}</td>
-                          </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td colSpan={10}>No authors were ranked for this run.</td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </article>
-            ) : (
-              <>
             {resultView === "ranked" ? (
               <div className="paper-table-header" aria-hidden="true">
                 <span>Rank</span>
@@ -1143,11 +923,13 @@ export function ResearchAgentPanel() {
                   expandedFeedbackByPaper[feedbackKey] ?? false;
                 const explanationChips = paper.ranking?.explanation_chips ?? [];
                 const paperNumber = pageStartIndex + index + 1;
-                const paperSource =
-                  paper.openalex?.source_display_name ??
-                  paper.source ??
-                  "Source unknown";
+                const paperSource = paper.source || "Web/LLM venue unknown";
+                const paperPublicationVenue =
+                  paper.semantic_scholar?.publication_venue_name ||
+                  paper.semantic_scholar?.venue ||
+                  "Publication venue unknown";
                 const openAlexStatus = buildOpenAlexStatusLabel(paper);
+                const semanticScholarStatus = buildSemanticScholarStatusLabel(paper);
                 const paperRowClassName = [
                   "result-card",
                   "paper-row-card",
@@ -1196,8 +978,8 @@ export function ResearchAgentPanel() {
                       <div className="paper-row-supporting">
                         <div className="inline-tags paper-row-tags">
                           <span className="tag">{paper.year ?? "Year n/a"}</span>
-                          <span className="tag">{paperSource}</span>
-                          <span className="tag">{openAlexStatus}</span>
+                          <span className="tag">{`Web/LLM: ${paperSource}`}</span>
+                          <span className="tag">{`Venue: ${paperPublicationVenue}`}</span>
                         </div>
 
                         <p className="muted-copy paper-row-authors">
@@ -1231,12 +1013,12 @@ export function ResearchAgentPanel() {
                       <div className="paper-metric">
                         <span>Citations</span>
                         <strong>
-                          {formatCompactNumber(paper.openalex?.citation_count)}
+                          {formatCompactNumber(paper.semantic_scholar?.citation_count)}
                         </strong>
                       </div>
                       <div className="paper-metric">
-                        <span>FWCI</span>
-                        <strong>{formatDecimal(paper.openalex?.fwci, 2)}</strong>
+                        <span>S2 status</span>
+                        <strong>{semanticScholarStatus.replace("Semantic Scholar ", "")}</strong>
                       </div>
                       {resultView === "ranked" ? (
                         <div className="paper-metric">
@@ -1245,7 +1027,7 @@ export function ResearchAgentPanel() {
                         </div>
                       ) : null}
                       <div className="paper-metric">
-                        <span>Status</span>
+                        <span>OpenAlex</span>
                         <strong>{openAlexStatus.replace("OpenAlex ", "")}</strong>
                       </div>
                     </div>
@@ -1345,10 +1127,8 @@ export function ResearchAgentPanel() {
                 );
               })}
             </div>
-              </>
-            )}
 
-            {resultView !== "authors" && visiblePapers.length > RESULTS_PAGE_SIZE ? (
+            {visiblePapers.length > RESULTS_PAGE_SIZE ? (
               <div className="pagination-row">
                 <span className="pagination-status">
                   {pageStartIndex + 1}-{Math.min(pageStartIndex + RESULTS_PAGE_SIZE, visiblePapers.length)} of{" "}

@@ -1,21 +1,64 @@
-"""OpenAlex enrichment helpers for research-agent papers."""
+"""Academic metadata enrichment helpers for research-agent papers."""
 
 from __future__ import annotations
 
 import asyncio
 import logging
+import random
 import re
+import time
 from difflib import SequenceMatcher
+from email.utils import parsedate_to_datetime
 from typing import Any
+from urllib.parse import quote
 
 import httpx
 
 from research_agent.config import Settings
-from research_agent.models import Paper, PaperOpenAlexEnrichment
+from research_agent.models import (
+    Paper,
+    PaperOpenAlexEnrichment,
+    PaperSemanticScholarEnrichment,
+    SemanticScholarPublicationVenue,
+)
 
 logger = logging.getLogger("research_agent.enrichment")
 
 _TITLE_TOKEN_RE = re.compile(r"[^a-z0-9]+")
+
+
+class _AsyncRateLimiter:
+    """Simple async minimum-interval limiter shared across concurrent tasks.
+
+    Ensures that at most one request passes through every ``min_interval``
+    seconds, regardless of how many coroutines call :meth:`acquire`.
+    """
+
+    def __init__(self, requests_per_second: float) -> None:
+        rps = max(float(requests_per_second), 0.0)
+        self._min_interval = (1.0 / rps) if rps > 0 else 0.0
+        self._lock = asyncio.Lock()
+        self._next_allowed_monotonic = 0.0
+
+    async def acquire(self) -> None:
+        if self._min_interval <= 0:
+            return
+        async with self._lock:
+            now = time.monotonic()
+            wait_for = self._next_allowed_monotonic - now
+            if wait_for > 0:
+                await asyncio.sleep(wait_for)
+                now = time.monotonic()
+            self._next_allowed_monotonic = now + self._min_interval
+
+    async def delay_until(self, seconds_from_now: float) -> None:
+        """Push the next-allowed slot at least ``seconds_from_now`` into the future."""
+        if seconds_from_now <= 0:
+            return
+        async with self._lock:
+            candidate = time.monotonic() + seconds_from_now
+            if candidate > self._next_allowed_monotonic:
+                self._next_allowed_monotonic = candidate
 
 
 class OpenAlexEnricher:
@@ -186,6 +229,228 @@ class OpenAlexEnricher:
         return _build_enrichment(best_work, best_title_similarity)
 
 
+class SemanticScholarEnricher:
+    """Enrich papers with Semantic Scholar metadata, preferring DOI over title search."""
+
+    def __init__(self, cfg: Settings) -> None:
+        self._cfg = cfg
+        self._rate_limiter = _AsyncRateLimiter(cfg.semantic_scholar_requests_per_second)
+
+    async def enrich_papers(self, papers: list[Paper]) -> list[Paper]:
+        """Resolve Semantic Scholar metadata for each unique DOI or title."""
+        if not papers:
+            return []
+
+        unique_lookups: dict[str, tuple[str, str | None]] = {}
+        for paper in papers:
+            lookup_key = _lookup_key_for_paper(paper)
+            if not lookup_key or lookup_key in unique_lookups:
+                continue
+            unique_lookups[lookup_key] = (paper.title, _normalize_doi(paper.doi))
+
+        lookup_to_enrichment: dict[str, PaperSemanticScholarEnrichment] = {}
+        semaphore = asyncio.Semaphore(max(1, self._cfg.semantic_scholar_parallelism))
+
+        async with httpx.AsyncClient(
+            base_url=self._cfg.semantic_scholar_base_url.rstrip("/"),
+            timeout=self._cfg.semantic_scholar_timeout_seconds,
+            headers={"User-Agent": "research-agent/0.1"},
+        ) as client:
+
+            async def _fetch_one(lookup_key: str, title: str, doi: str | None) -> None:
+                async with semaphore:
+                    lookup_to_enrichment[lookup_key] = await self._fetch_enrichment(
+                        client,
+                        title,
+                        doi=doi,
+                    )
+
+            await asyncio.gather(
+                *[
+                    _fetch_one(lookup_key, title, doi)
+                    for lookup_key, (title, doi) in unique_lookups.items()
+                ]
+            )
+
+        enriched_papers: list[Paper] = []
+        for paper in papers:
+            lookup_key = _lookup_key_for_paper(paper)
+            enrichment = (
+                lookup_to_enrichment.get(lookup_key or "")
+                or PaperSemanticScholarEnrichment()
+            )
+            enriched_papers.append(_apply_semantic_scholar_enrichment(paper, enrichment))
+
+        matched_count = sum(
+            1
+            for paper in enriched_papers
+            if paper.semantic_scholar and paper.semantic_scholar.status == "matched"
+        )
+        logger.info(
+            "Semantic Scholar enrichment matched %d/%d papers",
+            matched_count,
+            len(enriched_papers),
+        )
+        return enriched_papers
+
+    async def _fetch_enrichment(
+        self,
+        client: httpx.AsyncClient,
+        title: str,
+        doi: str | None = None,
+    ) -> PaperSemanticScholarEnrichment:
+        normalized_doi = _normalize_doi(doi)
+        doi_error: str | None = None
+        if normalized_doi:
+            doi_enrichment = await self._fetch_by_identifier(client, f"DOI:{normalized_doi}")
+            if doi_enrichment.status == "matched":
+                return doi_enrichment
+            if doi_enrichment.status == "error":
+                doi_error = doi_enrichment.error
+
+        if not title.strip():
+            if doi_error:
+                return PaperSemanticScholarEnrichment(status="error", error=doi_error)
+            return PaperSemanticScholarEnrichment(status="not_found")
+
+        title_enrichment = await self._fetch_by_title(client, title)
+        if title_enrichment.status == "matched":
+            return title_enrichment
+        if title_enrichment.status == "error":
+            return title_enrichment
+        if doi_error:
+            return PaperSemanticScholarEnrichment(status="error", error=doi_error)
+        return title_enrichment
+
+    async def _fetch_by_identifier(
+        self,
+        client: httpx.AsyncClient,
+        identifier: str,
+    ) -> PaperSemanticScholarEnrichment:
+        try:
+            payload = await self._request(
+                client,
+                f"paper/{quote(identifier, safe=':')}",
+                params={"fields": _semantic_scholar_request_fields()},
+            )
+        except httpx.HTTPStatusError as exc:
+            if exc.response.status_code == 404:
+                return PaperSemanticScholarEnrichment(status="not_found")
+            logger.exception("Semantic Scholar identifier lookup failed for %s", identifier)
+            return PaperSemanticScholarEnrichment(status="error", error=str(exc))
+        except Exception as exc:
+            logger.exception("Semantic Scholar identifier lookup failed for %s", identifier)
+            return PaperSemanticScholarEnrichment(status="error", error=str(exc))
+
+        return _build_semantic_scholar_enrichment(payload, title_similarity=1.0)
+
+    async def _fetch_by_title(
+        self,
+        client: httpx.AsyncClient,
+        title: str,
+    ) -> PaperSemanticScholarEnrichment:
+        if not title.strip():
+            return PaperSemanticScholarEnrichment(status="not_found")
+
+        try:
+            payload = await self._request(
+                client,
+                "paper/search/match",
+                params={
+                    "query": title,
+                    "fields": _semantic_scholar_request_fields(),
+                },
+            )
+        except httpx.HTTPStatusError as exc:
+            if exc.response.status_code == 404:
+                return PaperSemanticScholarEnrichment(status="not_found")
+            logger.exception("Semantic Scholar title lookup failed for %s", title)
+            return PaperSemanticScholarEnrichment(status="error", error=str(exc))
+        except Exception as exc:
+            logger.exception("Semantic Scholar title lookup failed for %s", title)
+            return PaperSemanticScholarEnrichment(status="error", error=str(exc))
+
+        matches = payload.get("data", [])
+        if not isinstance(matches, list) or not matches:
+            return PaperSemanticScholarEnrichment(status="not_found")
+
+        best_match = matches[0]
+        if not isinstance(best_match, dict):
+            return PaperSemanticScholarEnrichment(status="not_found")
+
+        candidate_title = _coerce_str(best_match.get("title")) or ""
+        title_similarity = _title_similarity(title, candidate_title)
+        if title_similarity < self._cfg.semantic_scholar_min_title_similarity:
+            return PaperSemanticScholarEnrichment(status="not_found")
+
+        return _build_semantic_scholar_enrichment(
+            best_match,
+            title_similarity=title_similarity,
+        )
+
+    async def _request(
+        self,
+        client: httpx.AsyncClient,
+        path: str,
+        *,
+        params: dict[str, str],
+    ) -> dict[str, Any]:
+        headers = _semantic_scholar_headers(self._cfg)
+        max_retries = max(0, self._cfg.semantic_scholar_max_retries)
+        initial_backoff = max(0.1, self._cfg.semantic_scholar_initial_backoff_seconds)
+        max_backoff = max(initial_backoff, self._cfg.semantic_scholar_max_backoff_seconds)
+
+        attempt = 0
+        while True:
+            await self._rate_limiter.acquire()
+            try:
+                response = await client.get(path, params=params, headers=headers)
+            except httpx.TransportError as exc:
+                if attempt >= max_retries:
+                    raise
+                backoff = _compute_backoff(attempt, initial_backoff, max_backoff)
+                logger.warning(
+                    "Semantic Scholar transport error for %s (attempt %d/%d): %s; "
+                    "retrying in %.2fs",
+                    path,
+                    attempt + 1,
+                    max_retries,
+                    exc,
+                    backoff,
+                )
+                await self._rate_limiter.delay_until(backoff)
+                attempt += 1
+                continue
+
+            # Fall back to anonymous request when the configured key is rejected.
+            if response.status_code == 403 and headers:
+                await self._rate_limiter.acquire()
+                response = await client.get(path, params=params)
+
+            if response.status_code == 429 or response.status_code >= 500:
+                if attempt >= max_retries:
+                    response.raise_for_status()
+                retry_after = _retry_after_seconds(response)
+                backoff = retry_after if retry_after is not None else _compute_backoff(
+                    attempt, initial_backoff, max_backoff
+                )
+                logger.warning(
+                    "Semantic Scholar %d for %s (attempt %d/%d); backing off %.2fs",
+                    response.status_code,
+                    path,
+                    attempt + 1,
+                    max_retries,
+                    backoff,
+                )
+                await self._rate_limiter.delay_until(backoff)
+                attempt += 1
+                continue
+
+            response.raise_for_status()
+            payload = response.json()
+            return payload if isinstance(payload, dict) else {}
+
+
 def _lookup_key_for_paper(paper: Paper) -> str | None:
     normalized_doi = _normalize_doi(paper.doi)
     if normalized_doi:
@@ -284,6 +549,160 @@ def _build_enrichment(work: dict[str, Any], title_similarity: float) -> PaperOpe
         source_display_name=source_display_name,
         landing_page_url=landing_page_url,
     )
+
+
+def _semantic_scholar_request_fields() -> str:
+    return ",".join(
+        [
+        "title",
+        "authors",
+        "year",
+        "citationCount",
+        "influentialCitationCount",
+        "venue",
+        "publicationVenue",
+        "url",
+        "externalIds",
+        ]
+    )
+
+
+def _semantic_scholar_headers(cfg: Settings) -> dict[str, str]:
+    if not cfg.semantic_scholar_use_api_key or not cfg.semantic_scholar_api_key:
+        return {}
+    return {"x-api-key": cfg.semantic_scholar_api_key}
+
+
+def _compute_backoff(attempt: int, initial: float, maximum: float) -> float:
+    """Exponential backoff with jitter, capped at ``maximum`` seconds."""
+    base = initial * (2 ** max(0, attempt))
+    capped = min(base, maximum)
+    jitter = random.uniform(0.0, capped * 0.25)
+    return capped + jitter
+
+
+def _retry_after_seconds(response: httpx.Response) -> float | None:
+    """Parse a ``Retry-After`` header as either seconds or an HTTP-date."""
+    header = response.headers.get("Retry-After") or response.headers.get("retry-after")
+    if not header:
+        return None
+    header = header.strip()
+    try:
+        return max(0.0, float(header))
+    except ValueError:
+        pass
+    try:
+        retry_at = parsedate_to_datetime(header)
+    except (TypeError, ValueError):
+        return None
+    if retry_at is None:
+        return None
+    now_ts = time.time()
+    delta = retry_at.timestamp() - now_ts
+    return max(0.0, delta)
+
+
+def _apply_semantic_scholar_enrichment(
+    paper: Paper,
+    enrichment: PaperSemanticScholarEnrichment,
+) -> Paper:
+    enriched = paper.model_copy(deep=True)
+    enriched.semantic_scholar = enrichment
+
+    if enrichment.status == "matched":
+        if not enriched.authors and enrichment.authors:
+            enriched.authors = enrichment.authors
+        if enriched.year is None and enrichment.publication_year is not None:
+            enriched.year = enrichment.publication_year
+        if not enriched.doi and enrichment.doi:
+            enriched.doi = enrichment.doi
+
+    return enriched
+
+
+def _build_semantic_scholar_enrichment(
+    paper_data: dict[str, Any],
+    *,
+    title_similarity: float,
+) -> PaperSemanticScholarEnrichment:
+    authors: list[str] = []
+    raw_authors = paper_data.get("authors", [])
+    if isinstance(raw_authors, list):
+        for author in raw_authors:
+            if not isinstance(author, dict):
+                continue
+            name = _coerce_str(author.get("name"))
+            if name:
+                authors.append(name)
+
+    publication_venue = _build_semantic_scholar_publication_venue(
+        paper_data.get("publicationVenue")
+    )
+    publication_venue_name = (
+        publication_venue.name if publication_venue and publication_venue.name else None
+    )
+
+    return PaperSemanticScholarEnrichment(
+        status="matched",
+        paper_id=_coerce_str(paper_data.get("paperId")),
+        corpus_id=_coerce_int(paper_data.get("corpusId")),
+        matched_title=_coerce_str(paper_data.get("title")),
+        title_similarity=title_similarity,
+        match_score=_coerce_float(paper_data.get("matchScore")),
+        citation_count=_coerce_int(paper_data.get("citationCount")),
+        influential_citation_count=_coerce_int(paper_data.get("influentialCitationCount")),
+        venue=_coerce_str(paper_data.get("venue")),
+        publication_venue=publication_venue,
+        publication_venue_name=publication_venue_name or _coerce_str(paper_data.get("venue")),
+        authors=authors,
+        doi=_extract_semantic_scholar_doi(paper_data.get("externalIds")),
+        publication_year=_coerce_int(paper_data.get("year")),
+        url=_coerce_str(paper_data.get("url")),
+    )
+
+
+def _build_semantic_scholar_publication_venue(
+    value: Any,
+) -> SemanticScholarPublicationVenue | None:
+    if not isinstance(value, dict):
+        return None
+
+    alternate_names = value.get("alternate_names", [])
+    normalized_alternate_names: list[str] = []
+    if isinstance(alternate_names, list):
+        for item in alternate_names:
+            name = _coerce_str(item)
+            if name:
+                normalized_alternate_names.append(name)
+
+    venue = SemanticScholarPublicationVenue(
+        venue_id=_coerce_str(value.get("id")),
+        name=_coerce_str(value.get("name")),
+        type=_coerce_str(value.get("type")),
+        alternate_names=normalized_alternate_names,
+        url=_coerce_str(value.get("url")),
+    )
+    if any(
+        [
+            venue.venue_id,
+            venue.name,
+            venue.type,
+            venue.alternate_names,
+            venue.url,
+        ]
+    ):
+        return venue
+    return None
+
+
+def _extract_semantic_scholar_doi(value: Any) -> str | None:
+    if not isinstance(value, dict):
+        return None
+    for key in ("DOI", "doi"):
+        doi = _normalize_doi(_coerce_str(value.get(key)))
+        if doi:
+            return doi
+    return None
 
 
 def _normalize_title(value: str) -> str:

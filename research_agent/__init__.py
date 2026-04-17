@@ -1,6 +1,6 @@
 """Research Agent - LLM-powered academic literature search pipeline."""
 
-from research_agent.models import Author, Lab, Paper, RankedResults, ResearchOutput
+from research_agent.models import Lab, Paper, RankedResults, ResearchOutput
 
 __all__ = [
     "build_graph",
@@ -8,7 +8,6 @@ __all__ = [
     "ResearchOutput",
     "RankedResults",
     "Paper",
-    "Author",
     "Lab",
 ]
 

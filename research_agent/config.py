@@ -10,6 +10,13 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
+def _env_flag(name: str, default: bool = False) -> bool:
+    value = os.getenv(name)
+    if value is None:
+        return default
+    return value.strip().lower() in {"1", "true", "yes", "on"}
+
+
 @dataclass
 class Settings:
     """All configurable knobs for the research agent."""
@@ -55,17 +62,50 @@ class Settings:
     openalex_base_url: str = os.getenv("OPENALEX_BASE_URL", "https://api.openalex.org")
     openalex_api_key: str = os.getenv("OPENALEX_API_KEY", "")
     openalex_email: str = os.getenv("OPENALEX_EMAIL", "")
+    semantic_scholar_base_url: str = os.getenv(
+        "SEMANTIC_SCHOLAR_BASE_URL",
+        "https://api.semanticscholar.org/graph/v1",
+    )
+    semantic_scholar_api_key: str = os.getenv(
+        "SEMANTIC_SCHOLAR_API_KEY",
+        os.getenv("S2_API_KEY", ""),
+    )
+    semantic_scholar_use_api_key: bool = _env_flag(
+        "RESEARCH_SEMANTIC_SCHOLAR_USE_API_KEY",
+        default=False,
+    )
 
     # Pipeline -------------------------------------------------------------
     max_iterations: int = int(os.getenv("RESEARCH_MAX_ITERATIONS", "2"))
     results_per_query: int = int(os.getenv("RESEARCH_RESULTS_PER_QUERY", "10"))
     openalex_title_search_limit: int = int(os.getenv("RESEARCH_OPENALEX_TITLE_SEARCH_LIMIT", "5"))
-    openalex_author_search_limit: int = int(
-        os.getenv("RESEARCH_OPENALEX_AUTHOR_SEARCH_LIMIT", "5")
-    )
     openalex_parallelism: int = int(os.getenv("RESEARCH_OPENALEX_PARALLELISM", "4"))
     openalex_timeout_seconds: float = float(os.getenv("RESEARCH_OPENALEX_TIMEOUT_SECONDS", "30"))
     openalex_min_title_similarity: float = float(os.getenv("RESEARCH_OPENALEX_MIN_TITLE_SIMILARITY", "0.82"))
+    semantic_scholar_parallelism: int = int(
+        os.getenv("RESEARCH_SEMANTIC_SCHOLAR_PARALLELISM", "1")
+    )
+    semantic_scholar_timeout_seconds: float = float(
+        os.getenv("RESEARCH_SEMANTIC_SCHOLAR_TIMEOUT_SECONDS", "30")
+    )
+    semantic_scholar_min_title_similarity: float = float(
+        os.getenv("RESEARCH_SEMANTIC_SCHOLAR_MIN_TITLE_SIMILARITY", "0.82")
+    )
+    # Unauthenticated Semantic Scholar traffic is shared-pool throttled to
+    # roughly 1 request per second. The defaults below keep us safely below
+    # that ceiling; bump them when an API key is configured.
+    semantic_scholar_requests_per_second: float = float(
+        os.getenv("RESEARCH_SEMANTIC_SCHOLAR_REQUESTS_PER_SECOND", "1.0")
+    )
+    semantic_scholar_max_retries: int = int(
+        os.getenv("RESEARCH_SEMANTIC_SCHOLAR_MAX_RETRIES", "5")
+    )
+    semantic_scholar_initial_backoff_seconds: float = float(
+        os.getenv("RESEARCH_SEMANTIC_SCHOLAR_INITIAL_BACKOFF_SECONDS", "2.0")
+    )
+    semantic_scholar_max_backoff_seconds: float = float(
+        os.getenv("RESEARCH_SEMANTIC_SCHOLAR_MAX_BACKOFF_SECONDS", "30.0")
+    )
     rerank_batch_size: int = int(os.getenv("RESEARCH_RERANK_BATCH_SIZE", "12"))
     rerank_model: str = os.getenv("RESEARCH_RERANK_MODEL", "")
     semantic_relevance_weight: float = float(
@@ -74,7 +114,6 @@ class Settings:
     citation_count_weight: float = float(
         os.getenv("RESEARCH_WEIGHT_CITATION_COUNT", "0.25")
     )
-    fwci_weight: float = float(os.getenv("RESEARCH_WEIGHT_FWCI", "0.15"))
 
     # Preferred academic sources (used in query generation prompts)
     preferred_sources: list[str] = field(default_factory=lambda: [
@@ -99,7 +138,6 @@ class Settings:
         return {
             "semantic_relevance": self.semantic_relevance_weight,
             "citation_count": self.citation_count_weight,
-            "fwci": self.fwci_weight,
         }
 
     def default_llm_model_for_provider(self, provider: str | None = None) -> str:

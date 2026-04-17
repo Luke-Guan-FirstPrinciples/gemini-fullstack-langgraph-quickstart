@@ -51,6 +51,7 @@ class Paper(BaseModel):
     doi: str | None = None
     key_finding: str = Field(default="", description="One-sentence summary of the main contribution")
     openalex: "PaperOpenAlexEnrichment | None" = None
+    semantic_scholar: "PaperSemanticScholarEnrichment | None" = None
     ranking: "PaperRanking | None" = None
 
 
@@ -88,6 +89,37 @@ class PaperOpenAlexEnrichment(BaseModel):
     error: str | None = None
 
 
+class SemanticScholarPublicationVenue(BaseModel):
+    """Semantic Scholar publication venue metadata."""
+
+    venue_id: str | None = None
+    name: str | None = None
+    type: str | None = None
+    alternate_names: list[str] = Field(default_factory=list)
+    url: str | None = None
+
+
+class PaperSemanticScholarEnrichment(BaseModel):
+    """Normalized metadata pulled from Semantic Scholar for a paper."""
+
+    status: Literal["matched", "not_found", "error"] = "not_found"
+    paper_id: str | None = None
+    corpus_id: int | None = None
+    matched_title: str | None = None
+    title_similarity: float | None = None
+    match_score: float | None = None
+    citation_count: int | None = None
+    influential_citation_count: int | None = None
+    venue: str | None = None
+    publication_venue: SemanticScholarPublicationVenue | None = None
+    publication_venue_name: str | None = None
+    authors: list[str] = Field(default_factory=list)
+    doi: str | None = None
+    publication_year: int | None = None
+    url: str | None = None
+    error: str | None = None
+
+
 class PaperRanking(BaseModel):
     """Ranking metadata assigned after enrichment."""
 
@@ -96,49 +128,6 @@ class PaperRanking(BaseModel):
     normalized_signals: dict[str, float] = Field(default_factory=dict)
     explanation: str = ""
     explanation_chips: list[str] = Field(default_factory=list)
-
-
-class AuthorOpenAlexEnrichment(BaseModel):
-    """Normalized metadata pulled from OpenAlex for an author."""
-
-    status: Literal["matched", "not_found", "error"] = "not_found"
-    openalex_id: str | None = None
-    matched_name: str | None = None
-    name_similarity: float | None = None
-    search_relevance_score: float | None = None
-    citation_count: int | None = None
-    works_count: int | None = None
-    orcid: str | None = None
-    affiliations: list[str] = Field(default_factory=list)
-    topics: list[str] = Field(default_factory=list)
-    personal_website_url: str | None = None
-    personal_blog_url: str | None = None
-    google_scholar_url: str | None = None
-    social_media_url: str | None = None
-    semantic_scholar_id: str | None = None
-    error: str | None = None
-
-
-class AuthorRanking(BaseModel):
-    """Ranking metadata assigned after author enrichment."""
-
-    rank: int | None = None
-    score: float = 0.0
-    normalized_signals: dict[str, float] = Field(default_factory=dict)
-    explanation: str = ""
-    explanation_chips: list[str] = Field(default_factory=list)
-
-
-class Author(BaseModel):
-    """A researcher identified from the search results."""
-
-    name: str
-    affiliations: list[str] = Field(default_factory=list)
-    research_areas: list[str] = Field(default_factory=list)
-    matched_paper_count: int = 0
-    matched_paper_titles: list[str] = Field(default_factory=list)
-    openalex: AuthorOpenAlexEnrichment | None = None
-    ranking: AuthorRanking | None = None
 
 
 class Lab(BaseModel):
@@ -155,7 +144,6 @@ class ResearchOutput(BaseModel):
     """The full structured output of the research pipeline."""
 
     papers: list[Paper] = Field(default_factory=list)
-    authors: list[Author] = Field(default_factory=list)
     labs: list[Lab] = Field(default_factory=list)
     fields: list[str] = Field(default_factory=list)
     keywords: list[str] = Field(default_factory=list)
@@ -166,7 +154,6 @@ class StructuredResearchOutput(BaseModel):
     """LLM-only structured output before enrichment and reranking."""
 
     papers: list[StructuredPaper] = Field(default_factory=list)
-    authors: list[Author] = Field(default_factory=list)
     labs: list[Lab] = Field(default_factory=list)
     fields: list[str] = Field(default_factory=list)
     keywords: list[str] = Field(default_factory=list)
@@ -204,9 +191,6 @@ class RankedResults(BaseModel):
     weights: dict[str, float] = Field(default_factory=dict)
     normalization: dict[str, str] = Field(default_factory=dict)
     papers: list[Paper] = Field(default_factory=list)
-    author_weights: dict[str, float] = Field(default_factory=dict)
-    author_normalization: dict[str, str] = Field(default_factory=dict)
-    authors: list[Author] = Field(default_factory=list)
 
 
 # ---------------------------------------------------------------------------

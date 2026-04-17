@@ -16,8 +16,8 @@ from langchain_core.runnables import RunnableConfig
 from langgraph.graph import END, START, StateGraph
 
 from research_agent.config import Settings, settings
-from research_agent.author_pipeline import build_ranked_authors
-from research_agent.enrichment import OpenAlexEnricher
+from research_agent.deduplication import dedupe_papers, dedupe_search_results
+from research_agent.enrichment import OpenAlexEnricher, SemanticScholarEnricher
 from research_agent.llm import create_llm, with_structured_output
 from research_agent.logging_config import setup_logging
 from research_agent.models import (
@@ -95,14 +95,22 @@ async def execute_search(state: ResearchState, config: RunnableConfig) -> dict[s
             return []
 
     batches = await asyncio.gather(*[_run(q) for q in queries])
-    new_results = [r.model_dump() for batch in batches for r in batch]
+    raw_results = [r.model_dump() for batch in batches for r in batch]
+    new_results = dedupe_search_results(
+        state.get("all_search_results", []),
+        raw_results,
+    )
 
-    logger.info("Search returned %d total results", len(new_results))
+    logger.info(
+        "Search returned %d raw results; %d new unique results",
+        len(raw_results),
+        len(new_results),
+    )
     return {"all_search_results": new_results}
 
 
 async def structure_results(state: ResearchState, config: RunnableConfig) -> dict[str, Any]:
-    """Have the LLM structure raw search results into papers, authors, labs, etc."""
+    """Have the LLM structure raw search results into papers, labs, and metadata."""
     cfg = _get_settings(config)
     llm = create_llm(cfg.llm_provider, cfg.resolved_llm_model())
     structured_llm = with_structured_output(
@@ -129,7 +137,6 @@ async def structure_results(state: ResearchState, config: RunnableConfig) -> dic
 
     output = ResearchOutput(
         papers=[paper.model_dump() for paper in llm_output.papers],
-        authors=[author.model_dump() for author in llm_output.authors],
         labs=[lab.model_dump() for lab in llm_output.labs],
         fields=llm_output.fields,
         keywords=llm_output.keywords,
@@ -137,22 +144,28 @@ async def structure_results(state: ResearchState, config: RunnableConfig) -> dic
     )
 
     logger.info(
-        "Structured: %d papers, %d authors, %d labs, %d keywords",
-        len(output.papers), len(output.authors), len(output.labs), len(output.keywords),
+        "Structured: %d papers, %d labs, %d keywords",
+        len(output.papers), len(output.labs), len(output.keywords),
     )
     return {"structured_output": output.model_dump()}
 
 
 async def enrich_results(state: ResearchState, config: RunnableConfig) -> dict[str, Any]:
-    """Enrich structured papers with OpenAlex metadata."""
+    """Enrich structured papers with OpenAlex and Semantic Scholar metadata."""
     cfg = _get_settings(config)
     structured = state.get("structured_output") or {}
     output = ResearchOutput.model_validate(structured)
 
     logger.info("Enriching %d papers with OpenAlex", len(output.papers))
-    enricher = OpenAlexEnricher(cfg)
-    enriched_papers = await enricher.enrich_papers(output.papers)
-    output.papers = enriched_papers
+    openalex_enricher = OpenAlexEnricher(cfg)
+    enriched_papers = await openalex_enricher.enrich_papers(output.papers)
+
+    logger.info("Enriching %d papers with Semantic Scholar", len(enriched_papers))
+    semantic_scholar_enricher = SemanticScholarEnricher(cfg)
+    enriched_with_semantic_scholar = await semantic_scholar_enricher.enrich_papers(
+        enriched_papers
+    )
+    output.papers = dedupe_papers(enriched_with_semantic_scholar)
 
     return {"structured_output": output.model_dump()}
 
@@ -167,33 +180,6 @@ async def rerank_results(state: ResearchState, config: RunnableConfig) -> dict[s
     ranked: RankedResults = await rerank_papers(state["query"], output.papers, cfg)
 
     return {"ranked_output": ranked.model_dump()}
-
-
-async def rank_authors_results(state: ResearchState, config: RunnableConfig) -> dict[str, Any]:
-    """Build a separate author pipeline from the paper results and enrich it with OpenAlex."""
-    cfg = _get_settings(config)
-    structured = state.get("structured_output") or {}
-    ranked_output = state.get("ranked_output") or {}
-    output = ResearchOutput.model_validate(structured)
-    ranked = RankedResults.model_validate(ranked_output)
-
-    logger.info("Building ranked authors from %d ranked papers", len(ranked.papers))
-    authors, author_weights, author_normalization = await build_ranked_authors(
-        state["query"],
-        output,
-        ranked.papers,
-        cfg,
-    )
-
-    output.authors = authors
-    ranked.authors = authors
-    ranked.author_weights = author_weights
-    ranked.author_normalization = author_normalization
-
-    return {
-        "structured_output": output.model_dump(),
-        "ranked_output": ranked.model_dump(),
-    }
 
 
 async def assess_coverage(state: ResearchState, config: RunnableConfig) -> dict[str, Any]:
@@ -268,7 +254,6 @@ def build_graph() -> StateGraph:
     graph.add_node("structure_results", structure_results)
     graph.add_node("enrich_results", enrich_results)
     graph.add_node("rerank_results", rerank_results)
-    graph.add_node("rank_authors_results", rank_authors_results)
     graph.add_node("assess_coverage", assess_coverage)
 
     # Edges
@@ -277,8 +262,7 @@ def build_graph() -> StateGraph:
     graph.add_edge("execute_search", "structure_results")
     graph.add_edge("structure_results", "enrich_results")
     graph.add_edge("enrich_results", "rerank_results")
-    graph.add_edge("rerank_results", "rank_authors_results")
-    graph.add_edge("rank_authors_results", "assess_coverage")
+    graph.add_edge("rerank_results", "assess_coverage")
 
     # Conditional: loop or finish
     graph.add_conditional_edges("assess_coverage", should_continue)

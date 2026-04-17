@@ -1,34 +1,50 @@
 from __future__ import annotations
 
+import asyncio
+import time
 import unittest
 from unittest.mock import AsyncMock, patch
 
-from research_agent.author_pipeline import (
-    _apply_author_enrichment,
-    _build_author_enrichment,
-    build_ranked_authors,
-)
+import httpx
+
 from research_agent.config import Settings
-from research_agent.enrichment import OpenAlexEnricher, _build_enrichment
+from research_agent.deduplication import dedupe_papers, dedupe_search_results
+from research_agent.enrichment import (
+    OpenAlexEnricher,
+    SemanticScholarEnricher,
+    _build_enrichment,
+    _build_semantic_scholar_enrichment,
+)
 from research_agent.graph import run_research
 from research_agent.models import (
-    Author,
-    AuthorOpenAlexEnrichment,
     Paper,
     PaperOpenAlexEnrichment,
-    PaperRanking,
-    ResearchOutput,
+    PaperSemanticScholarEnrichment,
 )
 from research_agent.ranking import rerank_papers
 from research_agent.search.factory import create_search_provider
 
 
 class _FakeResponse:
-    def __init__(self, payload: dict) -> None:
+    def __init__(
+        self,
+        payload: dict,
+        *,
+        status_code: int = 200,
+        headers: dict[str, str] | None = None,
+    ) -> None:
         self._payload = payload
+        self.status_code = status_code
+        self.headers = headers or {}
+        self.request = httpx.Request("GET", "https://example.test/")
 
     def raise_for_status(self) -> None:
-        return None
+        if self.status_code >= 400:
+            raise httpx.HTTPStatusError(
+                f"{self.status_code}",
+                request=self.request,
+                response=self,  # type: ignore[arg-type]
+            )
 
     def json(self) -> dict:
         return self._payload
@@ -89,6 +105,48 @@ class EnrichmentTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(enrichment.source_display_name, "Nature Physics")
         self.assertTrue(enrichment.is_in_top_1_percent)
 
+    def test_build_semantic_scholar_enrichment_parses_paper(self) -> None:
+        paper_data = {
+            "paperId": "649def34f8be52c8b66281af98ae884c09aef38b",
+            "corpusId": 19170988,
+            "title": "Construction of the Literature Graph in Semantic Scholar",
+            "matchScore": 174.22,
+            "year": 2018,
+            "citationCount": 365,
+            "influentialCitationCount": 90,
+            "venue": "NAACL",
+            "publicationVenue": {
+                "id": "venue-123",
+                "name": "North American Chapter of the Association for Computational Linguistics",
+                "type": "conference",
+                "alternate_names": ["NAACL", "NAACL-HLT"],
+                "url": "https://aclanthology.org/venues/naacl/",
+            },
+            "authors": [
+                {"authorId": "1", "name": "Alice Example"},
+                {"authorId": "2", "name": "Bob Example"},
+            ],
+            "url": "https://www.semanticscholar.org/paper/649def34f8be52c8b66281af98ae884c09aef38b",
+            "externalIds": {"DOI": "10.18653/v1/n18-3011"},
+        }
+
+        enrichment = _build_semantic_scholar_enrichment(
+            paper_data,
+            title_similarity=0.97,
+        )
+
+        self.assertEqual(enrichment.status, "matched")
+        self.assertEqual(enrichment.paper_id, "649def34f8be52c8b66281af98ae884c09aef38b")
+        self.assertEqual(enrichment.corpus_id, 19170988)
+        self.assertEqual(enrichment.citation_count, 365)
+        self.assertEqual(enrichment.influential_citation_count, 90)
+        self.assertEqual(
+            enrichment.publication_venue_name,
+            "North American Chapter of the Association for Computational Linguistics",
+        )
+        self.assertEqual(enrichment.authors, ["Alice Example", "Bob Example"])
+        self.assertEqual(enrichment.doi, "10.18653/v1/n18-3011")
+
     async def test_fetch_enrichment_prefers_doi_lookup_before_title_search(self) -> None:
         cfg = Settings()
         enricher = OpenAlexEnricher(cfg)
@@ -146,103 +204,264 @@ class EnrichmentTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn("filter", params_list[0])
         self.assertIn("search", params_list[-1])
 
-    def test_build_author_enrichment_parses_openalex_author(self) -> None:
-        author = {
-            "id": "https://openalex.org/A123",
-            "display_name": "Alice Quantum",
-            "relevance_score": 0.88,
-            "cited_by_count": 4321,
-            "works_count": 210,
-            "orcid": "https://orcid.org/0000-0002-1825-0097",
-            "ids": {
-                "google_scholar": "https://scholar.google.com/citations?user=alice123",
-                "twitter": "https://x.com/alice_quantum",
-                "semantic_scholar": "https://www.semanticscholar.org/author/12345",
-            },
-            "last_known_institutions": [
-                {"display_name": "Quantum Lab", "country_code": "US"},
-                {"display_name": "Caltech", "country_code": "US"},
-            ],
-            "topics": [
-                {"display_name": "Quantum Error Correction"},
-                {"display_name": "Fault Tolerance"},
-            ],
-        }
+    async def test_semantic_scholar_fetch_prefers_doi_lookup_before_title_search(self) -> None:
+        cfg = Settings()
+        enricher = SemanticScholarEnricher(cfg)
+        client = AsyncMock()
+        client.get = AsyncMock(
+            return_value=_FakeResponse(
+                {
+                    "paperId": "paper-123",
+                    "title": "Canonical Semantic Scholar Title",
+                    "citationCount": 77,
+                    "venue": "Nature",
+                    "publicationVenue": {"name": "Nature"},
+                    "externalIds": {"DOI": "10.1234/example"},
+                }
+            )
+        )
 
-        enrichment = _build_author_enrichment(
-            author,
-            candidate_name="Alice Quantum",
-            name_similarity=0.97,
+        enrichment = await enricher._fetch_enrichment(
+            client,
+            title="Slightly Different Title",
+            doi="10.1234/example",
         )
 
         self.assertEqual(enrichment.status, "matched")
-        self.assertEqual(enrichment.openalex_id, "https://openalex.org/A123")
-        self.assertEqual(enrichment.citation_count, 4321)
-        self.assertEqual(enrichment.orcid, "0000-0002-1825-0097")
-        self.assertEqual(
-            enrichment.google_scholar_url,
-            "https://scholar.google.com/citations?user=alice123",
-        )
-        self.assertEqual(enrichment.social_media_url, "https://x.com/alice_quantum")
-        self.assertEqual(enrichment.semantic_scholar_id, "12345")
-        self.assertEqual(
-            enrichment.affiliations,
-            ["Quantum Lab US", "Caltech US"],
-        )
-        self.assertEqual(
-            enrichment.topics,
-            ["Quantum Error Correction", "Fault Tolerance"],
+        self.assertEqual(enrichment.paper_id, "paper-123")
+        self.assertEqual(enrichment.citation_count, 77)
+        self.assertEqual(client.get.await_count, 1)
+        self.assertIn("paper/DOI:10.1234%2Fexample", client.get.await_args.args[0])
+
+    async def test_semantic_scholar_does_not_send_api_key_by_default(self) -> None:
+        cfg = Settings()
+        cfg.semantic_scholar_api_key = "should-not-be-sent"
+        cfg.semantic_scholar_use_api_key = False
+        cfg.semantic_scholar_requests_per_second = 0.0
+        enricher = SemanticScholarEnricher(cfg)
+        client = AsyncMock()
+        client.get = AsyncMock(
+            return_value=_FakeResponse(
+                {
+                    "paperId": "paper-123",
+                    "title": "Example",
+                    "externalIds": {"DOI": "10.1/x"},
+                }
+            )
         )
 
-    def test_apply_author_enrichment_adds_search_fallback_urls(self) -> None:
-        author = Author(
-            name="Alice Quantum",
-            affiliations=["Quantum Lab"],
-        )
-        enrichment = AuthorOpenAlexEnrichment(status="not_found")
+        await enricher._fetch_by_identifier(client, "DOI:10.1/x")
 
-        enriched = _apply_author_enrichment(author, enrichment)
+        call = client.get.await_args
+        self.assertEqual(call.kwargs.get("headers"), {})
 
-        self.assertEqual(enriched.openalex.status, "not_found")
-        self.assertIn(
-            "scholar.google.com/scholar?q=Alice+Quantum",
-            enriched.openalex.google_scholar_url,
+    async def test_semantic_scholar_sends_api_key_when_explicitly_enabled(self) -> None:
+        cfg = Settings()
+        cfg.semantic_scholar_api_key = "secret-key"
+        cfg.semantic_scholar_use_api_key = True
+        cfg.semantic_scholar_requests_per_second = 0.0
+        enricher = SemanticScholarEnricher(cfg)
+        client = AsyncMock()
+        client.get = AsyncMock(
+            return_value=_FakeResponse(
+                {"paperId": "paper-123", "title": "Example", "externalIds": {}}
+            )
         )
-        self.assertIn(
-            "google.com/search?q=Alice+Quantum+Quantum+Lab+official+website",
-            enriched.openalex.personal_website_url,
+
+        await enricher._fetch_by_identifier(client, "DOI:10.1/x")
+
+        call = client.get.await_args
+        self.assertEqual(call.kwargs.get("headers"), {"x-api-key": "secret-key"})
+
+    async def test_semantic_scholar_retries_after_429_and_returns_payload(self) -> None:
+        cfg = Settings()
+        cfg.semantic_scholar_requests_per_second = 0.0
+        cfg.semantic_scholar_max_retries = 3
+        cfg.semantic_scholar_initial_backoff_seconds = 0.01
+        cfg.semantic_scholar_max_backoff_seconds = 0.05
+        enricher = SemanticScholarEnricher(cfg)
+        client = AsyncMock()
+        client.get = AsyncMock(
+            side_effect=[
+                _FakeResponse(
+                    {"message": "too many"},
+                    status_code=429,
+                    headers={"Retry-After": "0"},
+                ),
+                _FakeResponse(
+                    {"paperId": "paper-123", "title": "Example", "externalIds": {}}
+                ),
+            ]
         )
-        self.assertIn(
-            "google.com/search?q=Alice+Quantum+Quantum+Lab+blog",
-            enriched.openalex.personal_blog_url,
+
+        enrichment = await enricher._fetch_by_identifier(client, "DOI:10.1/x")
+
+        self.assertEqual(enrichment.status, "matched")
+        self.assertEqual(enrichment.paper_id, "paper-123")
+        self.assertEqual(client.get.await_count, 2)
+
+    async def test_semantic_scholar_gives_up_after_max_retries_on_429(self) -> None:
+        cfg = Settings()
+        cfg.semantic_scholar_requests_per_second = 0.0
+        cfg.semantic_scholar_max_retries = 1
+        cfg.semantic_scholar_initial_backoff_seconds = 0.01
+        cfg.semantic_scholar_max_backoff_seconds = 0.05
+        enricher = SemanticScholarEnricher(cfg)
+        client = AsyncMock()
+        client.get = AsyncMock(
+            return_value=_FakeResponse(
+                {"message": "too many"},
+                status_code=429,
+                headers={"Retry-After": "0"},
+            )
+        )
+
+        enrichment = await enricher._fetch_by_identifier(client, "DOI:10.1/x")
+
+        self.assertEqual(enrichment.status, "error")
+        self.assertEqual(client.get.await_count, 2)
+
+    async def test_semantic_scholar_rate_limiter_serializes_requests(self) -> None:
+        cfg = Settings()
+        cfg.semantic_scholar_requests_per_second = 20.0
+        cfg.semantic_scholar_max_retries = 0
+        enricher = SemanticScholarEnricher(cfg)
+
+        async def _slow_get(*args, **kwargs):
+            return _FakeResponse(
+                {"paperId": "paper-123", "title": "Example", "externalIds": {}}
+            )
+
+        client = AsyncMock()
+        client.get = AsyncMock(side_effect=_slow_get)
+
+        start = time.monotonic()
+        await asyncio.gather(
+            enricher._fetch_by_identifier(client, "DOI:10.1/x"),
+            enricher._fetch_by_identifier(client, "DOI:10.1/y"),
+            enricher._fetch_by_identifier(client, "DOI:10.1/z"),
+        )
+        elapsed = time.monotonic() - start
+
+        self.assertGreaterEqual(elapsed, 2 * (1.0 / 20.0) * 0.9)
+
+
+class DeduplicationTests(unittest.TestCase):
+    def test_dedupe_search_results_filters_existing_and_in_batch_duplicates(self) -> None:
+        existing_results = [
+            {
+                "title": "Quantum Error Correction with Widgets",
+                "url": "https://example.org/paper",
+                "snippet": "existing",
+                "source": "example",
+            }
+        ]
+        new_results = [
+            {
+                "title": "Quantum Error Correction with Widgets",
+                "url": "https://example.org/paper?utm_source=newsletter#section",
+                "snippet": "duplicate url with tracking params",
+                "source": "example",
+            },
+            {
+                "title": "Fault-tolerant widgets for quantum memory",
+                "url": "https://example.org/another-paper",
+                "snippet": "unique",
+                "source": "example",
+            },
+            {
+                "title": "Fault-tolerant widgets for quantum memory",
+                "url": "",
+                "snippet": "duplicate title in the same batch",
+                "source": "example",
+            },
+        ]
+
+        deduped = dedupe_search_results(existing_results, new_results)
+
+        self.assertEqual(len(deduped), 1)
+        self.assertEqual(deduped[0]["url"], "https://example.org/another-paper")
+
+    def test_dedupe_papers_merges_duplicate_records_and_keeps_enrichment(self) -> None:
+        left = Paper(
+            title="Quantum Error Correction with Widgets",
+            authors=["Alice Example"],
+            source="arxiv",
+            url="https://arxiv.org/abs/1234.5678",
+            openalex=PaperOpenAlexEnrichment(
+                status="matched",
+                openalex_id="https://openalex.org/W123",
+                doi="10.1234/example",
+                publication_year=2024,
+                authors=["Alice Example", "Bob Example"],
+                source_display_name="Nature Physics",
+            ),
+        )
+        right = Paper(
+            title="Quantum error correction with widgets",
+            authors=["Alice Example", "Bob Example"],
+            url="https://publisher.example/paper",
+            abstract="Longer abstract from a second discovery path.",
+            key_finding="Shows widgets improve logical error suppression.",
+            semantic_scholar=PaperSemanticScholarEnrichment(
+                status="matched",
+                paper_id="paper-123",
+                doi="10.1234/example",
+                citation_count=77,
+                publication_year=2024,
+                authors=["Alice Example", "Bob Example"],
+            ),
+        )
+
+        deduped = dedupe_papers([left, right])
+
+        self.assertEqual(len(deduped), 1)
+        self.assertEqual(deduped[0].doi, "10.1234/example")
+        self.assertEqual(deduped[0].year, 2024)
+        self.assertEqual(deduped[0].openalex.openalex_id, "https://openalex.org/W123")
+        self.assertEqual(deduped[0].semantic_scholar.paper_id, "paper-123")
+        self.assertEqual(
+            deduped[0].authors,
+            ["Alice Example", "Bob Example"],
+        )
+        self.assertEqual(
+            deduped[0].key_finding,
+            "Shows widgets improve logical error suppression.",
+        )
+        self.assertEqual(
+            deduped[0].abstract,
+            "Longer abstract from a second discovery path.",
         )
 
 
 class RankingTests(unittest.IsolatedAsyncioTestCase):
     async def test_rerank_combines_semantic_and_bibliometric_signals(self) -> None:
         cfg = Settings()
-        cfg.semantic_relevance_weight = 0.2
-        cfg.citation_count_weight = 0.6
-        cfg.fwci_weight = 0.2
+        cfg.semantic_relevance_weight = 0.3
+        cfg.citation_count_weight = 0.7
 
         papers = [
             Paper(
                 title="Paper A",
-                openalex=PaperOpenAlexEnrichment(status="matched", citation_count=10, fwci=1.0),
+                semantic_scholar=PaperSemanticScholarEnrichment(
+                    status="matched",
+                    citation_count=10,
+                ),
             ),
             Paper(
                 title="Paper B",
-                openalex=PaperOpenAlexEnrichment(
+                semantic_scholar=PaperSemanticScholarEnrichment(
                     status="matched",
                     citation_count=1000,
-                    fwci=2.0,
-                    is_in_top_1_percent=True,
                 ),
             ),
             Paper(
                 title="Paper C",
                 year=2025,
-                openalex=PaperOpenAlexEnrichment(status="matched", citation_count=50, fwci=10.0),
+                semantic_scholar=PaperSemanticScholarEnrichment(
+                    status="matched",
+                    citation_count=50,
+                ),
             ),
         ]
 
@@ -254,95 +473,12 @@ class RankingTests(unittest.IsolatedAsyncioTestCase):
 
         self.assertEqual([paper.title for paper in ranked.papers], ["Paper B", "Paper C", "Paper A"])
         self.assertEqual([paper.ranking.rank for paper in ranked.papers], [1, 2, 3])
-        self.assertEqual(ranked.weights["semantic_relevance"], 0.2)
-        self.assertEqual(ranked.weights["citation_count"], 0.6)
-        self.assertEqual(ranked.weights["fwci"], 0.2)
+        self.assertEqual(ranked.weights["semantic_relevance"], 0.3)
+        self.assertEqual(ranked.weights["citation_count"], 0.7)
         self.assertGreater(ranked.papers[0].ranking.score, ranked.papers[1].ranking.score)
-        self.assertIn("Highly cited (top 1%)", ranked.papers[0].ranking.explanation_chips)
+        self.assertIn("Strong citation record", ranked.papers[0].ranking.explanation_chips)
         self.assertTrue(ranked.papers[0].ranking.explanation)
-        self.assertIn("High field-weighted impact", ranked.papers[1].ranking.explanation_chips)
-
-    async def test_build_ranked_authors_combines_query_match_support_and_citations(self) -> None:
-        cfg = Settings()
-        ranked_papers = [
-            Paper(
-                title="Paper A",
-                authors=["Alice Quantum"],
-                ranking=PaperRanking(rank=1, score=0.93),
-            ),
-            Paper(
-                title="Paper B",
-                authors=["Alice Quantum", "Bob Materials"],
-                ranking=PaperRanking(rank=2, score=0.71),
-            ),
-        ]
-        output = ResearchOutput(
-            papers=ranked_papers,
-            authors=[
-                Author(
-                    name="Alice Quantum",
-                    research_areas=["Quantum error correction"],
-                ),
-                Author(
-                    name="Bob Materials",
-                    research_areas=["Condensed matter"],
-                ),
-            ],
-        )
-        enriched_authors = [
-            Author(
-                name="Alice Quantum",
-                matched_paper_count=2,
-                matched_paper_titles=["Paper A", "Paper B"],
-                research_areas=["Quantum error correction"],
-                openalex=AuthorOpenAlexEnrichment(
-                    status="matched",
-                    openalex_id="https://openalex.org/A1",
-                    citation_count=800,
-                    topics=["Quantum error correction", "Fault tolerance"],
-                ),
-            ),
-            Author(
-                name="Bob Materials",
-                matched_paper_count=1,
-                matched_paper_titles=["Paper B"],
-                research_areas=["Condensed matter"],
-                openalex=AuthorOpenAlexEnrichment(
-                    status="matched",
-                    openalex_id="https://openalex.org/A2",
-                    citation_count=6000,
-                    topics=["Condensed matter physics"],
-                ),
-            ),
-        ]
-
-        with patch(
-            "research_agent.author_pipeline._enrich_authors",
-            new=AsyncMock(return_value=enriched_authors),
-        ):
-            authors, weights, normalization = await build_ranked_authors(
-                "recent quantum error correction papers adapted to biased noise",
-                output,
-                ranked_papers,
-                cfg,
-            )
-
-        self.assertEqual([author.name for author in authors], ["Alice Quantum", "Bob Materials"])
-        self.assertEqual([author.ranking.rank for author in authors], [1, 2])
-        self.assertEqual(weights["query_topic_overlap"], 0.4)
-        self.assertEqual(weights["paper_support"], 0.35)
-        self.assertEqual(weights["citation_count"], 0.25)
-        self.assertIn("paper_support", normalization)
-        self.assertGreater(authors[0].ranking.score, authors[1].ranking.score)
-        self.assertGreater(
-            authors[0].ranking.normalized_signals["query_topic_overlap"],
-            authors[1].ranking.normalized_signals["query_topic_overlap"],
-        )
-        self.assertIn(
-            "Supported by top-ranked papers",
-            authors[0].ranking.explanation_chips,
-        )
-
+        self.assertIn("Recent work", ranked.papers[1].ranking.explanation_chips)
 
 class GraphTests(unittest.IsolatedAsyncioTestCase):
     async def test_run_research_preserves_explicit_zero_max_iterations(self) -> None:

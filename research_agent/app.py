@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import logging
+import time
 from datetime import datetime
 from typing import Any
 
@@ -9,7 +11,10 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from research_agent.config import Settings
+from research_agent.export import build_local_result_payload, save_local_results
 from research_agent.graph import run_research
+
+logger = logging.getLogger("research_agent.app")
 
 app = FastAPI(title="Research Agent Backend", version="0.1.0")
 
@@ -27,7 +32,6 @@ class ResearchAgentRunRequest(BaseModel):
     results_per_query: int | None = Field(default=None, alias="resultsPerQuery", ge=1, le=20)
     semantic_weight: float | None = Field(default=None, alias="semanticWeight", ge=0)
     citation_weight: float | None = Field(default=None, alias="citationWeight", ge=0)
-    fwci_weight: float | None = Field(default=None, alias="fwciWeight", ge=0)
 
     @model_validator(mode="after")
     def validate_weights(self) -> "ResearchAgentRunRequest":
@@ -37,7 +41,6 @@ class ResearchAgentRunRequest(BaseModel):
             for value in [
                 self.semantic_weight,
                 self.citation_weight,
-                self.fwci_weight,
             ]
             if value is not None
         ]
@@ -61,8 +64,6 @@ def _build_settings(payload: ResearchAgentRunRequest) -> Settings:
         cfg.semantic_relevance_weight = payload.semantic_weight
     if payload.citation_weight is not None:
         cfg.citation_count_weight = payload.citation_weight
-    if payload.fwci_weight is not None:
-        cfg.fwci_weight = payload.fwci_weight
     return cfg
 
 
@@ -94,6 +95,7 @@ async def run_pipeline(payload: ResearchAgentRunRequest) -> Any:
     """Run the research agent and return both structured and ranked outputs."""
     cfg = _build_settings(payload)
 
+    started_at = time.monotonic()
     try:
         final_state = await run_research(
             payload.query,
@@ -105,6 +107,7 @@ async def run_pipeline(payload: ResearchAgentRunRequest) -> Any:
             status_code=500,
             detail=f"Research agent run failed: {exc}",
         ) from exc
+    elapsed_seconds = time.monotonic() - started_at
 
     meta = _build_meta(payload, cfg, final_state)
     structured_output = dict(final_state.get("structured_output") or {})
@@ -113,9 +116,27 @@ async def run_pipeline(payload: ResearchAgentRunRequest) -> Any:
     if ranked_output:
         ranked_output["_meta"] = meta
 
+    local_result_path: str | None = None
+    try:
+        local_payload = build_local_result_payload(
+            payload.query,
+            final_state,
+            cfg,
+            elapsed_seconds=elapsed_seconds,
+        )
+        path = save_local_results(local_payload, output_dir=cfg.log_dir)
+        local_result_path = str(path)
+    except Exception:
+        logger.exception("Failed to persist local research result payload")
+
+    meta["elapsed_seconds"] = elapsed_seconds
+    if local_result_path:
+        meta["local_result_path"] = local_result_path
+
     return {
         "parsed_query": final_state.get("parsed_query"),
         "structured_output": structured_output,
         "ranked_output": ranked_output,
         "meta": meta,
+        "local_result_path": local_result_path,
     }

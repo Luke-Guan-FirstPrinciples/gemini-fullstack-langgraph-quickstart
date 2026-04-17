@@ -31,13 +31,11 @@ web-search results (title + URL + snippet), extract and structure:
 
 1. **Papers** — title, authors (if visible), source (arxiv / nature / …), URL, \
    year, abstract summary, DOI if present, and a one-sentence key finding.
-2. **Authors** — notable researchers appearing across multiple results, with \
-   affiliations and research areas where inferable.
-3. **Labs / Institutions** — research groups, universities, or national labs \
+2. **Labs / Institutions** — research groups, universities, or national labs \
    prominently associated with the results.
-4. **Fields** — the broad research fields and sub-fields covered.
-5. **Keywords** — the most important technical keywords.
-6. **Sub-queries** — 2-4 follow-up search queries that would deepen or broaden \
+3. **Fields** — the broad research fields and sub-fields covered.
+4. **Keywords** — the most important technical keywords.
+5. **Sub-queries** — 2-4 follow-up search queries that would deepen or broaden \
    the coverage (always include `site:` operators).
 
 Be thorough but only include information **directly supported** by the search \
