@@ -438,6 +438,23 @@ const buildStructuredPaper = (paper: MockPaperSeed): ResearchAgentPaper => ({
     url: `https://www.semanticscholar.org/paper/${paper.openalexId.split("/").at(-1) ?? slugify(paper.title)}`,
     error: null,
   },
+  web_search: {
+    status: "matched",
+    citation_count: Math.max(
+      0,
+      Math.round(paper.citationCount * (0.82 + (paper.citationCount % 5) * 0.04)),
+    ),
+    source_url: `https://scholar.google.com/scholar?q=${encodeURIComponent(paper.title)}`,
+    source_display_name: "google_scholar",
+    snippet: `${paper.title} — Cited by ${Math.max(
+      0,
+      Math.round(paper.citationCount * 0.92),
+    )}. ${paper.authors.slice(0, 2).join(", ")}${
+      paper.authors.length > 2 ? " et al." : ""
+    } · ${paper.year}`,
+    query: `"${paper.title}" "cited by"`,
+    error: null,
+  },
 });
 
 export function buildMockResearchAgentResponse(

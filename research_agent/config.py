@@ -32,7 +32,7 @@ class Settings:
     )
     llm_provider: str = field(default_factory=lambda: os.getenv("LLM_PROVIDER", "gemini"))
     llm_model: str = field(default_factory=lambda: os.getenv("LLM_MODEL", ""))
-    gemini_llm_model: str = os.getenv("GEMINI_LLM_MODEL", "gemini-2.5-flash")
+    gemini_llm_model: str = os.getenv("GEMINI_LLM_MODEL", "gemini-3.1-pro-preview")
     openai_llm_model: str = os.getenv("OPENAI_LLM_MODEL", "gpt-5.4-mini")
     anthropic_llm_model: str = os.getenv(
         "ANTHROPIC_LLM_MODEL",
@@ -98,13 +98,32 @@ class Settings:
         os.getenv("RESEARCH_SEMANTIC_SCHOLAR_REQUESTS_PER_SECOND", "1.0")
     )
     semantic_scholar_max_retries: int = int(
-        os.getenv("RESEARCH_SEMANTIC_SCHOLAR_MAX_RETRIES", "5")
+        os.getenv("RESEARCH_SEMANTIC_SCHOLAR_MAX_RETRIES", "1")
     )
     semantic_scholar_initial_backoff_seconds: float = float(
         os.getenv("RESEARCH_SEMANTIC_SCHOLAR_INITIAL_BACKOFF_SECONDS", "2.0")
     )
     semantic_scholar_max_backoff_seconds: float = float(
         os.getenv("RESEARCH_SEMANTIC_SCHOLAR_MAX_BACKOFF_SECONDS", "30.0")
+    )
+    # Third citation signal: scrape "cited by N" out of the configured web
+    # search provider. Off by default since it spends search-quota per paper.
+    web_search_citations_enabled: bool = _env_flag(
+        "RESEARCH_WEB_SEARCH_CITATIONS_ENABLED",
+        default=True,
+    )
+    web_search_citations_parallelism: int = int(
+        os.getenv("RESEARCH_WEB_SEARCH_CITATIONS_PARALLELISM", "2")
+    )
+    web_search_citations_max_papers: int = int(
+        os.getenv("RESEARCH_WEB_SEARCH_CITATIONS_MAX_PAPERS", "20")
+    )
+    web_search_citations_results_per_paper: int = int(
+        os.getenv("RESEARCH_WEB_SEARCH_CITATIONS_RESULTS_PER_PAPER", "5")
+    )
+    web_search_citations_query_template: str = os.getenv(
+        "RESEARCH_WEB_SEARCH_CITATIONS_QUERY_TEMPLATE",
+        '"{title}" "cited by"',
     )
     rerank_batch_size: int = int(os.getenv("RESEARCH_RERANK_BATCH_SIZE", "12"))
     rerank_model: str = os.getenv("RESEARCH_RERANK_MODEL", "")

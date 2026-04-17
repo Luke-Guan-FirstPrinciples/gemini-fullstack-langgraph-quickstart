@@ -52,6 +52,7 @@ class Paper(BaseModel):
     key_finding: str = Field(default="", description="One-sentence summary of the main contribution")
     openalex: "PaperOpenAlexEnrichment | None" = None
     semantic_scholar: "PaperSemanticScholarEnrichment | None" = None
+    web_search: "PaperWebSearchCitations | None" = None
     ranking: "PaperRanking | None" = None
 
 
@@ -117,6 +118,23 @@ class PaperSemanticScholarEnrichment(BaseModel):
     doi: str | None = None
     publication_year: int | None = None
     url: str | None = None
+    error: str | None = None
+
+
+class PaperWebSearchCitations(BaseModel):
+    """Citation count extracted from an open-web search snippet.
+
+    This is a best-effort third signal — it supplements Semantic Scholar and
+    OpenAlex by scraping citation numbers out of a generic web-search result
+    (e.g. Google Scholar or a publisher landing page). Accuracy varies.
+    """
+
+    status: Literal["matched", "not_found", "error", "skipped"] = "not_found"
+    citation_count: int | None = None
+    source_url: str | None = None
+    source_display_name: str | None = None
+    snippet: str | None = None
+    query: str | None = None
     error: str | None = None
 
 

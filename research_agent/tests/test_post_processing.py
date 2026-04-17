@@ -12,14 +12,17 @@ from research_agent.deduplication import dedupe_papers, dedupe_search_results
 from research_agent.enrichment import (
     OpenAlexEnricher,
     SemanticScholarEnricher,
+    WebSearchCitationsEnricher,
     _build_enrichment,
     _build_semantic_scholar_enrichment,
+    _extract_citation_count,
 )
 from research_agent.graph import run_research
 from research_agent.models import (
     Paper,
     PaperOpenAlexEnrichment,
     PaperSemanticScholarEnrichment,
+    SearchResult,
 )
 from research_agent.ranking import rerank_papers
 from research_agent.search.factory import create_search_provider
@@ -344,6 +347,89 @@ class EnrichmentTests(unittest.IsolatedAsyncioTestCase):
         elapsed = time.monotonic() - start
 
         self.assertGreaterEqual(elapsed, 2 * (1.0 / 20.0) * 0.9)
+
+
+class WebSearchCitationsEnricherTests(unittest.IsolatedAsyncioTestCase):
+    def test_extract_citation_count_handles_common_patterns(self) -> None:
+        self.assertEqual(_extract_citation_count("Cited by 123 — Nature"), 123)
+        self.assertEqual(_extract_citation_count("1,245 citations reported"), 1245)
+        self.assertEqual(_extract_citation_count("Citations: 42"), 42)
+        self.assertIsNone(_extract_citation_count("No numbers here"))
+        self.assertIsNone(_extract_citation_count(None))
+
+    async def test_enrich_papers_extracts_count_from_best_snippet(self) -> None:
+        cfg = Settings()
+        cfg.web_search_citations_enabled = True
+        cfg.web_search_citations_parallelism = 1
+        cfg.web_search_citations_max_papers = 5
+
+        class _FakeProvider:
+            async def search(self, query: str, num_results: int = 10) -> list[SearchResult]:
+                return [
+                    SearchResult(
+                        title="Scholarly article",
+                        url="https://scholar.example/article",
+                        snippet="Quantum widgets — Cited by 42 — 2024",
+                        source="scholar.example",
+                    ),
+                    SearchResult(
+                        title="Blog post",
+                        url="https://blog.example",
+                        snippet="Read our thoughts on quantum widgets.",
+                        source="blog.example",
+                    ),
+                ]
+
+        enricher = WebSearchCitationsEnricher(cfg, _FakeProvider())  # type: ignore[arg-type]
+        paper = Paper(title="Quantum Widgets for Everyone", authors=["Alice"])
+
+        [enriched] = await enricher.enrich_papers([paper])
+
+        self.assertIsNotNone(enriched.web_search)
+        self.assertEqual(enriched.web_search.status, "matched")
+        self.assertEqual(enriched.web_search.citation_count, 42)
+        self.assertEqual(enriched.web_search.source_url, "https://scholar.example/article")
+
+    async def test_enrich_papers_respects_disabled_flag(self) -> None:
+        cfg = Settings()
+        cfg.web_search_citations_enabled = False
+
+        class _UnusedProvider:
+            async def search(self, query: str, num_results: int = 10) -> list[SearchResult]:
+                raise AssertionError("provider should not be called when disabled")
+
+        enricher = WebSearchCitationsEnricher(cfg, _UnusedProvider())  # type: ignore[arg-type]
+        papers = [Paper(title="Paper A", authors=[]), Paper(title="Paper B", authors=[])]
+
+        enriched = await enricher.enrich_papers(papers)
+
+        self.assertEqual(len(enriched), 2)
+        for paper in enriched:
+            self.assertIsNotNone(paper.web_search)
+            self.assertEqual(paper.web_search.status, "skipped")
+
+    async def test_enrich_papers_marks_papers_without_citation_as_not_found(self) -> None:
+        cfg = Settings()
+        cfg.web_search_citations_enabled = True
+        cfg.web_search_citations_parallelism = 1
+
+        class _EmptyProvider:
+            async def search(self, query: str, num_results: int = 10) -> list[SearchResult]:
+                return [
+                    SearchResult(
+                        title="Unrelated",
+                        url="https://example.org",
+                        snippet="Nothing about citations here.",
+                        source="example.org",
+                    )
+                ]
+
+        enricher = WebSearchCitationsEnricher(cfg, _EmptyProvider())  # type: ignore[arg-type]
+        [enriched] = await enricher.enrich_papers(
+            [Paper(title="Quantum Widgets", authors=[])]
+        )
+        self.assertEqual(enriched.web_search.status, "not_found")
+        self.assertIsNone(enriched.web_search.citation_count)
 
 
 class DeduplicationTests(unittest.TestCase):

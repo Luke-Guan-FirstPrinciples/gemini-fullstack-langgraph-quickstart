@@ -279,6 +279,59 @@ const buildSemanticScholarStatusLabel = (paper: ResearchAgentPaper): string => {
   return "Semantic Scholar missing";
 };
 
+interface CitationSourceEntry {
+  id: "semantic_scholar" | "openalex" | "web_search";
+  label: string;
+  count: number | null | undefined;
+  status: string;
+  sourceUrl: string | null;
+  sourceLabel: string | null;
+  snippet: string | null;
+}
+
+const buildCitationSources = (paper: ResearchAgentPaper): CitationSourceEntry[] => {
+  return [
+    {
+      id: "semantic_scholar",
+      label: "Semantic Scholar",
+      count: paper.semantic_scholar?.citation_count ?? null,
+      status: paper.semantic_scholar?.status ?? "not_found",
+      sourceUrl: paper.semantic_scholar?.url ?? null,
+      sourceLabel: paper.semantic_scholar?.publication_venue_name ??
+        paper.semantic_scholar?.venue ?? null,
+      snippet: null,
+    },
+    {
+      id: "openalex",
+      label: "OpenAlex",
+      count: paper.openalex?.citation_count ?? null,
+      status: paper.openalex?.status ?? "not_found",
+      sourceUrl: paper.openalex?.landing_page_url ?? paper.openalex?.openalex_id ?? null,
+      sourceLabel: paper.openalex?.source_display_name ?? null,
+      snippet: null,
+    },
+    {
+      id: "web_search",
+      label: "Web search",
+      count: paper.web_search?.citation_count ?? null,
+      status: paper.web_search?.status ?? "not_found",
+      sourceUrl: paper.web_search?.source_url ?? null,
+      sourceLabel: paper.web_search?.source_display_name ?? null,
+      snippet: paper.web_search?.snippet ?? null,
+    },
+  ];
+};
+
+const pickPrimaryCitationCount = (sources: CitationSourceEntry[]): number | null => {
+  const matched = sources
+    .map((source) => source.count)
+    .filter((value): value is number => typeof value === "number");
+  if (!matched.length) {
+    return null;
+  }
+  return Math.max(...matched);
+};
+
 export function ResearchAgentPanel() {
   const initialCachedResponse = getStoredResearchAgentResponse();
   const [dataMode, setDataMode] = useState<DataMode>(getInitialDataMode);
@@ -298,6 +351,9 @@ export function ResearchAgentPanel() {
   const [resultsPerQuery, setResultsPerQuery] = useState(DEFAULT_RESULTS_PER_QUERY);
   const [resultsPage, setResultsPage] = useState(0);
   const [expandedFeedbackByPaper, setExpandedFeedbackByPaper] = useState<
+    Record<string, boolean>
+  >({});
+  const [expandedCitationsByPaper, setExpandedCitationsByPaper] = useState<
     Record<string, boolean>
   >({});
   const [semanticWeight, setSemanticWeight] = useState(DEFAULT_SEMANTIC_WEIGHT);
@@ -384,6 +440,10 @@ export function ResearchAgentPanel() {
 
   useEffect(() => {
     setExpandedFeedbackByPaper({});
+  }, [response, resultView]);
+
+  useEffect(() => {
+    setExpandedCitationsByPaper({});
   }, [response, resultView]);
 
   const handleDataModeChange = (nextMode: DataMode) => {
@@ -509,6 +569,14 @@ export function ResearchAgentPanel() {
     const feedbackKey = buildPaperFeedbackKey(paper);
 
     setExpandedFeedbackByPaper((currentState) => ({
+      ...currentState,
+      [feedbackKey]: !currentState[feedbackKey],
+    }));
+  };
+
+  const togglePaperCitations = (paper: ResearchAgentPaper) => {
+    const feedbackKey = buildPaperFeedbackKey(paper);
+    setExpandedCitationsByPaper((currentState) => ({
       ...currentState,
       [feedbackKey]: !currentState[feedbackKey],
     }));
@@ -930,6 +998,13 @@ export function ResearchAgentPanel() {
                   "Publication venue unknown";
                 const openAlexStatus = buildOpenAlexStatusLabel(paper);
                 const semanticScholarStatus = buildSemanticScholarStatusLabel(paper);
+                const citationSources = buildCitationSources(paper);
+                const primaryCitationCount = pickPrimaryCitationCount(citationSources);
+                const matchedCitationSources = citationSources.filter(
+                  (source) => typeof source.count === "number",
+                );
+                const isCitationsExpanded =
+                  expandedCitationsByPaper[feedbackKey] ?? false;
                 const paperRowClassName = [
                   "result-card",
                   "paper-row-card",
@@ -1010,12 +1085,35 @@ export function ResearchAgentPanel() {
                     </div>
 
                     <div className="paper-row-metrics">
-                      <div className="paper-metric">
-                        <span>Citations</span>
-                        <strong>
-                          {formatCompactNumber(paper.semantic_scholar?.citation_count)}
-                        </strong>
-                      </div>
+                      <button
+                        className={[
+                          "paper-metric",
+                          "paper-metric-citations",
+                          isCitationsExpanded ? "expanded" : "",
+                        ]
+                          .filter(Boolean)
+                          .join(" ")}
+                          type="button"
+                          onClick={() => togglePaperCitations(paper)}
+                          aria-expanded={isCitationsExpanded}
+                          aria-label={`Show citation breakdown for ${paper.title}`}
+                          title={
+                            matchedCitationSources.length
+                              ? "Show citation breakdown by source"
+                              : "No citation counts reported"
+                          }
+                        >
+                          <span>
+                            Citations{" "}
+                            <span className="citations-source-count">
+                              ({matchedCitationSources.length}/3)
+                            </span>
+                          </span>
+                          <strong>{formatCompactNumber(primaryCitationCount)}</strong>
+                          <span className="citations-chevron" aria-hidden="true">
+                            {isCitationsExpanded ? "▾" : "▸"}
+                          </span>
+                        </button>
                       <div className="paper-metric">
                         <span>S2 status</span>
                         <strong>{semanticScholarStatus.replace("Semantic Scholar ", "")}</strong>
@@ -1031,6 +1129,61 @@ export function ResearchAgentPanel() {
                         <strong>{openAlexStatus.replace("OpenAlex ", "")}</strong>
                       </div>
                     </div>
+
+                    {isCitationsExpanded ? (
+                      <div
+                        className="citation-breakdown"
+                        role="region"
+                        aria-label="Citation counts by source"
+                      >
+                        <p className="mini-label">Citations by source</p>
+                        <ul className="citation-breakdown-list">
+                          {citationSources.map((source) => {
+                            const hasCount = typeof source.count === "number";
+                            return (
+                              <li
+                                key={source.id}
+                                className={[
+                                  "citation-breakdown-row",
+                                  hasCount ? "has-count" : "missing",
+                                ].join(" ")}
+                              >
+                                <div className="citation-breakdown-meta">
+                                  <strong>{source.label}</strong>
+                                  <span className="muted-copy">
+                                    {source.sourceLabel ?? source.status}
+                                  </span>
+                                </div>
+                                <div className="citation-breakdown-value">
+                                  {hasCount
+                                    ? formatCompactNumber(source.count)
+                                    : source.status === "error"
+                                      ? "error"
+                                      : source.status === "skipped"
+                                        ? "skipped"
+                                        : "—"}
+                                </div>
+                                {source.sourceUrl ? (
+                                  <a
+                                    className="citation-breakdown-link"
+                                    href={source.sourceUrl}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                  >
+                                    View source
+                                  </a>
+                                ) : null}
+                                {source.snippet ? (
+                                  <p className="citation-breakdown-snippet">
+                                    {truncateText(source.snippet, 200)}
+                                  </p>
+                                ) : null}
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      </div>
+                    ) : null}
 
                     <div className="paper-row-feedback">
                       <div className="feedback-panel">

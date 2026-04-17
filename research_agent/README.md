@@ -110,7 +110,7 @@ Useful model env vars:
 ```bash
 LLM_PROVIDER=gemini
 LLM_MODEL=
-GEMINI_LLM_MODEL=gemini-2.5-flash
+GEMINI_LLM_MODEL=gemini-3.1-pro-preview
 OPENAI_LLM_MODEL=gpt-5.4-mini
 ANTHROPIC_LLM_MODEL=claude-3-5-sonnet-latest
 OPENAI_SEARCH_MODEL=gpt-5.4-mini
@@ -126,12 +126,20 @@ Notes:
   `/paper/search/match`. Tunable via:
   - `RESEARCH_SEMANTIC_SCHOLAR_REQUESTS_PER_SECOND` (default `1.0`)
   - `RESEARCH_SEMANTIC_SCHOLAR_PARALLELISM` (default `1`)
-  - `RESEARCH_SEMANTIC_SCHOLAR_MAX_RETRIES` (default `5`)
+  - `RESEARCH_SEMANTIC_SCHOLAR_MAX_RETRIES` (default `1`)
   - `RESEARCH_SEMANTIC_SCHOLAR_INITIAL_BACKOFF_SECONDS` (default `2.0`)
   - `RESEARCH_SEMANTIC_SCHOLAR_MAX_BACKOFF_SECONDS` (default `30.0`)
 - To use an API key, set `RESEARCH_SEMANTIC_SCHOLAR_USE_API_KEY=true` and
   provide `SEMANTIC_SCHOLAR_API_KEY` (or `S2_API_KEY`). When enabled you can
   raise `RESEARCH_SEMANTIC_SCHOLAR_REQUESTS_PER_SECOND` to match your quota.
+- A third citation-count signal is scraped from open-web search snippets
+  (e.g. `"Cited by N"` fragments). It spends the configured search provider's
+  quota and is tunable via:
+  - `RESEARCH_WEB_SEARCH_CITATIONS_ENABLED` (default `true`)
+  - `RESEARCH_WEB_SEARCH_CITATIONS_MAX_PAPERS` (default `20`)
+  - `RESEARCH_WEB_SEARCH_CITATIONS_PARALLELISM` (default `2`)
+  - `RESEARCH_WEB_SEARCH_CITATIONS_RESULTS_PER_PAPER` (default `5`)
+  - `RESEARCH_WEB_SEARCH_CITATIONS_QUERY_TEMPLATE` (default `"{title}" "cited by"`)
 
 ## Common Commands
 
