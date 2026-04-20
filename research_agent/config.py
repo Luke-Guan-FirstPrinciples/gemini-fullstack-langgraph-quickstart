@@ -50,6 +50,8 @@ _YAML_KEY_MAP: dict[tuple[str, ...], str] = {
     # Pipeline ---------------------------------------------------------------
     ("pipeline", "max_iterations"): "max_iterations",
     ("pipeline", "results_per_query"): "results_per_query",
+    ("pipeline", "structure_batch_size"): "structure_batch_size",
+    ("pipeline", "structure_parallelism"): "structure_parallelism",
     ("pipeline", "openalex_parallelism"): "openalex_parallelism",
     ("pipeline", "openalex_timeout_seconds"): "openalex_timeout_seconds",
     ("pipeline", "openalex_min_title_similarity"): "openalex_min_title_similarity",
@@ -98,6 +100,8 @@ _ATTR_ENV_MAP: dict[str, str] = {
     "openai_search_model": "OPENAI_SEARCH_MODEL",
     "max_iterations": "RESEARCH_MAX_ITERATIONS",
     "results_per_query": "RESEARCH_RESULTS_PER_QUERY",
+    "structure_batch_size": "RESEARCH_STRUCTURE_BATCH_SIZE",
+    "structure_parallelism": "RESEARCH_STRUCTURE_PARALLELISM",
     "openalex_title_search_limit": "RESEARCH_OPENALEX_TITLE_SEARCH_LIMIT",
     "openalex_parallelism": "RESEARCH_OPENALEX_PARALLELISM",
     "openalex_timeout_seconds": "RESEARCH_OPENALEX_TIMEOUT_SECONDS",
@@ -307,8 +311,14 @@ class Settings:
     )
 
     # Pipeline -------------------------------------------------------------
-    max_iterations: int = int(os.getenv("RESEARCH_MAX_ITERATIONS", "2"))
-    results_per_query: int = int(os.getenv("RESEARCH_RESULTS_PER_QUERY", "10"))
+    max_iterations: int = int(os.getenv("RESEARCH_MAX_ITERATIONS", "3"))
+    results_per_query: int = int(os.getenv("RESEARCH_RESULTS_PER_QUERY", "15"))
+    # Batch size controls how many raw search hits a single structuring LLM
+    # call sees. Small batches trade latency for much better recall — the LLM
+    # consistently picks ~1 paper per hit instead of collapsing many hits into
+    # a short highlights list.
+    structure_batch_size: int = int(os.getenv("RESEARCH_STRUCTURE_BATCH_SIZE", "15"))
+    structure_parallelism: int = int(os.getenv("RESEARCH_STRUCTURE_PARALLELISM", "4"))
     openalex_title_search_limit: int = int(os.getenv("RESEARCH_OPENALEX_TITLE_SEARCH_LIMIT", "5"))
     openalex_parallelism: int = int(os.getenv("RESEARCH_OPENALEX_PARALLELISM", "4"))
     openalex_timeout_seconds: float = float(os.getenv("RESEARCH_OPENALEX_TIMEOUT_SECONDS", "30"))

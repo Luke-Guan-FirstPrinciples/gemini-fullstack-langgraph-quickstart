@@ -13,6 +13,7 @@ from research_agent.models import (
     PaperRanking,
     PaperSemanticScholarEnrichment,
     SemanticScholarPublicationVenue,
+    StructuredPaper,
 )
 
 logger = logging.getLogger("research_agent.deduplication")
@@ -57,6 +58,146 @@ def dedupe_search_results(
         len(new_results),
     )
     return unique_results
+
+
+def dedupe_structured_papers(
+    papers: list[StructuredPaper],
+) -> list[StructuredPaper]:
+    """Merge duplicate pre-enrichment papers across structuring batches.
+
+    Dedup keys (any match = duplicate): normalized DOI, arXiv ID from the URL,
+    normalized URL, or (normalized title, year). When duplicates are found we
+    prefer the richer record (more non-empty fields, longer abstract, etc.).
+    """
+
+    if not papers:
+        return []
+
+    buckets: list[StructuredPaper | None] = []
+    key_to_bucket: dict[str, int] = {}
+
+    for paper in papers:
+        incoming = paper.model_copy(deep=True)
+        keys = _structured_paper_identity_keys(incoming)
+        matching_indexes = sorted(
+            {
+                key_to_bucket[key]
+                for key in keys
+                if key in key_to_bucket and buckets[key_to_bucket[key]] is not None
+            }
+        )
+
+        if not matching_indexes:
+            bucket_index = len(buckets)
+            buckets.append(incoming)
+        else:
+            bucket_index = matching_indexes[0]
+            merged = buckets[bucket_index] or incoming
+
+            for extra_index in matching_indexes[1:]:
+                extra = buckets[extra_index]
+                if extra is None:
+                    continue
+                merged = _merge_structured_papers(merged, extra)
+                buckets[extra_index] = None
+                for key, mapped_index in list(key_to_bucket.items()):
+                    if mapped_index == extra_index:
+                        key_to_bucket[key] = bucket_index
+
+            merged = _merge_structured_papers(merged, incoming)
+            buckets[bucket_index] = merged
+
+        current = buckets[bucket_index]
+        if current is not None:
+            for key in _structured_paper_identity_keys(current):
+                key_to_bucket[key] = bucket_index
+
+    deduped = [paper for paper in buckets if paper is not None]
+    if deduped or papers:
+        logger.info(
+            "Structured-paper deduplication reduced %d papers to %d unique papers",
+            len(papers),
+            len(deduped),
+        )
+    return deduped
+
+
+def _structured_paper_identity_keys(paper: StructuredPaper) -> list[str]:
+    keys: list[str] = []
+    seen: set[str] = set()
+
+    doi = _normalize_doi(paper.doi)
+    if doi:
+        key = f"doi:{doi}"
+        seen.add(key)
+        keys.append(key)
+
+    arxiv_id = _extract_arxiv_id(paper.url)
+    if arxiv_id:
+        key = f"arxiv:{arxiv_id}"
+        if key not in seen:
+            seen.add(key)
+            keys.append(key)
+
+    normalized_url = _normalize_url(paper.url)
+    if normalized_url:
+        key = f"url:{normalized_url}"
+        if key not in seen:
+            seen.add(key)
+            keys.append(key)
+
+    normalized_title = _normalize_title(paper.title)
+    if normalized_title and _is_strong_title(normalized_title):
+        if paper.year is not None:
+            key = f"title-year:{paper.year}:{normalized_title}"
+        else:
+            key = f"title:{normalized_title}"
+        if key not in seen:
+            seen.add(key)
+            keys.append(key)
+
+    return keys
+
+
+_ARXIV_ID_RE = re.compile(r"arxiv\.org/(?:abs|pdf)/([a-z0-9.\-/]+?)(?:v\d+)?(?:\.pdf)?$", re.IGNORECASE)
+
+
+def _extract_arxiv_id(url: str | None) -> str | None:
+    if not url:
+        return None
+    match = _ARXIV_ID_RE.search(url.strip().rstrip("/"))
+    if not match:
+        return None
+    return match.group(1).lower()
+
+
+def _merge_structured_papers(
+    left: StructuredPaper,
+    right: StructuredPaper,
+) -> StructuredPaper:
+    data = left.model_dump()
+    data["title"] = (
+        _prefer_text(left.title, right.title, prefer_longer=True) or left.title
+    )
+    data["authors"] = _merge_string_lists(left.authors, right.authors)
+    data["source"] = _prefer_text(left.source, right.source)
+    data["url"] = _prefer_url(left.url, right.url)
+    data["abstract"] = _prefer_text(
+        left.abstract,
+        right.abstract,
+        prefer_longer=True,
+    )
+    data["key_finding"] = _prefer_text(
+        left.key_finding,
+        right.key_finding,
+        prefer_longer=True,
+    )
+    data["doi"] = _first_non_empty(
+        _normalize_doi(left.doi),
+        _normalize_doi(right.doi),
+    )
+    data["year"] = _first_non_none(left.year, right.year)
+    return StructuredPaper.model_validate(data)
 
 
 def dedupe_papers(papers: list[Paper]) -> list[Paper]:

@@ -16,16 +16,22 @@ from langchain_core.runnables import RunnableConfig
 from langgraph.graph import END, START, StateGraph
 
 from research_agent.config import Settings, settings
-from research_agent.deduplication import dedupe_papers, dedupe_search_results
+from research_agent.deduplication import (
+    dedupe_papers,
+    dedupe_search_results,
+    dedupe_structured_papers,
+)
 from research_agent.enrichment import OpenAlexEnricher, SemanticScholarEnricher
 from research_agent.llm import create_llm, with_structured_output
 from research_agent.logging_config import setup_logging
 from research_agent.models import (
     CoverageAssessment,
+    Lab,
     ParsedQuery,
     RankedResults,
     ResearchOutput,
     ResearchState,
+    StructuredPaper,
     StructuredResearchOutput,
 )
 from research_agent.prompts import (
@@ -110,7 +116,14 @@ async def execute_search(state: ResearchState, config: RunnableConfig) -> dict[s
 
 
 async def structure_results(state: ResearchState, config: RunnableConfig) -> dict[str, Any]:
-    """Have the LLM structure raw search results into papers, labs, and metadata."""
+    """Have the LLM structure raw search results into papers, labs, and metadata.
+
+    Hits are processed in small batches so the LLM can emit a Paper record for
+    every plausible hit instead of silently summarising 50+ results into a
+    handful. Outputs from all batches are merged and deduplicated before the
+    node returns.
+    """
+
     cfg = _get_settings(config)
     llm = create_llm(cfg.llm_provider, cfg.resolved_llm_model())
     structured_llm = with_structured_output(
@@ -121,31 +134,108 @@ async def structure_results(state: ResearchState, config: RunnableConfig) -> dic
 
     all_results = state["all_search_results"]
     query = state["query"]
+    total_hits = len(all_results)
 
-    # Build a text block of results for the LLM
-    lines = []
-    for i, r in enumerate(all_results, 1):
-        lines.append(f"[{i}] {r['title']}\n    URL: {r['url']}\n    Snippet: {r['snippet']}\n")
-    results_text = "\n".join(lines) if lines else "(no results)"
+    batch_size = max(1, cfg.structure_batch_size)
+    batches: list[list[dict[str, Any]]] = [
+        all_results[i : i + batch_size] for i in range(0, total_hits, batch_size)
+    ] or [[]]
+    batch_count = len(batches)
 
-    logger.info("Structuring %d search results", len(all_results))
+    logger.info(
+        "Structuring %d search results in %d batch(es) of up to %d",
+        total_hits,
+        batch_count,
+        batch_size,
+    )
 
-    llm_output: StructuredResearchOutput = await structured_llm.ainvoke([
-        SystemMessage(content=STRUCTURE_RESULTS_SYSTEM),
-        HumanMessage(content=STRUCTURE_RESULTS_HUMAN.format(query=query, results_text=results_text)),
-    ])
+    semaphore = asyncio.Semaphore(max(1, cfg.structure_parallelism))
+
+    async def run_batch(
+        batch_index: int,
+        batch_hits: list[dict[str, Any]],
+    ) -> StructuredResearchOutput:
+        range_start = batch_index * batch_size + 1
+        range_end = range_start + len(batch_hits) - 1 if batch_hits else range_start
+        lines = []
+        for offset, hit in enumerate(batch_hits):
+            idx = range_start + offset
+            lines.append(
+                f"[{idx}] {hit.get('title', '')}\n"
+                f"    URL: {hit.get('url', '')}\n"
+                f"    Snippet: {hit.get('snippet', '')}\n"
+            )
+        results_text = "\n".join(lines) if lines else "(no results)"
+
+        async with semaphore:
+            try:
+                return await structured_llm.ainvoke([
+                    SystemMessage(content=STRUCTURE_RESULTS_SYSTEM),
+                    HumanMessage(content=STRUCTURE_RESULTS_HUMAN.format(
+                        query=query,
+                        batch_index=batch_index + 1,
+                        batch_count=batch_count,
+                        range_start=range_start,
+                        range_end=range_end,
+                        total_hits=total_hits,
+                        results_text=results_text,
+                    )),
+                ])
+            except Exception:
+                logger.exception(
+                    "Structuring batch %d/%d failed", batch_index + 1, batch_count
+                )
+                return StructuredResearchOutput()
+
+    batch_outputs = await asyncio.gather(
+        *(run_batch(i, hits) for i, hits in enumerate(batches))
+    )
+
+    merged_papers: list[StructuredPaper] = []
+    merged_labs: list[Lab] = []
+    fields_seen: dict[str, None] = {}
+    keywords_seen: dict[str, None] = {}
+    sub_queries_seen: dict[str, None] = {}
+    lab_keys_seen: set[str] = set()
+
+    for batch_output in batch_outputs:
+        merged_papers.extend(batch_output.papers)
+        for lab in batch_output.labs:
+            key = f"{lab.name.strip().casefold()}|{lab.institution.strip().casefold()}"
+            if key in lab_keys_seen:
+                continue
+            lab_keys_seen.add(key)
+            merged_labs.append(lab)
+        for field_name in batch_output.fields:
+            value = (field_name or "").strip()
+            if value:
+                fields_seen.setdefault(value, None)
+        for keyword in batch_output.keywords:
+            value = (keyword or "").strip()
+            if value:
+                keywords_seen.setdefault(value, None)
+        for sub_query in batch_output.sub_queries:
+            value = (sub_query or "").strip()
+            if value:
+                sub_queries_seen.setdefault(value, None)
+
+    deduped_papers = dedupe_structured_papers(merged_papers)
 
     output = ResearchOutput(
-        papers=[paper.model_dump() for paper in llm_output.papers],
-        labs=[lab.model_dump() for lab in llm_output.labs],
-        fields=llm_output.fields,
-        keywords=llm_output.keywords,
-        sub_queries=llm_output.sub_queries,
+        papers=[paper.model_dump() for paper in deduped_papers],
+        labs=[lab.model_dump() for lab in merged_labs],
+        fields=list(fields_seen.keys()),
+        keywords=list(keywords_seen.keys()),
+        sub_queries=list(sub_queries_seen.keys()),
     )
 
     logger.info(
-        "Structured: %d papers, %d labs, %d keywords",
-        len(output.papers), len(output.labs), len(output.keywords),
+        "Structured: %d papers (from %d across %d batches), %d labs, %d keywords",
+        len(output.papers),
+        len(merged_papers),
+        batch_count,
+        len(output.labs),
+        len(output.keywords),
     )
     return {"structured_output": output.model_dump()}
 

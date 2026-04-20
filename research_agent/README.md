@@ -27,7 +27,10 @@ parse_query -> execute_search -> structure_results -> enrich_results -> rerank_r
 
 ### 3. `structure_results`
 
-- Uses the LLM to turn raw search hits into:
+- Splits raw hits into small batches (`pipeline.structure_batch_size`, default 15) and runs the LLM in parallel across them — this keeps recall high instead of collapsing dozens of hits into a short highlights list
+- Each batch is instructed to emit a Paper for **every** scholarly hit; drops only clear non-papers (homepages, Wikipedia, tutorials, spam)
+- Batch outputs are merged and deduped by DOI, arXiv ID, normalized URL, or (title, year)
+- Produces:
 - papers
 - labs
 - fields
@@ -115,7 +118,7 @@ ranking:
   semantic_relevance: 0.45
   citation_count: 0.55
 pipeline:
-  max_iterations: 2
+  max_iterations: 3
 semantic_scholar:
   max_retries: 1
 ```

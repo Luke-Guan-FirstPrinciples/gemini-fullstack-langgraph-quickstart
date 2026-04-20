@@ -32,8 +32,13 @@ search:
   openai_search_model: gpt-5.4-mini
 
 pipeline:
-  max_iterations: 2
-  results_per_query: 10
+  max_iterations: 3
+  results_per_query: 15
+  # How many raw search hits the LLM structuring step sees per call. Smaller
+  # batches give much better recall — the LLM emits ~1 Paper per hit instead
+  # of silently collapsing dozens of hits into a short highlights list.
+  structure_batch_size: 15
+  structure_parallelism: 4
   openalex_parallelism: 4
   openalex_timeout_seconds: 30
   openalex_min_title_similarity: 0.82

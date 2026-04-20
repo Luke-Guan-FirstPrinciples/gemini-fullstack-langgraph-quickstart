@@ -4,23 +4,30 @@ import asyncio
 import os
 import time
 import unittest
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import httpx
 
 from research_agent.config import Settings
-from research_agent.deduplication import dedupe_papers, dedupe_search_results
+from research_agent.deduplication import (
+    dedupe_papers,
+    dedupe_search_results,
+    dedupe_structured_papers,
+)
 from research_agent.enrichment import (
     OpenAlexEnricher,
     SemanticScholarEnricher,
     _build_enrichment,
     _build_semantic_scholar_enrichment,
 )
-from research_agent.graph import run_research
+from research_agent.graph import run_research, structure_results
 from research_agent.models import (
+    Lab,
     Paper,
     PaperOpenAlexEnrichment,
     PaperSemanticScholarEnrichment,
+    StructuredPaper,
+    StructuredResearchOutput,
 )
 from research_agent.ranking import rerank_papers
 from research_agent.search.factory import create_search_provider
@@ -564,6 +571,174 @@ class GraphTests(unittest.IsolatedAsyncioTestCase):
 
         initial_state = graph.ainvoke.await_args.args[0]
         self.assertEqual(initial_state["max_iterations"], 0)
+
+
+class DedupeStructuredPapersTests(unittest.TestCase):
+    def test_merges_duplicates_on_doi_and_url(self) -> None:
+        papers = [
+            StructuredPaper(
+                title="Quantum error correction below the surface code threshold",
+                url="https://www.nature.com/articles/s41586-024-08449-y",
+                doi="10.1038/s41586-024-08449-y",
+                year=2024,
+                authors=["Google Quantum AI"],
+                abstract="short",
+            ),
+            # Duplicate by DOI (different URL).
+            StructuredPaper(
+                title="Quantum error correction below the surface code threshold",
+                url="https://doi.org/10.1038/s41586-024-08449-y",
+                doi="10.1038/s41586-024-08449-y",
+                year=2024,
+                abstract="a much longer and more informative abstract",
+            ),
+            # Duplicate by arXiv ID (abs vs pdf).
+            StructuredPaper(
+                title="Fusion Blossom: Fast MWPM Decoders for QEC",
+                url="https://arxiv.org/abs/2305.08307",
+                year=2023,
+            ),
+            StructuredPaper(
+                title="Fusion Blossom: Fast MWPM Decoders for QEC",
+                url="https://arxiv.org/pdf/2305.08307v2.pdf",
+                year=2023,
+            ),
+            # Genuinely distinct paper.
+            StructuredPaper(
+                title="Bounds on Autonomous Quantum Error Correction",
+                url="https://arxiv.org/abs/2308.16233",
+                year=2023,
+            ),
+        ]
+
+        deduped = dedupe_structured_papers(papers)
+
+        self.assertEqual(len(deduped), 3)
+        titles = {p.title for p in deduped}
+        self.assertIn("Quantum error correction below the surface code threshold", titles)
+        self.assertIn("Fusion Blossom: Fast MWPM Decoders for QEC", titles)
+        self.assertIn("Bounds on Autonomous Quantum Error Correction", titles)
+
+        qec_entry = next(
+            p for p in deduped if p.doi == "10.1038/s41586-024-08449-y"
+        )
+        self.assertIn("informative", qec_entry.abstract)
+        self.assertIn("Google Quantum AI", qec_entry.authors)
+
+    def test_does_not_merge_different_papers_by_same_authors(self) -> None:
+        papers = [
+            StructuredPaper(
+                title="Paper A about surface codes",
+                url="https://arxiv.org/abs/2401.00001",
+                authors=["Same Author"],
+                year=2024,
+            ),
+            StructuredPaper(
+                title="Paper B about color codes",
+                url="https://arxiv.org/abs/2401.00002",
+                authors=["Same Author"],
+                year=2024,
+            ),
+        ]
+
+        deduped = dedupe_structured_papers(papers)
+
+        self.assertEqual(len(deduped), 2)
+
+
+class StructureResultsBatchingTests(unittest.IsolatedAsyncioTestCase):
+    async def test_structure_results_batches_hits_and_merges_papers(self) -> None:
+        cfg = Settings()
+        cfg.structure_batch_size = 4
+        cfg.structure_parallelism = 3
+
+        search_results = [
+            {
+                "title": f"Paper about QEC number {i}",
+                "url": f"https://arxiv.org/abs/2401.{i:05d}",
+                "snippet": f"snippet for paper {i}",
+            }
+            for i in range(10)
+        ]
+
+        state: dict[str, object] = {
+            "query": "quantum error correction",
+            "all_search_results": search_results,
+        }
+
+        def _build_batch_output(
+            batch_hits: list[dict[str, object]], batch_index: int
+        ) -> StructuredResearchOutput:
+            return StructuredResearchOutput(
+                papers=[
+                    StructuredPaper(
+                        title=hit["title"],
+                        url=hit["url"],
+                        year=2024,
+                        abstract=hit["snippet"],
+                    )
+                    for hit in batch_hits
+                ],
+                labs=[Lab(name=f"Lab {batch_index}")],
+                fields=["Quantum Computing"],
+                keywords=[f"kw_{batch_index}", "quantum"],
+                sub_queries=[f"sub query {batch_index}"],
+            )
+
+        call_log: list[int] = []
+
+        import re
+
+        async def fake_ainvoke(messages: list[object]) -> StructuredResearchOutput:
+            human_content = messages[-1].content
+            match = re.search(r"batch (\d+) of (\d+)", human_content)
+            assert match is not None
+            batch_index = int(match.group(1)) - 1
+            match_range = re.search(
+                r"hits (\d+)[–-](\d+) of (\d+) total", human_content
+            )
+            assert match_range is not None
+            start = int(match_range.group(1)) - 1
+            end = int(match_range.group(2))
+            batch_hits = search_results[start:end]
+            call_log.append(batch_index)
+            await asyncio.sleep(0)
+            return _build_batch_output(batch_hits, batch_index)
+
+        fake_structured_llm = MagicMock()
+        fake_structured_llm.ainvoke = AsyncMock(side_effect=fake_ainvoke)
+
+        with patch(
+            "research_agent.graph._get_settings", return_value=cfg
+        ), patch("research_agent.graph.create_llm"), patch(
+            "research_agent.graph.with_structured_output",
+            return_value=fake_structured_llm,
+        ):
+            result = await structure_results(state, config=None)  # type: ignore[arg-type]
+
+        self.assertEqual(
+            fake_structured_llm.ainvoke.await_count,
+            3,
+            "10 hits with batch size 4 should produce 3 structuring calls",
+        )
+
+        papers = result["structured_output"]["papers"]
+        self.assertEqual(
+            len(papers),
+            10,
+            "Every distinct hit should survive into the merged output",
+        )
+
+        titles = [p["title"] for p in papers]
+        for i in range(10):
+            self.assertIn(f"Paper about QEC number {i}", titles)
+
+        self.assertEqual(len(result["structured_output"]["labs"]), 3)
+        self.assertEqual(
+            result["structured_output"]["fields"],
+            ["Quantum Computing"],
+        )
+        self.assertIn("quantum", result["structured_output"]["keywords"])
 
 
 if __name__ == "__main__":
